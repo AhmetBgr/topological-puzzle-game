@@ -20,6 +20,7 @@ public class LevelCanvasManager : MonoBehaviour
         LevelManager.OnLevelLoad += UpdatePreviousLevelButton;
         //LevelEditor.OnEnter += ToggleLevelChangeButtons;
         //LevelEditor.OnExit += ToggleLevelChangeButtons;
+        
     }
 
     private void OnDisable()
@@ -35,11 +36,24 @@ public class LevelCanvasManager : MonoBehaviour
 
     private void UpdateLevelIndexText(int curLevelIndex)
     {
-        levelIndexText.text = curLevelIndex > 10 ? curLevelIndex.ToString() : "0" + curLevelIndex.ToString();
+        levelIndexText.text = curLevelIndex >= 10 ? curLevelIndex.ToString() : "0" + curLevelIndex.ToString();
     }
 
     private void UpdateNextLevelButton()
     {
+        #if UNITY_EDITOR
+        if (LevelManager.curLevelIndex == levelManager.levels.Length)
+        {
+            nextLevelButton.gameObject.SetActive(false);
+        }
+        else
+        {
+            nextLevelButton.gameObject.SetActive(true);
+        }
+        Debug.LogWarning("Unity Editor: " + this);
+        return;
+        #endif
+
         if (LevelManager.curLevelIndex == levelManager.levelProgressIndex )
         {
             nextLevelButton.gameObject.SetActive(false);

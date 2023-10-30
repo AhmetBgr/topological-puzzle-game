@@ -56,6 +56,7 @@ public class GameManager : MonoBehaviour{
 
     void Start(){
         ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"));
+        paletteSwapper.ChangePalette(defPalette, 0.1f);
     }
 
     void OnEnable(){

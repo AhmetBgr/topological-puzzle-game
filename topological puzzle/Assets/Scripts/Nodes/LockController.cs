@@ -16,8 +16,8 @@ public class LockController : MonoBehaviour
     private SpriteRenderer keyImage;
 
     //private Node node;
-    [HideInInspector] public Vector3 padLockPos;
-    [HideInInspector] public Vector3 keyPos;
+    [HideInInspector] public Vector3 padLockPos = new Vector3(0.24f, -0.20f, 0);
+    [HideInInspector] public Vector3 keyPos = new Vector3(-0.24f, -0.20f, 0);
 
     public delegate void OnUnlockDelegate(LockController node);
     public static event OnUnlockDelegate OnUnlock;
@@ -131,13 +131,14 @@ public class LockController : MonoBehaviour
     {
         padLock = Instantiate(prefab, padLockPos, Quaternion.identity).transform;
         padLock.SetParent(this.transform);
-        padLock.localPosition = padLockPos;
+        padLock.localPosition = new Vector3(0.24f, -0.20f, 0);
         Transform padLockImageObj = padLock.Find("Image");
         if (padLockImageObj)
         {
             padLockImage = padLockImageObj.GetComponent<SpriteRenderer>();
         }
         hasPadLock = true;
+        Debug.Log("padlock pos: " + padLock.transform.localPosition);
     }
 
     public void DestroPadLock()
@@ -151,13 +152,14 @@ public class LockController : MonoBehaviour
     {
         key = Instantiate(prefab, keyPos, Quaternion.identity).transform;
         key.SetParent(this.transform);
-        key.localPosition = keyPos;
+        key.localPosition = new Vector3(-0.24f, -0.20f, 0);
         Transform keyImageObj = key.Find("Image");
         if (keyImageObj)
         {
             padLockImage = keyImageObj.GetComponent<SpriteRenderer>();
         }
         hasKey = true;
+        Debug.Log("key pos: " + key.transform.localPosition);
     }
 
     public void DestroyKey()

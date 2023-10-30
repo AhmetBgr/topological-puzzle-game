@@ -370,12 +370,24 @@ public class LevelEditor : MonoBehaviour{
         levelManager.SaveLevelProperty(LevelManager.curLevel.transform);
     }
 
+    private void SaveAsBackup()
+    {
+        if (levelNameField.text == "") return;
+
+        DesTroyInActiveChildren(curLevelInEditing.transform);
+
+        GameObject savedLevel = PrefabUtility.SaveAsPrefabAsset(curLevelInEditing, "Assets/Resources/Levels/backup/" + levelNameField.text + ".prefab");
+
+    }
+
     void UpdateExistingLevel(){
         
     }
 
     public void UpdateLevelPrefab()
     {
+        // save level to backup
+        SaveAsBackup();
 
         // binary save
         levelManager.SaveLevelProperty(LevelManager.curLevel.transform);
@@ -383,6 +395,7 @@ public class LevelEditor : MonoBehaviour{
         // binary load
         levelManager.LoadLevelProperty(LevelManager.curLevel.name, LevelManager.curLevel.transform);
 
+       
         // prefab save
         SaveLevelAsNew();
     }
@@ -408,8 +421,8 @@ public class LevelEditor : MonoBehaviour{
             OnEnter();
         }
 
-        curLevelInEditing.SetActive(true);
-        LevelManager.curLevel.SetActive(false);
+        //curLevelInEditing.SetActive(true);
+        //LevelManager.curLevel.SetActive(false);
 
         GameObject curLevel = LevelManager.curLevel;
         bottomPanel.gameObject.SetActive(true);
@@ -453,13 +466,12 @@ public class LevelEditor : MonoBehaviour{
         gameManager.ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"));
 
         
-        GameObject clonedCurLevelInEditing = Instantiate(curLevelInEditing, Vector3.zero, Quaternion.identity);
+        //GameObject clonedCurLevelInEditing = Instantiate(curLevelInEditing, Vector3.zero, Quaternion.identity);
         //clonedCurLevelInEditing.name = curLevel.name.Replace("(Clone)", "");
-        DesTroyInActiveChildren(clonedCurLevelInEditing.transform);
-        Destroy(LevelManager.curLevel);
-        LevelManager.curLevel = clonedCurLevelInEditing;
-        //levelManager.levels[LevelManager.curLevelIndex - 1] = LevelManager.curLevel;
-        curLevelInEditing.SetActive(false);
+        //DesTroyInActiveChildren(clonedCurLevelInEditing.transform);
+        //Destroy(LevelManager.curLevel);
+        //LevelManager.curLevel = clonedCurLevelInEditing;
+        //curLevelInEditing.SetActive(false);
 
         if(OnExit != null){
             OnExit();
@@ -467,14 +479,16 @@ public class LevelEditor : MonoBehaviour{
     }
     private void ResetCurLevelInEditing()
     {
-        if(curLevelInEditing != null)
+        /*if(curLevelInEditing != null)
         {
             Destroy(curLevelInEditing.gameObject);
             curLevelInEditing = null;
-        }
+        }*/
 
-        curLevelInEditing = Instantiate(LevelManager.curLevel, Vector3.zero, Quaternion.identity);
-        
+        //curLevelInEditing = Instantiate(LevelManager.curLevel, Vector3.zero, Quaternion.identity);
+        curLevelInEditing = LevelManager.curLevel;
+
+
         //curLevelInEditing.name = curLevel.name.Replace("(Clone)", "");
         //LevelManager.curLevel.name = curLevel.name.Replace("(Clone)", "");
         levelNameText.text = LevelManager.curLevel.name.Replace("(Clone)", "");
@@ -486,7 +500,7 @@ public class LevelEditor : MonoBehaviour{
         }
         else if (GameState.gameState == GameState_EN.playing)
         {
-            curLevelInEditing.SetActive(false);
+            //curLevelInEditing.SetActive(false);
         }
             
 

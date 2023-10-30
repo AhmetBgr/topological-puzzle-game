@@ -52,6 +52,14 @@ public class LevelManager : MonoBehaviour{
 
     private void Awake()
     {
+        /*string path = "Prefabs/" + "Permanent Arrow";
+        print(path);
+        permanentArrow = Resources.Load(path) as GameObject;*/
+
+    }
+
+    void Start(){
+
         if (File.Exists(Application.persistentDataPath + "/" + saveName + ".save"))
         {
             LoadAndSetProgressionData();
@@ -63,16 +71,14 @@ public class LevelManager : MonoBehaviour{
             curLevelIndex = 1;
             levelProgressIndex = 1;
             SaveProgressionData();
+            SetCurLevelIndex(curLevelIndex);
             Debug.Log("Save Created");
         }
 
         LoadLevel(curLevelIndex);
-    }
-
-    void Start(){
         //arrowGlow = Resources.Load<Material>("Glow Materials/Arrow Glow");
         //nodeGlow = Resources.Load<Material>("Glow Materials/Node Glow");
-        
+
 
         // Example for loading a level file from resources folder
         /*TextAsset textAsset =  Resources.Load<TextAsset>("level.save");
@@ -173,10 +179,6 @@ public class LevelManager : MonoBehaviour{
         arrowCount += amount;
     }
 
-    public static int GetCurLevelIndex(){
-        return curLevelIndex;
-    }
-
     public static int GetNodeCount(){
         Transform levelTransform = curLevel.transform;
         int childCount = levelTransform.childCount;
@@ -193,14 +195,16 @@ public class LevelManager : MonoBehaviour{
     }
 
     public void SetCurLevelIndex(int levelIndex){
-
-        if(levelIndex < 1 || levelIndex > levels.Length) return;
-
+        if (levelIndex < 1 || levelIndex > levels.Length) return;
         curLevelIndex = levelIndex;
         if(OnCurLevelIndexChange != null){
             OnCurLevelIndexChange(curLevelIndex);
         }
 
+    }
+    public static int GetCurLevelIndex()
+    {
+        return curLevelIndex;
     }
 
     public void DestroyCurLevel(){
@@ -299,6 +303,11 @@ public class LevelManager : MonoBehaviour{
         
     }
 
+    public void LoadLevelWithName(string levelName)
+    {
+        LoadLevelProperty(levelName, transform);
+    }
+
     public void LoadLevelProperty(string levelName, Transform levelParent){
         // Find objects in level
         Transform objects = levelParent;
@@ -379,6 +388,7 @@ public class LevelManager : MonoBehaviour{
                 nodesPool.Add(obj.gameObject);
                 
             }
+
             foreach (var arrowProperty in levelProperty.arrows){
                 PrefabAndPool prefabAndPool = GetPrefabAndPoolByTag(arrowProperty.tag);
                 Transform obj = Instantiate(prefabAndPool.prefab, arrowProperty.position, Quaternion.identity).transform;
