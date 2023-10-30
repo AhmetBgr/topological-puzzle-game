@@ -9,6 +9,7 @@ using SerializableTypes;
 public class LevelManager : MonoBehaviour{
     //public static Material arrowGlow;
     //public static Material nodeGlow;
+    
 
     public GameObject arrow;
     public GameObject permanentArrow;
@@ -24,14 +25,13 @@ public class LevelManager : MonoBehaviour{
     public GameObject[] levels;
     public static GameObject curLevel;
 
-    public Button nextLevelButton;
-    public Button previousLevelButton;
-
     public static int curLevelIndex = 1;
-
+    public int levelProgressIndex;
 
     public static int nodecount = 0;
     public static int arrowCount = 0;
+
+    private string saveName = "save01";
 
     private IEnumerator loadLevelCor = null;
     public List<GameObject> nodesPool = new List<GameObject>();
@@ -40,8 +40,6 @@ public class LevelManager : MonoBehaviour{
     List<GameObject> hexagonNodesPool = new List<GameObject>();
     List<GameObject> lockedNodesPool = new List<GameObject>();*/
 
-    public delegate void OnLevelCompleteDelegate(int curIndex);
-    public static OnLevelCompleteDelegate OnLevelComplete;
 
     public delegate void OnCurLevelIndexChangeDelegate(int curIndex);
     public static OnCurLevelIndexChangeDelegate OnCurLevelIndexChange;
@@ -52,12 +50,29 @@ public class LevelManager : MonoBehaviour{
     public delegate void OnNodeCountChangeDelegate(Transform curLevel);
     public static OnNodeCountChangeDelegate OnNodeCountChange;
 
-    // Start is called before the first frame update
+    private void Awake()
+    {
+        if (File.Exists(Application.persistentDataPath + "/" + saveName + ".save"))
+        {
+            LoadAndSetProgressionData();
+            Debug.Log("save data loaded");
+        }
+        else
+        {
+            // Create default level data
+            curLevelIndex = 1;
+            levelProgressIndex = 1;
+            SaveProgressionData();
+            Debug.Log("Save Created");
+        }
+
+        LoadLevel(curLevelIndex);
+    }
+
     void Start(){
         //arrowGlow = Resources.Load<Material>("Glow Materials/Arrow Glow");
         //nodeGlow = Resources.Load<Material>("Glow Materials/Node Glow");
-        SetCurLevelIndex(1);
-        LoadLevel(curLevelIndex);
+        
 
         // Example for loading a level file from resources folder
         /*TextAsset textAsset =  Resources.Load<TextAsset>("level.save");
@@ -67,27 +82,41 @@ public class LevelManager : MonoBehaviour{
     }
 
     void OnEnable(){
-        LevelManager.OnLevelComplete += LoadNextLevel;
+        GameManager.OnLevelComplete += LoadNextLevel;
         LevelEditor.OnExit += UpdateObjectCount;
-        LevelEditor.OnEnter += ToggleLevelChangeButtons;
-        LevelEditor.OnExit += ToggleLevelChangeButtons;
     }
     void OnDisable(){
-        LevelManager.OnLevelComplete -= LoadNextLevel;
+        GameManager.OnLevelComplete -= LoadNextLevel;
         LevelEditor.OnExit -= UpdateObjectCount;
-        LevelEditor.OnEnter -= ToggleLevelChangeButtons;
-        LevelEditor.OnExit -= ToggleLevelChangeButtons;
     }
 
-    public void LoadNextLevel(int curIndex){
+    private void LoadAndSetProgressionData()
+    {
+        SaveData saveData = (SaveData)Utility.BinaryDeserialization("/", saveName);
+        levelProgressIndex = saveData.levelProgressIndex;
+        SetCurLevelIndex(levelProgressIndex);
+    }
+
+    private void SaveProgressionData()
+    {
+        SaveData saveData = new SaveData();
+        saveData.levelProgressIndex = curLevelIndex;
+        levelProgressIndex = curLevelIndex;
+        Utility.BinarySerialization("/", saveName, saveData);
+    }
+
+    public void LoadNextLevel(float delay){
         if(curLevelIndex >= levels.Length)  return;
 
         if( loadLevelCor != null )
             StopCoroutine(loadLevelCor);
             
         SetCurLevelIndex(curLevelIndex + 1);
-        loadLevelCor = LoadLevelWithDelay(curLevelIndex, 0.2f);
+        loadLevelCor = LoadLevelWithDelay(curLevelIndex, delay);
         StartCoroutine(loadLevelCor);
+
+        if (curLevelIndex > levelProgressIndex)
+            SaveProgressionData();
     }
 
     public void LoadPreviousLevel(){
@@ -111,7 +140,7 @@ public class LevelManager : MonoBehaviour{
 
     private void LoadLevel(int index){
         DestroyCurLevel();
-
+        SetCurLevelIndex(index);
         curLevel = null;
         curLevel = Instantiate(levels[index -1], Vector3.zero, Quaternion.identity);
         curLevel.gameObject.name = curLevel.name; //.Replace("(Clone)", "");
@@ -122,7 +151,7 @@ public class LevelManager : MonoBehaviour{
             
             OnLevelLoad();
         }
-
+        
         //Debug.Log("node count after load:" + nodecount);
     }
 
@@ -138,10 +167,6 @@ public class LevelManager : MonoBehaviour{
         }
         //Debug.Log("node count:" + nodecount);
         
-        if(nodecount == 0 && OnLevelComplete != null){
-            //Debug.Log("should load next level");
-            OnLevelComplete(curLevelIndex);
-        }
     }
 
     public static void ChangeArrowCount(int amount){
@@ -168,19 +193,7 @@ public class LevelManager : MonoBehaviour{
     }
 
     public void SetCurLevelIndex(int levelIndex){
-        if(levelIndex <= 1){
-            previousLevelButton.gameObject.SetActive(false);
-            nextLevelButton.gameObject.SetActive(true);
-        }
-        else if(levelIndex >= levels.Length){
-            previousLevelButton.gameObject.SetActive(true);
-            nextLevelButton.gameObject.SetActive(false);
-        }
-        else{
-            previousLevelButton.gameObject.SetActive(true);
-            nextLevelButton.gameObject.SetActive(true);         
-        }
-        
+
         if(levelIndex < 1 || levelIndex > levels.Length) return;
 
         curLevelIndex = levelIndex;
@@ -478,31 +491,6 @@ public class LevelManager : MonoBehaviour{
         return obj;
     }
 
-    private void ToggleLevelChangeButtons()
-    {
-        if (previousLevelButton.gameObject.activeInHierarchy ||  nextLevelButton.gameObject.activeInHierarchy)
-        {
-            previousLevelButton.gameObject.SetActive(false);
-            nextLevelButton.gameObject.SetActive(false);
-        }
-        else
-        {
-            if(curLevelIndex <= 1){
-                previousLevelButton.gameObject.SetActive(false);
-                nextLevelButton.gameObject.SetActive(true);
-            }
-            else if(curLevelIndex >= levels.Length){
-                previousLevelButton.gameObject.SetActive(true);
-                nextLevelButton.gameObject.SetActive(false);
-            }
-            else{
-                previousLevelButton.gameObject.SetActive(true);
-                nextLevelButton.gameObject.SetActive(true);         
-            }
-        }
-        
-
-    }
 
 
     struct PrefabAndPool

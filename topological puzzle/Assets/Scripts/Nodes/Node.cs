@@ -20,7 +20,7 @@ public class Node : MonoBehaviour
 
     public bool selectable = false; 
     public bool isPermanent = false;
-
+    public bool isRemoved = false;
 
     private Vector3 initalScale;
     //private Color initialColor;
@@ -64,6 +64,7 @@ public class Node : MonoBehaviour
         //RemoveNode.OnExecute += RemoveFromGraph;
         //RemoveNode.OnUndo += AddToGraph;
         GameManager.OnCurCommandChange += CheckIfSuitable;
+        GameManager.OnGetNodes += AddNodeToPool;
         LevelManager.OnLevelLoad += GetOnTheLevel;
     }
 
@@ -71,6 +72,7 @@ public class Node : MonoBehaviour
         //RemoveNode.OnExecute -= RemoveFromGraph;
         //RemoveNode.OnUndo -= AddToGraph;
         GameManager.OnCurCommandChange -= CheckIfSuitable;
+        GameManager.OnGetNodes -= AddNodeToPool;
         LevelManager.OnLevelLoad -= GetOnTheLevel;
     }
 
@@ -92,9 +94,9 @@ public class Node : MonoBehaviour
         col.enabled = false;
         
         // Checks if indegree is equal to 0
-        if( arrowsToThisNode.Count == 0){ 
+        if( arrowsToThisNode.Count == 0){
             // Removes the Node
-
+            isRemoved = true;
             gameObject.layer = 0; // 0 = default layer
             
             if(OnNodeRemove != null){
@@ -120,7 +122,7 @@ public class Node : MonoBehaviour
         //if(isMagical) return;
 
         if(affectedNode == gameObject){
-            
+            isRemoved = false;
             col.enabled = true;
             gameObject.layer = 6; // node
             foreach (var arrow in arrowsFromThisNode){
@@ -264,5 +266,10 @@ public class Node : MonoBehaviour
         if(OnIndegreeChange != null){
             OnIndegreeChange();
         }
+    }
+
+    private void AddNodeToPool(List<Node> nodesPool)
+    {
+        nodesPool.Add(this);
     }
 }

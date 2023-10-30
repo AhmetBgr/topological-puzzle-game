@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour{
     public static List<Command> oldCommands = new List<Command>();
     public List<Command> skippedOldCommands = new List<Command>();
 
+    //public LevelManager levelManager;
     public PaletteSwapper paletteSwapper;
     public KeyManager keyManager;
     public Palette defPalette;
@@ -26,7 +27,7 @@ public class GameManager : MonoBehaviour{
     public LayerMask targetLM;
 
     public List<GameObject> selectedObjects = new List<GameObject>();
-    
+    public List<Node> nodesPool = new List<Node>();
 
     private Node commandOwner;
     private bool isCommandOwnerPermanent = false;
@@ -44,6 +45,12 @@ public class GameManager : MonoBehaviour{
     public delegate void OnCurCommandChangeDelegate(LayerMask targetLM, int targetIndegree, bool bypass);
     public static OnCurCommandChangeDelegate OnCurCommandChange;
 
+    public delegate void OnLevelCompleteDelegate(float delay);
+    public static OnLevelCompleteDelegate OnLevelComplete;
+
+    public delegate void OnGetNodesDelegate(List<Node> nodesPool);
+    public static OnGetNodesDelegate OnGetNodes;
+
     public int skippedOldCommandCount = 0;
     public int oldCommandCount = 0;
 
@@ -52,15 +59,19 @@ public class GameManager : MonoBehaviour{
     }
 
     void OnEnable(){
-        LevelManager.OnLevelLoad += ResetCommand;
-        LevelEditor.OnExit += ResetCommand;
+        LevelManager.OnLevelLoad += ResetData;
+        LevelManager.OnLevelLoad += GetNodes;
+        LevelEditor.OnExit += ResetData;
         Command.OnUndoSkipped += AddToSkippedOldCommands;
+        Node.OnNodeRemove += CheckForLevelComplete;
     }
 
     void OnDisable(){
-        LevelManager.OnLevelLoad -= ResetCommand;
-        LevelEditor.OnExit -= ResetCommand;
+        LevelManager.OnLevelLoad -= ResetData;
+        LevelManager.OnLevelLoad -= GetNodes;
+        LevelEditor.OnExit -= ResetData;
         Command.OnUndoSkipped -= AddToSkippedOldCommands;
+        Node.OnNodeRemove -= CheckForLevelComplete;
     }
 
     void Update(){
@@ -257,7 +268,8 @@ public class GameManager : MonoBehaviour{
         }*/
     }
 
-    private void ResetCommand(){
+    private void ResetData(){
+        nodesPool.Clear();
         oldCommands.Clear();
         skippedOldCommands.Clear();
         ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"));
@@ -356,6 +368,35 @@ public class GameManager : MonoBehaviour{
         }
 
         ChangeCommand(Commands.None, LayerMask.GetMask("Node", "Arrow"), 0, true);
+    }
+
+    private void GetNodes()
+    {
+        if(OnGetNodes != null)
+        {
+            OnGetNodes(nodesPool);
+        }
+
+        Debug.Log("node count: " + nodesPool.Count);
+    }
+
+    private void CheckForLevelComplete(GameObject removedNode)
+    {
+        for (int i = 0; i < nodesPool.Count; i++)
+        {
+            Node node = nodesPool[i];
+            if (!node.isRemoved)
+            {
+                // nodes remain
+                Debug.Log("nodes remain");
+                return;
+            }
+        }
+
+        // level complete
+        Debug.Log("LEVEL COMPLETED");
+        if (OnLevelComplete != null)
+            OnLevelComplete(1f);
     }
 
     public void RewindBPointerEnter(Transform rewindBParent)
