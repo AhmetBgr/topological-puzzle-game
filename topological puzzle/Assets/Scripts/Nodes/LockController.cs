@@ -12,8 +12,8 @@ public class LockController : MonoBehaviour
     public bool hasPadLock = false;
     public bool hasKey = false;
 
-    private SpriteRenderer padLockImage;
-    private SpriteRenderer keyImage;
+    public SpriteRenderer padLockImage;
+    public SpriteRenderer keyImage;
 
     //private Node node;
     [HideInInspector] public Vector3 padLockPos = new Vector3(0.24f, -0.20f, 0);

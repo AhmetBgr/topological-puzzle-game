@@ -13,6 +13,7 @@ public class LevelManager : MonoBehaviour{
 
     public GameObject arrow;
     public GameObject permanentArrow;
+    public GameObject transporterArrow;
     public GameObject basicNode;
     public GameObject squareNode;
     public GameObject lockedNode;
@@ -482,7 +483,10 @@ public class LevelManager : MonoBehaviour{
         {
             prefabAndPool.prefab = permanentArrow;
         }
-            
+        else if (tag == "TransporterArrow")
+        {
+            prefabAndPool.prefab = transporterArrow;
+        }
         return prefabAndPool;
     }
 

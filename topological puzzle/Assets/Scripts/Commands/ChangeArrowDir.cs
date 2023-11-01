@@ -36,7 +36,7 @@ public class ChangeArrowDir : Command
 
     public override void Execute(List<GameObject> selectedObjects)
     {
-        gameManager.timeID++;
+        //gameManager.timeID++;
         executionTime = gameManager.timeID;
         /*if (commandOwner != null)
         {
@@ -59,7 +59,7 @@ public class ChangeArrowDir : Command
 
     public override void Undo(bool skipPermanent = true)
     {
-        gameManager.timeID--;
+        //gameManager.timeID--;
         /*if (transformToBasicNode != null)
         {
             transformToBasicNode.Undo();

@@ -56,7 +56,6 @@ public class GameManager : MonoBehaviour{
 
     void Start(){
         ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"));
-        paletteSwapper.ChangePalette(defPalette, 0.1f);
     }
 
     void OnEnable(){
@@ -98,7 +97,7 @@ public class GameManager : MonoBehaviour{
 
                     if (isCommandChanged)
                     {
-                        
+                        timeID++;
                         oldCommands.Add(changeCommand);
                         
                         if (commandOwner.lockController.padLock)
@@ -108,8 +107,6 @@ public class GameManager : MonoBehaviour{
                         selectedObjects.Clear();
                         return;
                     }
-                        
-                    
                     /*if(selectedObjects[0].GetComponent<Node>().indegree == 0 && ( selectedObjects[0].CompareTag("SquareNode") || selectedObjects[0].CompareTag("SwapNode")) ){
                         ChangeCommandOnNodeRemove(selectedObjects[0]);
                         commandOwner = selectedObjects[0].GetComponent<Node>();
@@ -117,6 +114,7 @@ public class GameManager : MonoBehaviour{
                         return;
                     }*/
 
+                    timeID++;
                     Command command = new RemoveNode(this, keyManager, Commands.RemoveNode, LayerMask.GetMask("Node"));
                     command.Execute(selectedObjects);
                     Node node = hit.transform.GetComponent<Node>();
@@ -131,7 +129,8 @@ public class GameManager : MonoBehaviour{
 
                 }
                 else if(curCommand == Commands.ChangeArrowDir){
-                    
+
+                    timeID++;
                     Command command = new ChangeArrowDir(this, Commands.ChangeArrowDir, LayerMask.GetMask("Arrow"), commandOwner);
                     
                     command.Execute(selectedObjects);
@@ -147,6 +146,7 @@ public class GameManager : MonoBehaviour{
                 }
                 else if(curCommand == Commands.SwapNodes){
                     if(selectedObjects.Count == 2){
+                        timeID++;
                         Command command = new SwapNodes(this, Commands.SwapNodes, LayerMask.GetMask("Node"), commandOwner);
                         command.Execute(selectedObjects);
                         oldCommands.Add(command);
@@ -270,6 +270,7 @@ public class GameManager : MonoBehaviour{
     }
 
     private void ResetData(){
+        timeID = 0;
         nodesPool.Clear();
         oldCommands.Clear();
         skippedOldCommands.Clear();
@@ -293,8 +294,9 @@ public class GameManager : MonoBehaviour{
     }
 
     public void OnlyUndoLast(bool skipPermanants = true){
-        if(oldCommands.Count == 0)  return; 
+        if(oldCommands.Count == 0)  return;
 
+        timeID--;
         Command lastCommand =  oldCommands[ oldCommands.Count  - 1];
         lastCommand.Undo(skipPermanants);
         ChangeCommand(lastCommand.nextCommand, lastCommand.targetLM, lastCommand.targetIndegree);
@@ -306,15 +308,16 @@ public class GameManager : MonoBehaviour{
 
     private void UndoPermanentCommands()
     {
-        //float executiontime = skippedOldCommands[0].executionTime;
-        float timeID = -1;
+        //timeID--;
+
+        float tempTimeID = -1;
         Command lastCommand = null;
         foreach (var item in skippedOldCommands)
         {
-            if(item.executionTime > timeID)
+            if(item.executionTime > tempTimeID)
             {
                 lastCommand = item;
-                timeID = item.executionTime;
+                tempTimeID = item.executionTime;
             }
         }
 
@@ -327,14 +330,71 @@ public class GameManager : MonoBehaviour{
         lastCommand.Undo(false);
         ChangeCommand(lastCommand.nextCommand, lastCommand.targetLM, lastCommand.targetIndegree);
         skippedOldCommands.Remove(lastCommand);
-        //timeID--;
+
+        /*float tempTimeID = -1;
+        List<Command> lastCommands = new List<Command>();
+        lastCommands.AddRange(skippedOldCommands);
+        foreach (var item in skippedOldCommands)
+        {
+            if (item.executionTime > tempTimeID)
+            {
+                tempTimeID = item.executionTime;
+            }
+            else
+            {
+                lastCommands.Remove(item);
+            }
+        }
+
+        if (lastCommands.Count==0)
+        {
+            Debug.LogWarning("Couldn't find last skipped command!");
+            return;
+        }
+
+        foreach(var command in lastCommands)
+        {
+            command.Undo(false);
+            ChangeCommand(command.nextCommand, command.targetLM, command.targetIndegree);
+            skippedOldCommands.Remove(command);
+        }*/
+
     }
 
     public void Undo()
     {
         Debug.Log("skipped old commands count : " + skippedOldCommands.Count);
         if (skippedOldCommands.Count == 0 && oldCommands.Count == 0) return;
-        
+
+        /*timeID--;
+
+        List<Command> allOldCommands = new List<Command>();
+        allOldCommands.AddRange(skippedOldCommands);
+        allOldCommands.AddRange(oldCommands);
+
+
+        float tempTimeID = -1;
+        Command lastCommand = null;
+        foreach (var item in allOldCommands)
+        {
+            if (item.executionTime > tempTimeID)
+            {
+                lastCommand = item;
+                tempTimeID = item.executionTime;
+            }
+        }
+
+        if (lastCommand == null)
+        {
+            Debug.LogWarning("Couldn't find last skipped command!");
+            return;
+        }
+
+        lastCommand.Undo(false);
+        ChangeCommand(lastCommand.nextCommand, lastCommand.targetLM, lastCommand.targetIndegree);
+        allOldCommands.Remove(lastCommand);
+        Debug.Log("skipped all old commands count after undos : " + allOldCommands.Count);*/
+
         if (oldCommands.Count ==  0 )
         {
             UndoPermanentCommands();
@@ -349,8 +409,10 @@ public class GameManager : MonoBehaviour{
         }
         else
         {
-            UndoPermanentCommands();
+            OnlyUndoLast(false);
+            //UndoPermanentCommands();
         }
+
         Debug.Log("skipped old commands count after undos : " + skippedOldCommands.Count);
     }
     

@@ -14,7 +14,7 @@ public class Arrow : MonoBehaviour{
     public bool isPermanent = false;
 
     private GameManager gameManager;
-    private LineRenderer lr;
+    public LineRenderer lr;
     private Transform head;
     private EdgeCollider2D col;
 
@@ -23,10 +23,15 @@ public class Arrow : MonoBehaviour{
 
     private IEnumerator widthAnim;
     private IEnumerator RemoveCor;
-    private Vector3[] linePoints;
+    public Vector3[] linePoints;
     private int pointsCount;
     private float defWidth = 0.05f;
-    
+
+    public delegate void BeforeChangeDelegate();
+    public event BeforeChangeDelegate BeforeChange;
+
+    public delegate void OnChangedDelegate();
+    public event OnChangedDelegate OnChanged;
     //private float glowIntensity1 = 2f;
     //private float glowIntensity2 = 7f;
     //private bool animatingWidth = false;
@@ -39,6 +44,11 @@ public class Arrow : MonoBehaviour{
         lr.startWidth = defWidth;
         SavePoints();
         gameManager = FindObjectOfType<GameManager>();
+    }
+
+    private void Start()
+    {
+        OnChangedEvent();
     }
 
     void OnEnable(){
@@ -237,11 +247,13 @@ public class Arrow : MonoBehaviour{
         GameObject temp = startingNode;
         startingNode = destinationNode;
         destinationNode = temp;
-        
+
+        BeforeChangeEvent();
         
         StartCoroutine(DisappearAnim(0.4f, delay, onCompleteCallBack : () => {
             InvertPoints();
             StartCoroutine(AppearAnim(0.4f));
+            OnChangedEvent();
             //col.enabled = true;
         }));
     }
@@ -382,6 +394,7 @@ public class Arrow : MonoBehaviour{
     }
 
     private void InvertPoints(){
+        BeforeChangeEvent();
 
         for (int i = 0; i < linePoints.Length/2; i++){
             if(i == 0){
@@ -412,7 +425,7 @@ public class Arrow : MonoBehaviour{
             lr.SetPosition(i, linePoints[0]);
         }
         //transform.position = linePoints[0];
-        
+        OnChangedEvent();
     }
 
     private void DisableObject(){
@@ -491,6 +504,7 @@ public class Arrow : MonoBehaviour{
     // Moves single line point in word pos
     public void MoveLinePoint(int linePointIndex, Vector3 targetPos)
     {
+        BeforeChangeEvent();
         lr.SetPosition(linePointIndex, targetPos);
 
         // Also moves the head if moving last line point
@@ -498,8 +512,21 @@ public class Arrow : MonoBehaviour{
         {
             FixHeadPos();
         }
-        
-        
-    }
 
+        OnChangedEvent();
+    }
+    private void BeforeChangeEvent()
+    {
+        if (BeforeChange != null)
+        {
+            BeforeChange();
+        }
+    }
+    private void OnChangedEvent()
+    {
+        if(OnChanged != null)
+        {
+            OnChanged();
+        }
+    }
 }

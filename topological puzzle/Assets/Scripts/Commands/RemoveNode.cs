@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class RemoveNode : Command
 {
+    public List<Command> affectedCommands = new List<Command>();
 
-    public delegate void OnExecuteDelegate(GameObject node);
+    public delegate void OnExecuteDelegate(GameObject node, RemoveNode command);
     public static event OnExecuteDelegate OnExecute;
 
     public delegate void OnUndoDelegate(GameObject affectedNode);
@@ -34,7 +35,7 @@ public class RemoveNode : Command
 
     public override void Execute(List<GameObject> selectedObjects)
     {
-        gameManager.timeID++;
+        //gameManager.timeID++;
         executionTime = gameManager.timeID;
         GameObject obj = selectedObjects[0];
         affectedObjects.Add(obj);
@@ -68,13 +69,19 @@ public class RemoveNode : Command
 
         if (OnExecute != null)
         {
-            OnExecute(obj);
+            OnExecute(obj, this);
         }
     }
 
     public override void Undo(bool skipPermanent = true)
     {
-        gameManager.timeID--;
+        //gameManager.timeID--;
+        foreach(var affectedCommand in affectedCommands)
+        {
+            affectedCommand.Undo(skipPermanent);
+        }
+
+
         Node node = affectedObjects[0].GetComponent<Node>();
         LockController lockController = node.lockController;
 
