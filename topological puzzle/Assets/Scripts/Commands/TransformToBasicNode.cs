@@ -25,12 +25,10 @@ public class TransformToBasicNode : Command
     {
         executionTime = gameManager.timeID;
         node.TransformIntoBasic();
-        
     }
 
     public override void Execute(List<GameObject> selectedObjects)
     {
-
         if (OnExecute != null)
         {
             OnExecute();
@@ -41,10 +39,13 @@ public class TransformToBasicNode : Command
     {
         if (node.isPermanent && skipPermanent)
         {
+            gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, 0.2f);
+            gameManager.ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"), 0);
             InvokeOnUndoSkipped(this);
             return;
         }
-        
+        gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, 0.2f);
+        gameManager.ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"), 0);
         node.TransformBackToDef();
 
         if (OnUndo != null)

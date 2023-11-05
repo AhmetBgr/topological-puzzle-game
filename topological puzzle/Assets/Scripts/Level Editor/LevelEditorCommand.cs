@@ -218,17 +218,19 @@ public class TogglePadLock : LeCommand
 
     private void TogglePadLockFunc(Node node)
     {
-        LockController lockController = node.lockController;
-        if (lockController.hasPadLock)
+        ItemController itemController = node.itemController;
+        if (itemController.hasPadLock)
         {
             //Remove PadLock
-            lockController.DestroPadLock();
+            //itemController.DestroPadLock();
+            itemController.RemoveItem(itemController.FindLastPadlock());
             
         }
         else
         {
             //Add PadLock
-            lockController.GeneratePadLock(prefab);
+            //itemController.GeneratePadLock(prefab);
+            itemController.GenerateItem(prefab);
         }
 
     }
@@ -245,6 +247,8 @@ public class ToggleKey : LeCommand
 {
     private Node affectedNode;
     private GameObject prefab;
+    private Item item;
+    ItemController itemController;
 
     public ToggleKey(GameObject prefab)
     {
@@ -261,25 +265,15 @@ public class ToggleKey : LeCommand
 
     private void ToggleKeyFunc(Node node)
     {
-        LockController lockController = node.lockController;
-        if (lockController.hasKey)
-        {
-            //Remove PadLock
-            lockController.DestroyKey();
-            
-        }
-        else
-        {
-            //Add PadLock
-            lockController.GenerateKey(prefab);
-        }
-
+        itemController = node.itemController;
+        item = itemController.GenerateItem(prefab).GetComponent<Item>();
     }
 
 
     public override GameObject Undo()
     {
-        ToggleKeyFunc(affectedNode);
+        itemController.RemoveItem(item);
+        LevelEditor.Destroy(item.gameObject);
         return null;
     }
 }

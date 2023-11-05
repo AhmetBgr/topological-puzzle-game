@@ -9,8 +9,8 @@ public class RandomLRColor : MonoBehaviour
 
     public ParticleSystem particleSystem;
 
-    private float duration = 2f;
-    private float t = 0;
+    private float duration = 0.7f;
+    private float t = 2f;
     
     // Start is called before the first frame update
     void Start()

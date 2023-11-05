@@ -93,7 +93,7 @@ public class Arrow : MonoBehaviour{
         if(startingNode.CompareTag("HexagonNode") || destinationNode.CompareTag("HexagonNode")){
             if (!(startingNode.CompareTag("HexagonNode") && destinationNode.CompareTag("HexagonNode")))
             {
-                ChangeArrowDir changeDirCommand = new ChangeArrowDir(gameManager, Commands.RemoveNode, LayerMask.GetMask("Node"), false);
+                ChangeArrowDir changeDirCommand = new ChangeArrowDir(gameManager, false);
                 changeDirCommand.Execute(new List<GameObject>(){gameObject});
                 changeDirCommands.Add(changeDirCommand);
             }
@@ -207,7 +207,7 @@ public class Arrow : MonoBehaviour{
         }   */
     }
 
-    private void CheckIfSuitable(LayerMask targetLM, int targetIndegree, bool bypass){
+    private void CheckIfSuitable(LayerMask targetLM, int targetIndegree, ItemType itemType, bool bypass){
         if ( (((1<<gameObject.layer) & targetLM) != 0) || bypass){
             // Highlight
             arrowColorController.Highlight(arrowColorController.glowIntensityHigh, 1f);

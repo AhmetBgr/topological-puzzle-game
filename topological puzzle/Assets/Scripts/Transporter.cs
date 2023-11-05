@@ -16,24 +16,11 @@ public class Transporter : MonoBehaviour
 
     private static int priorityNext = 1;
     public int priority;
-  /*private int _priority = 0;
-    public int priority
-    {
-        get { return _priority; }
-        set { 
-            _priority = value;
-            priorityText.text = value.ToString();
-            priorityNext = value + 1;
-        }
-    }*/
 
     private void Start()
     {
         gameManager = FindObjectOfType<GameManager>();
         
-        /*if (priority == 0)
-            GiveNextPriorityValue();
-        */
         priorityText.text = priority.ToString();
     }
 
@@ -42,8 +29,6 @@ public class Transporter : MonoBehaviour
         RemoveNode.OnExecute += InstantiateTransportCommand;
         arrow.OnChanged += FixPriorityTextPos;
         LevelManager.OnLevelLoad += GetOnTheLevel;
-
-
     }
 
     private void OnDisable()
@@ -51,7 +36,6 @@ public class Transporter : MonoBehaviour
         RemoveNode.OnExecute -= InstantiateTransportCommand;
         arrow.OnChanged -= FixPriorityTextPos;
         LevelManager.OnLevelLoad -= GetOnTheLevel;
-        //Node.OnNodeRemove -= InstantiateTransportCommand;
     }
 
 #if UNITY_EDITOR
@@ -69,33 +53,33 @@ public class Transporter : MonoBehaviour
     {
         Node node = arrow.startingNode.GetComponent<Node>();
 
-        foreach (var item in node.arrowsFromThisNode)
+        foreach (var arrow in node.arrowsFromThisNode)
         {
             Transporter otherTransporter;
-            item.TryGetComponent(out otherTransporter);
-            if (item != arrow.gameObject && otherTransporter != null && otherTransporter.priority <= priority)
+            arrow.TryGetComponent(out otherTransporter);
+            if (arrow != arrow.gameObject && otherTransporter != null && otherTransporter.priority <= priority)
             {
                 return;
             }
         }
 
-        LockController startingLockCont= node.lockController;
+        ItemController startingItemCont = node.itemController;
 
-        if (!startingLockCont.hasKey) return;
+        if (startingItemCont.itemContainer.items.Count == 0) return;
 
-        Transform key = startingLockCont.key;
+        Item item = startingItemCont.FindLastTransportableItem();
         Node destNode = arrow.destinationNode.GetComponent<Node>();
 
-        LockController destLockCont = destNode.lockController;
+        ItemController destLockCont = destNode.itemController;
 
-        if (destLockCont.hasKey)
+        /*if (destLockCont.hasKey)
         {
             return;
-        }
+        }*/
 
         List<GameObject> affectedObjects = new List<GameObject>();
-        affectedObjects.Add(key.gameObject);
-        TransportCommand transportCommand = new TransportCommand(gameManager, this, startingLockCont, destLockCont, arrow);
+        affectedObjects.Add(item.gameObject);
+        TransportCommand transportCommand = new TransportCommand(gameManager, this, startingItemCont, destLockCont, arrow);
 
         StartCoroutine(TransportWithDelay(transportCommand, affectedObjects, command, 0.02f));
     }
@@ -108,29 +92,24 @@ public class Transporter : MonoBehaviour
         command.affectedCommands.Add(transportCommand);
     }
 
-    public void Transport(Transform key, LockController startingLockCont, LockController destLockCont, Vector3[] lrPoints)
+    public void Transport(Transform itemT, ItemController startingItemCont, 
+        ItemController destItemCont, Vector3[] lrPoints, int destContainerIndex = 0)
     {
-        startingLockCont.key = null;
-        startingLockCont.keyImage = null;
-        startingLockCont.hasKey = false;
 
+        itemT.SetParent(LevelManager.curLevel.transform);
+        Item item = itemT.GetComponent<Item>();
+        startingItemCont.RemoveItem(item);
 
-        destLockCont.key = key;
-        key.SetParent(destLockCont.transform);
 
         List<Vector3> pathlist = new List<Vector3>();
-        pathlist.Add(key.position);
+        pathlist.Add(itemT.position);
         pathlist.AddRange(lrPoints);
-        pathlist.Add(destLockCont.transform.position + new Vector3(-0.24f, -0.20f, 0));
         Vector3[] path = pathlist.ToArray();
 
-        key.DOPath(path, speed);
-        Transform keyImageObj = key.Find("Image");
-        if (keyImageObj)
-        {
-            destLockCont.keyImage = keyImageObj.GetComponent<SpriteRenderer>();
-        }
-        destLockCont.hasKey = true;
+        itemT.DOPath(path, speed).OnComplete(() => { 
+            destItemCont.itemContainer.AddItem(item, destContainerIndex);
+            destItemCont.itemContainer.FixItemPositions();
+        });
     }
 
     private void GetOnTheLevel()

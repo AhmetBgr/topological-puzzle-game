@@ -12,52 +12,30 @@ public class RemoveNode : Command
     public delegate void OnUndoDelegate(GameObject affectedNode);
     public static event OnUndoDelegate OnUndo;
 
-    //public delegate void OnNewRemoveNodeDelegate(RemoveNode removeNode);
-    //public static event OnNewRemoveNodeDelegate OnNewRemoveNode;
-    private KeyManager keyManager;
+    private ItemManager itemManager;
     private GameManager gameManager;
-    private Transform key;
-    private Transform padLock;
-    private UnlockNode unlockNode;
-    private GetKey getKey;
     private List<RemoveArrow> removeArrows = new List<RemoveArrow>();
 
     private List<GameObject> affectedObjects = new List<GameObject>();
 
-    public RemoveNode(GameManager gameManager, KeyManager keyManager, Commands nextCommand, LayerMask targetLM, int targetIndegree = 0)
+    public RemoveNode(GameManager gameManager, ItemManager itemManager)
     {
-        this.nextCommand = nextCommand;
-        this.targetLM = targetLM;
-        this.targetIndegree = targetIndegree;
-        this.keyManager = keyManager;
+        this.itemManager = itemManager;
         this.gameManager = gameManager;
     }
 
     public override void Execute(List<GameObject> selectedObjects)
     {
-        //gameManager.timeID++;
         executionTime = gameManager.timeID;
         GameObject obj = selectedObjects[0];
         affectedObjects.Add(obj);
 
         Node node = obj.GetComponent<Node>();
 
-        LockController lockController = node.lockController;
+        ItemController itemController = node.itemController;
 
-        if (lockController.hasPadLock)
-        {
-            unlockNode = new UnlockNode(gameManager, node);
-            unlockNode.Unlock(keyManager);
-            //affectedObjects.Add(lockController.padLock.gameObject);
-        }
 
-        if (lockController.hasKey)
-        {
-            getKey = new GetKey(lockController, keyManager, gameManager);
-            getKey.Get();
-            //affectedObjects.Add(lockController.key.gameObject);
-        }
-
+        itemController.GetObtainableItems(node.gameObject, this);
         node.RemoveFromGraph(obj);
         foreach (var arrow in node.arrowsFromThisNode)
         {
@@ -75,15 +53,10 @@ public class RemoveNode : Command
 
     public override void Undo(bool skipPermanent = true)
     {
-        //gameManager.timeID--;
-        foreach(var affectedCommand in affectedCommands)
-        {
-            affectedCommand.Undo(skipPermanent);
-        }
-
+        gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, 0.2f);
 
         Node node = affectedObjects[0].GetComponent<Node>();
-        LockController lockController = node.lockController;
+        ItemController itemController = node.itemController;
 
         if (node.isPermanent && skipPermanent)
         {
@@ -103,26 +76,20 @@ public class RemoveNode : Command
         }
         removeArrows.Clear();
 
-        if (getKey != null)
+        for (int i = affectedCommands.Count - 1; i >= 0; i--)
         {
-            getKey.Undo(skipPermanent);
-            getKey = null;
+            affectedCommands[i].Undo(skipPermanent);
         }
-
-        if (unlockNode != null)
-        {
-            unlockNode.Undo(skipPermanent);
-            unlockNode = null;
-        }
+        itemManager.itemContainer.FixItemPositions(setDelayBetweenFixes: true);
+        itemController.itemContainer.FixItemPositions(setDelayBetweenFixes: true);
 
 
+        gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, 0.2f);
+        gameManager.ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"), 0);
 
         if (OnUndo != null)
         {
             OnUndo(affectedObjects[0]);
         }
-        // Node appear anim
-        // Arrow appear anim
-        // Update adjacency
     }
 }

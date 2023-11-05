@@ -28,10 +28,11 @@ public class BlockedNode : Node
         }
     }
 
-    protected override void CheckIfSuitable(LayerMask targetLM, int targetIndegree, bool levelEditorBypass){
+    protected override void CheckIfSuitable(LayerMask targetLM, int targetIndegree, ItemType itemType, bool levelEditorBypass){
         UpdateBLockStatus();
+        bool hasRequiredItem = itemType == ItemType.None | itemController.FindItemWithType(itemType) != null ? true : false;
 
-        if ( (!blocked && (((1<<gameObject.layer) & targetLM) != 0)) || levelEditorBypass){
+        if ( (!blocked && (((1<<gameObject.layer) & targetLM) != 0) && hasRequiredItem) || levelEditorBypass){
             if(!levelEditorBypass){
                 //StartCoroutine(Highlight(glowIntensity1, 1f));
                 nodeColorController.Highlight(nodeColorController.glowIntensityMedium, 1f);

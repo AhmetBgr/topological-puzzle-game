@@ -11,10 +11,8 @@ public class SwapNodes : Command
     private List<GameObject> affectedObjects = new List<GameObject>();
     private Node commandOwner;
 
-    public SwapNodes(GameManager gameManager, Commands nextCommand, LayerMask targetLM, Node commandOwner)
+    public SwapNodes(GameManager gameManager, Node commandOwner)
     {
-        this.nextCommand = nextCommand;
-        this.targetLM = targetLM;
         this.commandOwner = commandOwner;
         this.gameManager = gameManager;
     }
@@ -24,7 +22,6 @@ public class SwapNodes : Command
         executionTime = gameManager.timeID;
 
         // Swap postions between two nodes
-        Debug.Log("should swap nodes");
         commandOwner.TransformIntoBasic();
         SwapNodesFunc(selectedObjects);
 

@@ -13,7 +13,7 @@ public class Node : MonoBehaviour
     //public Material defaultMaterial;
     
     public NodeCC nodeColorController;
-    public LockController lockController;
+    public ItemController itemController;
 
     public List<GameObject> arrowsFromThisNode = new List<GameObject>();
     public List<GameObject> arrowsToThisNode = new List<GameObject>();
@@ -87,6 +87,14 @@ public class Node : MonoBehaviour
         nodeColorController.Highlight(nodeColorController.glowIntensityMedium, 0.3f);
     }
 
+    private void OnMouseUp()
+    {
+        if (itemController.hasPadLock && gameManager.curCommand == Commands.RemoveNode)
+        {
+            transform.DOShakePosition(0.5f, strength : 0.2f);
+        }
+    }
+
     public void RemoveFromGraph( GameObject nodeToRemove ){
         // Checks if selected node matches with current game object
         if(nodeToRemove != gameObject) return;
@@ -104,7 +112,7 @@ public class Node : MonoBehaviour
             }
             
             float delay = 0f;
-            if (arrowsFromThisNode.Count > 0 || lockController.hasPadLock)
+            if (arrowsFromThisNode.Count > 0 || itemController.hasPadLock)
                 delay = 0.5f;
 
             DisappearAnim(0.5f, delay, () => gameObject.SetActive(false));
@@ -146,17 +154,16 @@ public class Node : MonoBehaviour
 
 
 
-    protected virtual void CheckIfSuitable(LayerMask targetLM, int targetIndegree, bool levelEditorBypass){
+    protected virtual void CheckIfSuitable(LayerMask targetLM, int targetIndegree, ItemType itemType, bool levelEditorBypass){
 
         //UpdateLockStatus();
+        bool hasRequiredItem = itemType == ItemType.None | itemController.FindItemWithType(itemType) != null ? true : false;
 
-        if ( ( (((1<<gameObject.layer) & targetLM) != 0)  && targetIndegree == indegree ) || levelEditorBypass){
-            // Highlight
-            if(targetIndegree != -1 && targetIndegree == indegree){
+        if ( ( (((1<<gameObject.layer) & targetLM) != 0)  && targetIndegree == indegree  && hasRequiredItem) || levelEditorBypass){
+            nodeColorController.Highlight(nodeColorController.glowIntensityMedium, 1f);
+            col.enabled = true;
 
-            }
-
-            if ( !lockController.hasPadLock || ( lockController.hasPadLock && KeyManager.keyCount > 0 ) || levelEditorBypass)
+            /*if ( !itemController.hasPadLock || (itemController.hasPadLock && ItemManager.keyCount > 0 ) || levelEditorBypass)
             {
                 nodeColorController.Highlight(nodeColorController.glowIntensityMedium, 1f);
                 col.enabled = true;
@@ -165,16 +172,7 @@ public class Node : MonoBehaviour
             {
                 nodeColorController.Highlight(nodeColorController.glowIntensityVeryLow, 1f);
                 col.enabled = false;
-            }
-            
-
-            /*else
-            {
-                nodeColorController.Highlight(nodeColorController.glowIntensityVeryLow, 1f);
-                col.enabled = false;
             }*/
-            
-
         }
         else{
             // Not selectable

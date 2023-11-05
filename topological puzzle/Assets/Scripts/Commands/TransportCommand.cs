@@ -8,24 +8,22 @@ public class TransportCommand : Command
     private List<GameObject> affectedObjects = new List<GameObject>();
     private GameManager gameManager;
     private Transporter transporter;
-    private LockController startingLockCont;
-    private LockController destLockCont;
+    private ItemController startingItemCont;
+    private ItemController destItemCont;
     private Arrow arrow;
 
-    public delegate void OnExecuteDelegate(GameObject arrow); //, GameObject commandOwner = null
+    public delegate void OnExecuteDelegate(GameObject arrow);
     public static event OnExecuteDelegate OnExecute;
 
     public delegate void OnUndoDelegate(GameObject arrow);
     public static event OnUndoDelegate OnUndo;
 
-    public TransportCommand(GameManager gameManager, Transporter transporter, LockController startingLockCont, LockController destLockCont, Arrow arrow)
+    public TransportCommand(GameManager gameManager, Transporter transporter, ItemController startingItemCont, ItemController destItemCont, Arrow arrow)
     {
-        //this.nextCommand = nextCommand;
-        //this.targetLM = targetLM;
         this.gameManager = gameManager;
         this.transporter = transporter;
-        this.startingLockCont = startingLockCont;
-        this.destLockCont = destLockCont;
+        this.startingItemCont = startingItemCont;
+        this.destItemCont = destItemCont;
         this.arrow = arrow;
     }
 
@@ -35,9 +33,7 @@ public class TransportCommand : Command
         executionTime = gameManager.timeID;
 
         affectedObjects.Add(selectedObjects[0]);
-        transporter.Transport(selectedObjects[0].transform, startingLockCont, destLockCont, arrow.linePoints);
-
-        //GameManager.oldCommands.Add(this);
+        transporter.Transport(selectedObjects[0].transform, startingItemCont, destItemCont, arrow.linePoints);
 
         if (OnExecute != null)
         {
@@ -47,7 +43,7 @@ public class TransportCommand : Command
 
     public override void Undo(bool skipPermanent = true)
     {
-        if (affectedObjects[0].CompareTag("PermanentKey") && skipPermanent)
+        if (affectedObjects[0].GetComponent<Item>().isPermanent  && skipPermanent)
         {
             InvokeOnUndoSkipped(this);
             return;
@@ -55,7 +51,7 @@ public class TransportCommand : Command
 
         Vector3[] reversedPoints = (Vector3[])arrow.linePoints.Clone();
         Array.Reverse(reversedPoints);
-        transporter.Transport(affectedObjects[0].transform, destLockCont, startingLockCont, reversedPoints);
+        transporter.Transport(affectedObjects[0].transform, destItemCont, startingItemCont, reversedPoints, -1);
 
         if (OnUndo != null)
         {

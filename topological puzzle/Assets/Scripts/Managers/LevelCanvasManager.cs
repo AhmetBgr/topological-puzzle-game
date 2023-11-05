@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using DG.Tweening;
 
 public class LevelCanvasManager : MonoBehaviour
 {
@@ -11,6 +12,15 @@ public class LevelCanvasManager : MonoBehaviour
 
     public Button nextLevelButton;
     public Button previousLevelButton;
+    public Button undoButton;
+    public Button useItemButton;
+    public Image useItemButtonBCImage;
+    public ItemContainer mainItemContainer;
+
+    public Color red;
+    public Color green;
+
+    private Sequence useItemButtonBCImageSeq;
 
     private void OnEnable()
     {
@@ -18,22 +28,27 @@ public class LevelCanvasManager : MonoBehaviour
         //LevelManager.OnCurLevelIndexChange += UpdateLevelProgressButtons;
         LevelManager.OnLevelLoad += UpdateNextLevelButton;
         LevelManager.OnLevelLoad += UpdatePreviousLevelButton;
+        GameState.OnAnimationStart += MakeUndoNoninteractive;
+        mainItemContainer.OnContainerChanged += UpdateUseItemButtonBCImage;
+        LevelEditor.OnEnter += DisableUseItemButton;
+        LevelEditor.OnExit += EnableUseItemButton;
         //LevelEditor.OnEnter += ToggleLevelChangeButtons;
         //LevelEditor.OnExit += ToggleLevelChangeButtons;
-        
-    }
 
+    }
     private void OnDisable()
     {
         LevelManager.OnCurLevelIndexChange -= UpdateLevelIndexText;
         //LevelManager.OnCurLevelIndexChange -= UpdateLevelProgressButtons;
         LevelManager.OnLevelLoad -= UpdateNextLevelButton;
         LevelManager.OnLevelLoad -= UpdatePreviousLevelButton;
+        GameState.OnAnimationStart -= MakeUndoNoninteractive;
+        mainItemContainer.OnContainerChanged -= UpdateUseItemButtonBCImage;
+        LevelEditor.OnEnter -= DisableUseItemButton;
+        LevelEditor.OnExit -= EnableUseItemButton;
         //LevelEditor.OnEnter -= ToggleLevelChangeButtons;
         //LevelEditor.OnExit -= ToggleLevelChangeButtons;
     }
-
-
     private void UpdateLevelIndexText(int curLevelIndex)
     {
         levelIndexText.text = curLevelIndex >= 10 ? curLevelIndex.ToString() : "0" + curLevelIndex.ToString();
@@ -41,7 +56,7 @@ public class LevelCanvasManager : MonoBehaviour
 
     private void UpdateNextLevelButton()
     {
-        #if UNITY_EDITOR
+    #if UNITY_EDITOR
         if (LevelManager.curLevelIndex == levelManager.levels.Length)
         {
             nextLevelButton.gameObject.SetActive(false);
@@ -52,7 +67,7 @@ public class LevelCanvasManager : MonoBehaviour
         }
         Debug.LogWarning("Unity Editor: " + this);
         return;
-        #endif
+    #endif
 
         if (LevelManager.curLevelIndex == levelManager.levelProgressIndex )
         {
@@ -101,10 +116,55 @@ public class LevelCanvasManager : MonoBehaviour
                 nextLevelButton.gameObject.SetActive(true);
             }
         }
-
-
+    }
+    public void MakeUndoNoninteractive(float duration)
+    {
+        StartCoroutine(Utility.MakeButtonNoninteractive(undoButton, duration));
     }
 
+    private void UpdateUseItemButtonBCImage(List<Item> items)
+    {
+        if(items.Count == 0)
+        {
+            useItemButton.interactable = false;
+            useItemButtonBCImage.color = red;
+            /*if (useItemButtonBCImageSeq != null)
+            {
+                useItemButtonBCImageSeq.Kill();
+            }
+
+            useItemButtonBCImage.DOColor(red, 1f);*/
+
+        }
+        else
+        {
+            useItemButton.interactable = true;
+            useItemButtonBCImage.color = green;
+            /*if (useItemButtonBCImageSeq != null)
+            {
+                useItemButtonBCImageSeq.Kill();
+            }
+
+            useItemButtonBCImage.DOFade(0f, 1f)
+                .OnComplete(() =>{
+                    useItemButtonBCImage.color = new Color(green.r, green.g, green.b, 0f);
+                    useItemButtonBCImageSeq = DOTween.Sequence();
+                    useItemButtonBCImageSeq.Append(useItemButtonBCImage.DOFade(1f, 1f));
+                    useItemButtonBCImageSeq.Append(useItemButtonBCImage.DOFade(0f, 1f));
+                    useItemButtonBCImageSeq.SetLoops(-1);
+            });*/
+
+        }
+    }
+
+    private void DisableUseItemButton()
+    {
+        useItemButton.gameObject.SetActive(false);
+    }
+    private void EnableUseItemButton()
+    {
+        useItemButton.gameObject.SetActive(true);
+    }
 
     /*public void ChangeColor(Color[] colors)
     {

@@ -7,10 +7,6 @@ using System.Runtime.Serialization.Formatters.Binary;
 using SerializableTypes;
 
 public class LevelManager : MonoBehaviour{
-    //public static Material arrowGlow;
-    //public static Material nodeGlow;
-    
-
     public GameObject arrow;
     public GameObject permanentArrow;
     public GameObject transporterArrow;
@@ -37,9 +33,6 @@ public class LevelManager : MonoBehaviour{
     private IEnumerator loadLevelCor = null;
     public List<GameObject> nodesPool = new List<GameObject>();
     public List<GameObject> arrowsPool = new List<GameObject>();
-    /*List<GameObject> squareNodesPool = new List<GameObject>();
-    List<GameObject> hexagonNodesPool = new List<GameObject>();
-    List<GameObject> lockedNodesPool = new List<GameObject>();*/
 
 
     public delegate void OnCurLevelIndexChangeDelegate(int curIndex);
@@ -159,7 +152,6 @@ public class LevelManager : MonoBehaviour{
             OnLevelLoad();
         }
         
-        //Debug.Log("node count after load:" + nodecount);
     }
 
     public void RestartCurLevel(){
@@ -248,15 +240,15 @@ public class LevelManager : MonoBehaviour{
                     nodeP.arrowsIDToThisNode.Add(arrow.GetInstanceID());
                 }
 
-                if (node.lockController && node.lockController.padLock)
+                /*if (node.itemController && node.itemController.padLock)
                 {
-                    nodeP.padLockTag = node.lockController.padLock.tag;
+                    nodeP.padLockTag = node.itemController.padLock.tag;
                 }
 
-                if (node.lockController && node.lockController.key)
+                if (node.itemController && node.itemController.key)
                 {
-                    nodeP.keyTag = node.lockController.key.tag;
-                }
+                    nodeP.keyTag = node.itemController.key.tag;
+                }*/
                 
                 levelProperty.nodes.Add(nodeP);
 
@@ -359,31 +351,31 @@ public class LevelManager : MonoBehaviour{
                 if (nodeProperty.padLockTag != null) // generate padlock if node has one
                 {
                     GameObject prefab;
-                    if (permanentPadLockPrefab.CompareTag(nodeProperty.padLockTag))
+                    /*if (permanentPadLockPrefab.CompareTag(nodeProperty.padLockTag))
                     {
                         prefab = permanentPadLockPrefab;
-                        obj.GetComponent<LockController>().GeneratePadLock(prefab);
+                        obj.GetComponent<ItemController>().GeneratePadLock(prefab);
                     }
                     else if (padLockPrefab.CompareTag(nodeProperty.padLockTag))
                     {
                         prefab = padLockPrefab;
-                        obj.GetComponent<LockController>().GeneratePadLock(prefab);
-                    }
+                        obj.GetComponent<ItemController>().GeneratePadLock(prefab);
+                    }*/
                 }
                 
                 if (nodeProperty.keyTag != null) // generate key if the node has one
                 {
-                    GameObject prefab;
+                    /*GameObject prefab;
                     if (permanentKeyPrefab.CompareTag(nodeProperty.keyTag))
                     {
                         prefab = permanentKeyPrefab;
-                        obj.GetComponent<LockController>().GenerateKey(prefab);
+                        obj.GetComponent<ItemController>().GenerateKey(prefab);
                     }
                     else if (keyPrefab.CompareTag(nodeProperty.keyTag))
                     {
                         prefab = keyPrefab;
-                        obj.GetComponent<LockController>().GenerateKey(prefab);
-                    }
+                        obj.GetComponent<ItemController>().GenerateKey(prefab);
+                    }*/
                 }
 
                 nodesPool.Add(obj.gameObject);

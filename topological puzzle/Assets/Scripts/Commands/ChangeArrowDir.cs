@@ -4,11 +4,10 @@ using UnityEngine;
 
 public class ChangeArrowDir : Command
 {
+    public List<Command> affectedCommands = new List<Command>();
     private List<GameObject> affectedObjects = new List<GameObject>();
     //private Node commandOwner;
     private Arrow arrow;
-    private Transform key;
-    private Transform padLock;
     //private TransformToBasicNode transformToBasicNode;
     private GameManager gameManager;
     private bool wasLocked = false;
@@ -20,29 +19,16 @@ public class ChangeArrowDir : Command
     public delegate void OnUndoDelegate(GameObject arrow);
     public static event OnUndoDelegate OnUndo;
 
-    public ChangeArrowDir(GameManager gameManager, Commands nextCommand, LayerMask targetLM, bool isCommandOwnerPermanent)
+    public ChangeArrowDir(GameManager gameManager, bool isCommandOwnerPermanent)
     {
-        this.nextCommand = nextCommand;
-        this.targetLM = targetLM;
-        //this.commandOwner = commandOwner;
         this.gameManager = gameManager;
-        /* (commandOwner != null)
-        {
-            isCommandOwnerPermanent = commandOwner.isPermanent;
-        }*/
         this.isCommandOwnerPermanent = isCommandOwnerPermanent;
     }
 
 
     public override void Execute(List<GameObject> selectedObjects)
     {
-        //gameManager.timeID++;
         executionTime = gameManager.timeID;
-        /*if (commandOwner != null)
-        {
-            transformToBasicNode = new TransformToBasicNode(commandOwner);
-            transformToBasicNode.Transform();
-        }*/
 
         affectedObjects.Add(selectedObjects[0]);
 
@@ -59,18 +45,20 @@ public class ChangeArrowDir : Command
 
     public override void Undo(bool skipPermanent = true)
     {
-        //gameManager.timeID--;
-        /*if (transformToBasicNode != null)
+
+        if (!isCommandOwnerPermanent | !skipPermanent)
         {
-            transformToBasicNode.Undo();
-            transformToBasicNode = null;
+            gameManager.paletteSwapper.ChangePalette(gameManager.changeArrowDirPalette, 0.2f);
+            gameManager.ChangeCommand(Commands.ChangeArrowDir, LayerMask.GetMask("Arrow"));
+        }
+        /*if(!isCommandOwnerPermanent | skipPermanent)
+        {
+            foreach (var item in affectedCommands)
+            {
+                item.Undo(skipPermanent);
+            }
         }*/
 
-        if (!isCommandOwnerPermanent)
-            gameManager.ChangeCommand(nextCommand, targetLM, targetIndegree);
-        // Arrow disappear
-        // Update source and destination
-        // Arrow Appear
         if (arrow.gameObject.CompareTag("PermanentArrow") && skipPermanent)
         {
             InvokeOnUndoSkipped(this);

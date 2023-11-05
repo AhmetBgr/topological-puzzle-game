@@ -442,7 +442,7 @@ public class LevelEditor : MonoBehaviour{
         levelNameField.text = curLevel.name.Replace("(Clone)", "");
 
         GameState.ChangeGameState(GameState_EN.inLevelEditor);
-        gameManager.ChangeCommand(Commands.None, LayerMask.GetMask("Node", "Arrow"), 0, true);
+        gameManager.ChangeCommand(Commands.None, LayerMask.GetMask("Node", "Arrow"), 0, levelEditorBypass: true);
         lastState = LeState.waiting;
         state = LeState.waiting;
         //StartCoroutine(commandHandler.UndoAll());

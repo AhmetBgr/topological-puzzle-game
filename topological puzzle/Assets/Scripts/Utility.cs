@@ -1,11 +1,8 @@
 using System.Collections;
-using System.Collections.Generic;
-using System;
 using UnityEngine;
-using UnityEngine.Tilemaps;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-
+using UnityEngine.UI;
 public enum Direction {
     right,
     left,
@@ -49,8 +46,6 @@ public static class Utility
 	public static void SetActiveObj(GameObject obj, bool active){
 		obj.SetActive(active);
 	}
-
-
     public static GameObject CheckForObjectAt(Vector3 pos, LayerMask lm)
     {
         RaycastHit2D hit = Physics2D.Raycast(pos, Vector2.zero, distance: 5f, lm);
@@ -118,5 +113,12 @@ public static class Utility
             return Direction.down;
         else
             return Direction.none;
+    }
+
+    public static IEnumerator MakeButtonNoninteractive(Button button, float duration)
+    {
+        button.interactable = false;
+        yield return new WaitForSeconds(duration);
+        button.interactable = true;
     }
 }

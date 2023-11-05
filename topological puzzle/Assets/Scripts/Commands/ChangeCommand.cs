@@ -11,34 +11,28 @@ public class ChangeCommand : Command
     public static event OnUndoDelegate OnUndo;
 
     private GameManager gameManager;
+    private Target previousTarget;
+    private Target target;
     private Node commandOwner;
-    private UnlockNode unlockNode;
-    private RemoveNode removeNode;
     private TransformToBasicNode transformToBasicNode;
 
-    private bool isPermanent = false;
+    public bool isPermanent = false;
     
-    public ChangeCommand(GameManager gameManager, Commands nextCommand, LayerMask targetLM, Node commandOwner, int targetIndegree = 0){
+    public ChangeCommand(GameManager gameManager, Node commandOwner, Target previousTarget, Target target) 
+    {
         this.gameManager = gameManager;
-        this.nextCommand = nextCommand;
-        this.targetLM = targetLM;
-        this.targetIndegree = targetIndegree;
         this.commandOwner = commandOwner;
-        isPermanent = commandOwner.isPermanent;
+
+        this.previousTarget = previousTarget;
+        this.target = target;
     }
     
-    public bool ChangeCommandOnNodeRemove(GameObject affectedObject, KeyManager keyManager){
+    public bool ChangeCommandOnNodeRemove(GameObject affectedObject, ItemManager itemManager){
         Node node = affectedObject.GetComponent<Node>();
 
         if(affectedObject.CompareTag("SquareNode")) {
             if(LevelManager.arrowCount <= 0){ return false; }
 
-
-            if (node.lockController.hasPadLock && KeyManager.keyCount > 0)
-            {
-                unlockNode = new UnlockNode(gameManager, node);
-                unlockNode.Unlock(keyManager);
-            }
             
             if (commandOwner != null)
             {
@@ -52,11 +46,6 @@ public class ChangeCommand : Command
         }
 
         if(affectedObject.CompareTag("SwapNode")){
-            if (node.lockController.hasPadLock && KeyManager.keyCount > 0)
-            {
-                unlockNode = new UnlockNode(gameManager, node);
-                unlockNode.Unlock(keyManager);
-            }
             
             if (commandOwner != null)
             {
@@ -71,58 +60,40 @@ public class ChangeCommand : Command
         return false;
     }
 
-    public override void Execute(List<GameObject> selectedObjects){
-        
-        if(OnExecute != null){
+    public override void Execute(List<GameObject> selectedObjects)
+    {
+        executionTime = gameManager.timeID;
+
+        gameManager.ChangeCommand(target.nextCommand, target.targetLM, target.targetIndegree, target.itemType);
+        gameManager.paletteSwapper.ChangePalette(target.palette, 0.2f);
+
+        if (OnExecute != null){
             OnExecute();
         }
     }
 
     public override void Undo(bool skipPermanent = true)
     {
-        if (unlockNode != null )
-        { 
-            unlockNode.Undo(skipPermanent);
-            unlockNode = null;
-        }
-
-        
         if (isPermanent && skipPermanent)
         {
             InvokeOnUndoSkipped(this);
             Debug.Log("Change command is permanent");
             return;
         }
-        
-        
+
+        gameManager.ChangeCommand(previousTarget.nextCommand, previousTarget.targetLM, 
+            previousTarget.targetIndegree, previousTarget.itemType);
+        gameManager.paletteSwapper.ChangePalette(previousTarget.palette, 0.2f);
+
         if (transformToBasicNode != null)
         {
             transformToBasicNode.Undo();
             transformToBasicNode = null;
         }
 
-        gameManager.ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"));
 
         if(OnUndo != null){
             OnUndo();
         }
     }
-
-    /*public void UndoNonPermanent()
-    {
-
-        if (unlockNode != null )
-        { 
-            unlockNode.Undo();
-            unlockNode = null;
-        }
-        
-        commandHandler.ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"));
-
-        if(OnUndo != null){
-            OnUndo();
-        }
-    }*/
-    
-    
 }

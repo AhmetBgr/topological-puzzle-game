@@ -11,7 +11,6 @@ public class RemoveArrow : Command
     public static event OnUndoDelegate OnUndo;
 
     private Arrow arrow;
-    private MoveKeyToPadlock moveKeyToPadlock;
     private GameManager gameManager;
 
     private List<GameObject> affectedObjects = new List<GameObject>();
@@ -41,7 +40,6 @@ public class RemoveArrow : Command
     public override void Undo(bool skipPermanent = true){
         if (arrow.gameObject.CompareTag("PermanentArrow") && skipPermanent)
         {
-            Debug.Log("arrow is permanent should not appear again");
             arrow.gameObject.SetActive(false);
             InvokeOnUndoSkipped(this);
             return;
