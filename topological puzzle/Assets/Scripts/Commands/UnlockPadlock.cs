@@ -106,6 +106,7 @@ public class UnlockPadlock : Command
         {
             gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, 0.2f);
             gameManager.ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"), 0);
+            Debug.Log("hereeee");
         }
         else
         {

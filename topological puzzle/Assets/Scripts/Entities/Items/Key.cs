@@ -8,6 +8,8 @@ public class Key : Obtainable
 {
     public SpriteRenderer keySR;
     public RandomSpriteColor randomSpriteColor;
+
+
     protected override void Start()
     {
         base.Start();
@@ -28,6 +30,20 @@ public class Key : Obtainable
         }
 
         randomSpriteColor.enabled = isPermanent;
+    }
+
+
+    public override void Use()
+    {
+        Target target = new Target(Commands.UnlockPadlock, LayerMask.GetMask("Node"), gameManager.unlockPadlockPalette, ItemType.Padlock);
+
+        Target previousTarget = new Target(Commands.RemoveNode, LayerMask.GetMask("Node"), gameManager.defPalette);
+
+        ChangeCommand changeCommand = new ChangeCommand(gameManager, null, previousTarget, target);
+        changeCommand.isPermanent = isPermanent;
+        changeCommand.Execute();
+
+        //gameManager.AddToOldCommands(changeCommand);
     }
 
     public override void MoveWithTween(Action moveAction)

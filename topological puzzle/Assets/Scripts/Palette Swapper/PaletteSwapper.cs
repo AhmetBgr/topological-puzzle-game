@@ -16,6 +16,7 @@ public class PaletteSwapper : MonoBehaviour
     [Range(0, 25)]
     public int selected_palette = 0;
 
+    public Palette curPalette;
 
     public delegate void OnPaletteChangeDelegate(Palette palette, float delay);
     public static event OnPaletteChangeDelegate OnPaletteChange;
@@ -23,6 +24,7 @@ public class PaletteSwapper : MonoBehaviour
 
     public void ChangePalette(Palette palette, float delay = 1f)
     {
+        curPalette = palette;
         if (OnPaletteChange != null)
         {
             OnPaletteChange(palette, delay);

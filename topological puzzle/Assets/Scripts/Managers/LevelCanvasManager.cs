@@ -31,7 +31,9 @@ public class LevelCanvasManager : MonoBehaviour
         LevelManager.OnLevelLoad += UpdateNextLevelButton;
         LevelManager.OnLevelLoad += UpdatePreviousLevelButton;
         GameState.OnAnimationStart += MakeUndoNoninteractive;
-        mainItemContainer.OnContainerChanged += UpdateUseItemButtonBCImage;
+        //mainItemContainer.OnContainerChanged += UpdateUseItemButtonBCImage;
+        Item.OnUsabilityChanged += UpdateUseItemButtonBCImage;
+        LevelManager.OnLevelLoad += Reset;
         LevelEditor.OnEnter += DisableUseItemButton;
         LevelEditor.OnExit += EnableUseItemButton;
         //LevelEditor.OnEnter += ToggleLevelChangeButtons;
@@ -45,7 +47,9 @@ public class LevelCanvasManager : MonoBehaviour
         LevelManager.OnLevelLoad -= UpdateNextLevelButton;
         LevelManager.OnLevelLoad -= UpdatePreviousLevelButton;
         GameState.OnAnimationStart -= MakeUndoNoninteractive;
-        mainItemContainer.OnContainerChanged -= UpdateUseItemButtonBCImage;
+        //mainItemContainer.OnContainerChanged -= UpdateUseItemButtonBCImage;
+        Item.OnUsabilityChanged -= UpdateUseItemButtonBCImage;
+        LevelManager.OnLevelLoad += Reset;
         LevelEditor.OnEnter -= DisableUseItemButton;
         LevelEditor.OnExit -= EnableUseItemButton;
         //LevelEditor.OnEnter -= ToggleLevelChangeButtons;
@@ -129,9 +133,9 @@ public class LevelCanvasManager : MonoBehaviour
         StartCoroutine(Utility.MakeButtonNoninteractive(undoButton, duration));
     }
 
-    private void UpdateUseItemButtonBCImage(List<Item> items)
+    private void UpdateUseItemButtonBCImage(bool isUsable) //List<Item> items
     {
-        if(items.Count == 0)
+        if(!isUsable) //items.Count == 0
         {
             useItemButton.interactable = false;
             useItemButtonBCImage.color = red;
@@ -171,6 +175,12 @@ public class LevelCanvasManager : MonoBehaviour
     private void EnableUseItemButton()
     {
         useItemButton.gameObject.SetActive(true);
+    }
+
+    private void Reset()
+    {
+        useItemButton.interactable = false;
+        useItemButtonBCImage.color = red;
     }
 
     /*public void ChangeColor(Color[] colors)

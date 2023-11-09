@@ -54,6 +54,8 @@ public class RemoveNode : Command
             affectedCommands[i].isRewindCommand = false;
         }
 
+        itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
+
         if (OnExecute != null)
         {
             OnExecute(obj, this);

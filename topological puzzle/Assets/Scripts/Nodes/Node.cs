@@ -66,6 +66,7 @@ public class Node : MonoBehaviour
         GameManager.OnCurCommandChange += CheckIfSuitable;
         GameManager.OnGetNodes += AddNodeToPool;
         LevelManager.OnLevelLoad += GetOnTheLevel;
+        Item.OnUsabilityCheck += CheckIfSuitableForKey;
     }
 
     void OnDisable(){
@@ -74,6 +75,7 @@ public class Node : MonoBehaviour
         GameManager.OnCurCommandChange -= CheckIfSuitable;
         GameManager.OnGetNodes -= AddNodeToPool;
         LevelManager.OnLevelLoad -= GetOnTheLevel;
+        Item.OnUsabilityCheck -= CheckIfSuitableForKey;
     }
 
     void OnMouseEnter(){
@@ -179,6 +181,16 @@ public class Node : MonoBehaviour
             nodeColorController.Highlight(nodeColorController.glowIntensityVeryLow, 1f);
             col.enabled = false;
         }   
+    }
+
+    protected virtual void CheckIfSuitableForKey()
+    {
+        bool hasRequiredItem = itemController.FindItemWithType(ItemType.Padlock) != null ? true : false;
+
+        if (indegree == 0 && hasRequiredItem)
+        {
+            Key.suitableObjCount++;
+        }
     }
 
     public void AddToArrowsFromThisNodeList(GameObject arrowToAdd){

@@ -27,7 +27,7 @@ public class GameManager : MonoBehaviour{
     public Commands curCommand;
     public LayerMask targetLM;
 
-    private UnlockPadlock unlockPadlock;
+    //private UnlockPadlock unlockPadlock;
 
     public List<GameObject> selectedObjects = new List<GameObject>();
     public List<Node> nodesPool = new List<Node>();
@@ -183,6 +183,9 @@ public class GameManager : MonoBehaviour{
                 {
                     timeID++;
                     commandOwner = selectedObjects[0].GetComponent<Node>();
+                    Key key = itemManager.itemContainer.GetLastItem().GetComponent<Key>();
+
+                    UnlockPadlock unlockPadlock = new UnlockPadlock(this, itemManager, commandOwner, key);
                     unlockPadlock.node = commandOwner;
                     unlockPadlock.Execute();
 
@@ -230,7 +233,14 @@ public class GameManager : MonoBehaviour{
                 {
                     palette = changeArrowDirPalette;
                 }
+                else if(curCommand == Commands.UnlockPadlock)
+                {
+                    palette = unlockPadlockPalette;
+                }
+
+                //if(paletteSwapper.curPalette == rewindPalette)
                 paletteSwapper.ChangePalette(palette, 0.62f);
+
                 time = maxUndoDur;
                 rewindStarted = false;
                 RewindBPointerUp(rewindImageParent.GetComponent<CanvasGroup>());
@@ -326,7 +336,7 @@ public class GameManager : MonoBehaviour{
         UpdateChangesCounter();
     }
 
-    private void AddToOldCommands(Command command)
+    public void AddToOldCommands(Command command)
     {
         oldCommands.Add(command);
         //rewindCount = 0;
@@ -400,7 +410,7 @@ public class GameManager : MonoBehaviour{
         {
             //timeID++;
             Key key = item.GetComponent<Key>();
-            unlockPadlock = new UnlockPadlock(this, itemManager, commandOwner, key); //, Commands.UnlockPadlock, LayerMask.GetMask("Node")
+            //unlockPadlock = new UnlockPadlock(this, itemManager, commandOwner, key); //, Commands.UnlockPadlock, LayerMask.GetMask("Node")
 
             Target target = new Target(Commands.UnlockPadlock, LayerMask.GetMask("Node"), unlockPadlockPalette, ItemType.Padlock);
 

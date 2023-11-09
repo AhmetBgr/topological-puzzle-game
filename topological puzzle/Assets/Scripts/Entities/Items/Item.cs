@@ -16,24 +16,57 @@ public class Item : MonoBehaviour
     protected Node owner;
     protected Tween moveTween;
     protected Sequence sequence;
+    protected GameManager gameManager;
 
+    public static int suitableObjCount = 0;
 
     public bool isObtainable;
     public bool isTransportable;
     public bool isPermanent;
 
 
+    public delegate void OnUsabilityCheckDelegate();
+    public static event OnUsabilityCheckDelegate OnUsabilityCheck;
+
+    public delegate void OnUsabilityChangedDelegate(bool isUsable);
+    public static event OnUsabilityChangedDelegate OnUsabilityChanged;
+
     protected virtual void Start()
     {
+        gameManager = FindObjectOfType<GameManager>();
     }
 
-
-    public virtual void Transport()
+    public virtual void CheckAndUse()
     {
+        StartCoroutine(CheckAndUseWithDelay(0.1f));
     }
 
-    public virtual void Get()
+    public virtual IEnumerator CheckAndUseWithDelay(float delay)
     {
+        yield return new WaitForSeconds(delay);
+
+        if (OnUsabilityCheck != null)
+        {
+            OnUsabilityCheck();
+        }
+        bool isUsable = false;
+        if (suitableObjCount > 0)
+        {
+            isUsable = true;
+            Use();
+        }
+
+        if(OnUsabilityChanged != null)
+        {
+            OnUsabilityChanged(isUsable);
+        }
+
+        suitableObjCount = 0;
+    }
+
+    public virtual void Use()
+    {
+
     }
 
     public virtual void PlayAnimSequence(Sequence seq)

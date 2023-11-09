@@ -34,6 +34,8 @@ public class GetItem : Command
         itemController.RemoveItem(item, skipFix: true);
         itemManager.itemContainer.AddItem(item, -1, skipFix: true);
 
+        //item.CheckIfUsable();
+
         if (OnExecute != null)
         {
             OnExecute();
