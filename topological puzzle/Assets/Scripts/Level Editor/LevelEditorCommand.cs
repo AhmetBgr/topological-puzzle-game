@@ -212,6 +212,7 @@ public class TogglePadLock : LeCommand
         
         Node node = selectedObject.GetComponent<Node>();
         TogglePadLockFunc(node);
+
         affectedNode = node;
         return 1;
     }
@@ -232,7 +233,7 @@ public class TogglePadLock : LeCommand
             //itemController.GeneratePadLock(prefab);
             itemController.GenerateItem(prefab);
         }
-
+        itemController.itemContainer.FixItemPositions();
     }
 
 
@@ -267,6 +268,7 @@ public class ToggleKey : LeCommand
     {
         itemController = node.itemController;
         item = itemController.GenerateItem(prefab).GetComponent<Item>();
+        itemController.itemContainer.FixItemPositions();
     }
 
 
@@ -274,6 +276,33 @@ public class ToggleKey : LeCommand
     {
         itemController.RemoveItem(item);
         LevelEditor.Destroy(item.gameObject);
+        return null;
+    }
+}
+
+public class DeleteItem : LeCommand
+{
+    private Item item;
+    private int index;
+    ItemController itemController;
+
+    public DeleteItem(Item item, ItemController itemController)
+    {
+        this.item = item;
+        this.itemController = itemController;
+    }
+    public override int Execute(GameObject selectedObject)
+    {
+        itemController.RemoveItem(item);
+        item.transform.SetParent(LevelManager.curLevel.transform);
+        item.gameObject.SetActive(false);
+        return 1;
+    }
+
+    public override GameObject Undo()
+    {
+        item.gameObject.SetActive(true);
+        itemController.itemContainer.AddItem(item, index);
         return null;
     }
 }
