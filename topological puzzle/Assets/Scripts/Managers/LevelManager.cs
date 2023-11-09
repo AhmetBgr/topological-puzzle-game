@@ -240,16 +240,13 @@ public class LevelManager : MonoBehaviour{
                     nodeP.arrowsIDToThisNode.Add(arrow.GetInstanceID());
                 }
 
-                /*if (node.itemController && node.itemController.padLock)
+                foreach (var item in node.itemController.itemContainer.items)
                 {
-                    nodeP.padLockTag = node.itemController.padLock.tag;
+                    string tag = item.isPermanent ? "p," + item.tag : item.tag;
+
+                    nodeP.itemTags.Add(tag);
                 }
 
-                if (node.itemController && node.itemController.key)
-                {
-                    nodeP.keyTag = node.itemController.key.tag;
-                }*/
-                
                 levelProperty.nodes.Add(nodeP);
 
                 levelProperty.nodeCount++;
@@ -278,6 +275,11 @@ public class LevelManager : MonoBehaviour{
 
                 levelProperty.arrows.Add(arrowP);
                 levelProperty.arrowCount++;
+
+                if (arrow.CompareTag("TransporterArrow"))
+                {
+                    arrowP.priority = arrow.GetComponent<Transporter>().priority;
+                }
             }
         }
 
@@ -347,35 +349,14 @@ public class LevelManager : MonoBehaviour{
                 obj.tag = nodeProperty.tag;
                 obj.name = nodeProperty.id.ToString();
                 obj.SetParent(levelParent);
-                
-                if (nodeProperty.padLockTag != null) // generate padlock if node has one
+
+                GameObject prefab;
+                // Generate items that this node have
+                foreach (var tag in nodeProperty.itemTags)
                 {
-                    GameObject prefab;
-                    /*if (permanentPadLockPrefab.CompareTag(nodeProperty.padLockTag))
-                    {
-                        prefab = permanentPadLockPrefab;
-                        obj.GetComponent<ItemController>().GeneratePadLock(prefab);
-                    }
-                    else if (padLockPrefab.CompareTag(nodeProperty.padLockTag))
-                    {
-                        prefab = padLockPrefab;
-                        obj.GetComponent<ItemController>().GeneratePadLock(prefab);
-                    }*/
-                }
-                
-                if (nodeProperty.keyTag != null) // generate key if the node has one
-                {
-                    /*GameObject prefab;
-                    if (permanentKeyPrefab.CompareTag(nodeProperty.keyTag))
-                    {
-                        prefab = permanentKeyPrefab;
-                        obj.GetComponent<ItemController>().GenerateKey(prefab);
-                    }
-                    else if (keyPrefab.CompareTag(nodeProperty.keyTag))
-                    {
-                        prefab = keyPrefab;
-                        obj.GetComponent<ItemController>().GenerateKey(prefab);
-                    }*/
+                    prefab = GetPrefabAndPoolByTag(tag).prefab;
+
+                    obj.GetComponent<ItemController>().GenerateItem(prefab);
                 }
 
                 nodesPool.Add(obj.gameObject);
@@ -401,6 +382,11 @@ public class LevelManager : MonoBehaviour{
 
                 arrow.FixHeadPos();
                 arrow.FixCollider();
+
+                if (arrow.CompareTag("TransporterArrow"))
+                {
+                    arrow.GetComponent<Transporter>().priority = arrowProperty.priority;
+                }
 
                 arrowsPool.Add(obj.gameObject);
             }
@@ -478,6 +464,14 @@ public class LevelManager : MonoBehaviour{
         else if (tag == "TransporterArrow")
         {
             prefabAndPool.prefab = transporterArrow;
+        }
+        else if (tag.Contains("Key"))
+        {
+            prefabAndPool.prefab = tag.Contains("p,") ? permanentKeyPrefab : keyPrefab;
+        }
+        else if (tag.Contains("Padlock"))
+        {
+            prefabAndPool.prefab = tag.Contains("p,") ? permanentPadLockPrefab : padLockPrefab;
         }
         return prefabAndPool;
     }

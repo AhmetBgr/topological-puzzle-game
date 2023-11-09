@@ -21,6 +21,8 @@ public class NodeProperty{
     public string padLockTag; // null for no padlock
     public string keyTag; // null for no key
 
+    public List<string> itemTags = new List<string>(); // items that this node have
+
     public List<double> arrowsIDFromThisNode = new List<double>();
     public List<double> arrowsIDToThisNode = new List<double>();
 }
@@ -34,5 +36,6 @@ public class ArrowProperty{
     public double startingNodeID;
     public double destinationNodeID;
     public SVector3[] points;
+    public int priority; // for transporter arrow
     //public List<Vector3> points = new List<Vector3>();
 }

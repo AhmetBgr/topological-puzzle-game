@@ -34,7 +34,7 @@ public class ItemContainer : MonoBehaviour
         containerPos = transform.parent.localPosition + transform.localPosition;
     }
 
-    public void AddItem(Item addedItem, int index, bool skipFix = false)
+    public void AddItem(Item addedItem, int index, bool skipFix = false, bool setInstantAnim = false)
     {
         if (items.Contains(addedItem)) return;
 
@@ -54,7 +54,7 @@ public class ItemContainer : MonoBehaviour
 
         if (skipFix) return;
 
-        FixItemPositions();
+        FixItemPositions(setInstantAnim: setInstantAnim);
     }
 
     /*public void AddItems(List<Item> addedItems)
@@ -117,7 +117,7 @@ public class ItemContainer : MonoBehaviour
         return items[items.Count - 1];
     }
 
-    public void FixItemPositions(bool setDelayBetweenFixes = false)
+    public void FixItemPositions(bool setDelayBetweenFixes = false, bool setInstantAnim = false)
     {
         Vector3 pivot3 = Vector3.right * ((int)pivot);
         Vector3 nextItemPos = (-(items.Count - 1) * gap) * ( (pivot3 + 1*Vector3.right) / 2);
@@ -126,7 +126,7 @@ public class ItemContainer : MonoBehaviour
         for (int i = 0; i < items.Count; i++)
         {
             Item item = items[i];
-            Vector3 pos; 
+            Vector3 pos;
             /*if(sequence != null)
             {
                 //sequence.Complete();
@@ -134,6 +134,18 @@ public class ItemContainer : MonoBehaviour
 
             }*/
 
+            if (setInstantAnim)
+            {
+                pos = containerPos + nextItemPos;
+                item.transform.position = pos;
+                item.transform.localScale = style == Style.Main ? Vector3.one * 2 : Vector3.one;
+                item.transform.SetParent(style == Style.Main ? LevelManager.curLevel.transform : transform);
+                nextItemPos += Vector3.right * gap;
+                continue;
+            }
+
+            float dur = setInstantAnim ? 0f : 0.5f;
+            setDelayBetweenFixes = setInstantAnim ? false : setDelayBetweenFixes;
             sequence = DOTween.Sequence();
             if (setDelayBetweenFixes)
             {
@@ -141,21 +153,23 @@ public class ItemContainer : MonoBehaviour
                 delay += 0.15f;
             }
 
+
+
             if(style == Style.Main)
             {
                 pos = containerPos + nextItemPos;
-                sequence.Append(item.transform.DOMove(pos, 0.5f));
-                sequence.Append(item.transform.DOScale(2f, 0.5f)
+                sequence.Append(item.transform.DOMove(pos, dur));
+                sequence.Append(item.transform.DOScale(2f, dur)
                     .OnComplete(() => item.transform.SetParent(LevelManager.curLevel.transform))
-                    .SetDelay(-0.5f));
+                    .SetDelay(-dur));
             }
             else if (style == Style.Node)
             {
                 pos = containerPos + nextItemPos;
-                sequence.Append(item.transform.DOMove(pos, 0.5f));
-                sequence.Append(item.transform.DOScale(1f, 0.5f)
+                sequence.Append(item.transform.DOMove(pos, dur));
+                sequence.Append(item.transform.DOScale(1f, dur)
                     .OnComplete(() => item.transform.SetParent(transform))
-                    .SetDelay(-0.5f));
+                    .SetDelay(-dur));
             }
             sequence.OnComplete(() => sequence.Kill());
             item.PlayAnimSequence(sequence);

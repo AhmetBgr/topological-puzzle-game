@@ -141,7 +141,7 @@ public class ItemController : MonoBehaviour
         Transform item = Instantiate(prefab, Vector3.zero, Quaternion.identity, parent: itemContainer.transform).transform;
         //item.SetParent(itemContainer.itemContainer);
         itemContainer.FindContainerPos();
-        itemContainer.AddItem(item.GetComponent<Item>(), -1);
+        itemContainer.AddItem(item.GetComponent<Item>(), -1, setInstantAnim: true);
 
         if (item.CompareTag("Padlock"))
         {
