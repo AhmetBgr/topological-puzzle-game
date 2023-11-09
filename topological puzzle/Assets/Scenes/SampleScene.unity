@@ -1121,12 +1121,12 @@ MonoBehaviour:
   keyPrefab: {fileID: 3553593485385679789, guid: dc6b6610fc9dc9840b21e5a20241d155, type: 3}
   permanentKeyPrefab: {fileID: 8054850336622291759, guid: e33c0fafe9c0e6f4084886bba04849bd, type: 3}
   levels:
-  - {fileID: 714020438721259736, guid: a111fed044146f24185ff5d7a7437295, type: 3}
   - {fileID: 134099786, guid: 7cf8b16966e1f3a47a54a1a180274239, type: 3}
   - {fileID: 7009697262842516557, guid: 80d0bcd2a8fc676458568cd896d2a9d7, type: 3}
   - {fileID: 5121045978570493913, guid: 1cc4515b12683354fbc352d84f527b56, type: 3}
   - {fileID: 6399002543511430289, guid: a878faf1d3da7a540a4a7ed6ad7b438f, type: 3}
   - {fileID: 8707239450607667705, guid: ff514953f65d1f94bb2838ce46007bc7, type: 3}
+  - {fileID: 714020438721259736, guid: a111fed044146f24185ff5d7a7437295, type: 3}
   - {fileID: 134099786, guid: 239827138161cb342a6e1816954ea090, type: 3}
   - {fileID: 6665667482354899828, guid: 620fb292c8c513e4d839940b33859166, type: 3}
   - {fileID: 7427449459860443930, guid: 9a0a6677bb3918744bb1cf380c821593, type: 3}
@@ -10825,9 +10825,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemContainer: {fileID: 1966680719}
-  keyContainer: {fileID: 1524515378}
-  usedKeyContainer: {fileID: 1734161428}
-  nextKeyToUseImage: {fileID: 1369166095}
 --- !u!4 &1021796666
 Transform:
   m_ObjectHideFlags: 0
@@ -12540,6 +12537,7 @@ MonoBehaviour:
   mainItemContainer: {fileID: 1966680719}
   red: {r: 0.3764706, g: 0, b: 0.09411765, a: 1}
   green: {r: 0, g: 0.3764706, b: 0.1764706, a: 1}
+  inEditor: 1
 --- !u!1 &1363842466
 GameObject:
   m_ObjectHideFlags: 0

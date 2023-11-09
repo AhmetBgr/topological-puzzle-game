@@ -8,16 +8,18 @@ public class SwapNodes : Command
 
     static int nodeCount = 0;
 
+    private List<GameObject> selectedObjects = new List<GameObject>();
     private List<GameObject> affectedObjects = new List<GameObject>();
     private Node commandOwner;
 
-    public SwapNodes(GameManager gameManager, Node commandOwner)
+    public SwapNodes(GameManager gameManager, Node commandOwner, List<GameObject> selectedObjects)
     {
         this.commandOwner = commandOwner;
         this.gameManager = gameManager;
+        this.selectedObjects.AddRange(selectedObjects);
     }
 
-    public override void Execute(List<GameObject> selectedObjects)
+    public override void Execute()
     {
         executionTime = gameManager.timeID;
 
@@ -36,11 +38,12 @@ public class SwapNodes : Command
         }
     }
 
-    public override void Undo(bool skipPermanent = true)
+    public override bool Undo(bool skipPermanent = true)
     {
         // Swap postions between two nodes
         commandOwner.TransformBackToDef();
         SwapNodesFunc(affectedObjects);
+        return false;
     }
 
 

@@ -20,7 +20,12 @@ public class ItemContainer : MonoBehaviour
 
     void Start()
     {
-        if(transform.parent == null)
+        FindContainerPos();
+    }
+
+    public void FindContainerPos()
+    {
+        if (transform.parent == null)
         {
             containerPos = transform.localPosition;
             return;
@@ -31,6 +36,8 @@ public class ItemContainer : MonoBehaviour
 
     public void AddItem(Item addedItem, int index, bool skipFix = false)
     {
+        if (items.Contains(addedItem)) return;
+
         if(index < 0 | index >= items.Count)
         {
             items.Add(addedItem);
@@ -43,7 +50,6 @@ public class ItemContainer : MonoBehaviour
         if (OnContainerChanged != null)
         {
             OnContainerChanged(items);
-            Debug.Log("should Invoke");
         }
 
         if (skipFix) return;
@@ -83,7 +89,6 @@ public class ItemContainer : MonoBehaviour
         if (OnContainerChanged != null)
         {
             OnContainerChanged(items);
-            Debug.Log("should Invoke2");
         }
 
         if (skipFix) return;

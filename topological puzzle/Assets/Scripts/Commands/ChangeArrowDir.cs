@@ -7,6 +7,7 @@ public class ChangeArrowDir : Command
     public List<Command> affectedCommands = new List<Command>();
     private List<GameObject> affectedObjects = new List<GameObject>();
     //private Node commandOwner;
+    private GameObject arrowObj;
     private Arrow arrow;
     //private TransformToBasicNode transformToBasicNode;
     private GameManager gameManager;
@@ -19,37 +20,45 @@ public class ChangeArrowDir : Command
     public delegate void OnUndoDelegate(GameObject arrow);
     public static event OnUndoDelegate OnUndo;
 
-    public ChangeArrowDir(GameManager gameManager, bool isCommandOwnerPermanent)
+    public ChangeArrowDir(GameManager gameManager, GameObject arrowObj, bool isCommandOwnerPermanent)
     {
+        this.arrowObj = arrowObj;
         this.gameManager = gameManager;
         this.isCommandOwnerPermanent = isCommandOwnerPermanent;
     }
 
 
-    public override void Execute(List<GameObject> selectedObjects)
+    public override void Execute()
     {
         executionTime = gameManager.timeID;
 
-        affectedObjects.Add(selectedObjects[0]);
+        affectedObjects.Add(arrowObj);
 
-        arrow = selectedObjects[0].GetComponent<Arrow>();
+        arrow = arrowObj.GetComponent<Arrow>();
         arrow.ChangeDir();
 
         if (OnExecute != null)
         {
-            OnExecute(selectedObjects[0]);
+            OnExecute(arrowObj);
         }
 
 
     }
 
-    public override void Undo(bool skipPermanent = true)
+    public override bool Undo(bool skipPermanent = true)
     {
 
         if (!isCommandOwnerPermanent | !skipPermanent)
         {
             gameManager.paletteSwapper.ChangePalette(gameManager.changeArrowDirPalette, 0.2f);
             gameManager.ChangeCommand(Commands.ChangeArrowDir, LayerMask.GetMask("Arrow"));
+        }
+        else
+        {
+            if (gameManager.skippedOldCommands.Contains(this))
+            {
+                gameManager.RemoveFromSkippedOldCommands(this);
+            }
         }
         /*if(!isCommandOwnerPermanent | skipPermanent)
         {
@@ -62,7 +71,7 @@ public class ChangeArrowDir : Command
         if (arrow.gameObject.CompareTag("PermanentArrow") && skipPermanent)
         {
             InvokeOnUndoSkipped(this);
-            return;
+            return true;
         }
 
         arrow.gameObject.SetActive(true);
@@ -73,5 +82,7 @@ public class ChangeArrowDir : Command
         {
             OnUndo(affectedObjects[0]);
         }
+
+        return false;
     }
 }

@@ -4,12 +4,17 @@ using UnityEngine;
 
 public abstract class Command {
     public float executionTime;
-    
+    public bool isRewindCommand = false;
+    //public bool skipped = false;
+
     public delegate void OnUndoSkippedDelegate(Command command);
     public static event OnUndoSkippedDelegate OnUndoSkipped;
     
-    public abstract void Execute(List<GameObject> selectedObjects);
-    public virtual void Undo(bool skipPermanent = true){ }
+    public abstract void Execute();
+    public virtual bool Undo(bool skipPermanent = true)         // returns true if whole undo is skipped
+    { 
+        return false; 
+    } 
 
     protected void InvokeOnUndoSkipped(Command command)
     {

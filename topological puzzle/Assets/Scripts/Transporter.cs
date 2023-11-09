@@ -53,6 +53,9 @@ public class Transporter : MonoBehaviour
     {
         Node node = arrow.startingNode.GetComponent<Node>();
 
+        //if (node.gameObject != removedNode) return;
+        if (command.isRewindCommand) return;
+
         foreach (var arrow in node.arrowsFromThisNode)
         {
             Transporter otherTransporter;
@@ -68,6 +71,9 @@ public class Transporter : MonoBehaviour
         if (startingItemCont.itemContainer.items.Count == 0) return;
 
         Item item = startingItemCont.FindLastTransportableItem();
+
+        //if (command.isRewindCommand && item.isPermanent) return;
+
         Node destNode = arrow.destinationNode.GetComponent<Node>();
 
         ItemController destLockCont = destNode.itemController;
@@ -77,18 +83,19 @@ public class Transporter : MonoBehaviour
             return;
         }*/
 
-        List<GameObject> affectedObjects = new List<GameObject>();
-        affectedObjects.Add(item.gameObject);
-        TransportCommand transportCommand = new TransportCommand(gameManager, this, startingItemCont, destLockCont, arrow);
+        //List<GameObject> affectedObjects = new List<GameObject>();
+        //affectedObjects.Add(item.gameObject);
+        TransportCommand transportCommand = new TransportCommand(gameManager, this, startingItemCont, 
+            destLockCont, arrow, item.gameObject);
 
-        StartCoroutine(TransportWithDelay(transportCommand, affectedObjects, command, 0.02f));
+        StartCoroutine(TransportWithDelay(transportCommand, command, 0.02f));
     }
 
-    private IEnumerator TransportWithDelay(TransportCommand transportCommand, List<GameObject> affectedObjects, RemoveNode command, float delay)
+    private IEnumerator TransportWithDelay(TransportCommand transportCommand, RemoveNode command, float delay)
     {
         yield return new WaitForSeconds(delay);
 
-        transportCommand.Execute(affectedObjects);
+        transportCommand.Execute();
         command.affectedCommands.Add(transportCommand);
     }
 

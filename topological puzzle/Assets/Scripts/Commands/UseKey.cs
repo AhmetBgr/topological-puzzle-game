@@ -10,30 +10,33 @@ public class UseKey : Command
     public delegate void OnUndoDelegate();
     public static event OnUndoDelegate OnUndo;
 
-    private Lock padlock;
+    //private Lock padlock;
     private ItemManager itemManager;
     private GameManager gameManager;
     private Key key;
+    private Vector3 padlockPos;
 
     private float dur = 1;
 
     private List<GameObject> affectedObjects = new List<GameObject>();
 
-    public UseKey(Lock padlock, ItemManager itemManager, GameManager gameManager, float dur = 1)
+    public UseKey(Key key, Vector3 padlockPos, ItemManager itemManager, GameManager gameManager, float dur = 1)
     {
-        this.padlock = padlock;
+        //this.padlock = padlock;
+        this.key = key;
+        this.padlockPos = padlockPos;
         this.itemManager = itemManager;
         this.gameManager = gameManager;
         this.dur = dur;
     }
 
-    public void Use()
+    public override void Execute()
     {
         executionTime = gameManager.timeID;
 
-        key = itemManager.GetLastItem().GetComponent<Key>();
+        // = itemManager.GetLastItem().GetComponent<Key>();
         itemManager.itemContainer.RemoveItem(key);
-        key.PlayAnimSequence(key.GetUnlockSequence(padlock, dur));
+        key.PlayAnimSequence(key.GetUnlockSequence(padlockPos, dur));
 
         if (OnExecute != null)
         {
@@ -41,17 +44,19 @@ public class UseKey : Command
         }
     }
 
-    public override void Execute(List<GameObject> selectedObjects)
-    {
-
-    }
-
-    public override void Undo(bool skipPermanent = true)
+    public override bool Undo(bool skipPermanent = true)
     {
         if (key.isPermanent && skipPermanent)
         {
             InvokeOnUndoSkipped(this);
-            return;
+            return true;
+        }
+        else
+        {
+            if (gameManager.skippedOldCommands.Contains(this))
+            {
+                gameManager.RemoveFromSkippedOldCommands(this);
+            }
         }
 
         itemManager.itemContainer.AddItem(key, -1);
@@ -60,5 +65,6 @@ public class UseKey : Command
         {
             OnUndo();
         }
+        return false;
     }
 }

@@ -17,15 +17,15 @@ public class PaletteSwapper : MonoBehaviour
     public int selected_palette = 0;
 
 
-    public delegate void OnPaletteChangeDelegate(Palette palette, float duration);
+    public delegate void OnPaletteChangeDelegate(Palette palette, float delay);
     public static event OnPaletteChangeDelegate OnPaletteChange;
 
 
-    public void ChangePalette(Palette palette, float duration = 1f)
+    public void ChangePalette(Palette palette, float delay = 1f)
     {
         if (OnPaletteChange != null)
         {
-            OnPaletteChange(palette, duration);
+            OnPaletteChange(palette, delay);
         }
     }
 

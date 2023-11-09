@@ -11,6 +11,8 @@ public class TransportCommand : Command
     private ItemController startingItemCont;
     private ItemController destItemCont;
     private Arrow arrow;
+    private GameObject itemObj;
+
 
     public delegate void OnExecuteDelegate(GameObject arrow);
     public static event OnExecuteDelegate OnExecute;
@@ -18,35 +20,47 @@ public class TransportCommand : Command
     public delegate void OnUndoDelegate(GameObject arrow);
     public static event OnUndoDelegate OnUndo;
 
-    public TransportCommand(GameManager gameManager, Transporter transporter, ItemController startingItemCont, ItemController destItemCont, Arrow arrow)
+    public TransportCommand(GameManager gameManager, Transporter transporter, 
+        ItemController startingItemCont, ItemController destItemCont, Arrow arrow, GameObject itemObj)
     {
         this.gameManager = gameManager;
         this.transporter = transporter;
         this.startingItemCont = startingItemCont;
         this.destItemCont = destItemCont;
         this.arrow = arrow;
+        this.itemObj = itemObj;
     }
 
 
-    public override void Execute(List<GameObject> selectedObjects)
+    public override void Execute()
     {
+        if (itemObj.GetComponent<Item>().isPermanent && isRewindCommand) return;
+
         executionTime = gameManager.timeID;
 
-        affectedObjects.Add(selectedObjects[0]);
-        transporter.Transport(selectedObjects[0].transform, startingItemCont, destItemCont, arrow.linePoints);
+        affectedObjects.Add(itemObj);
+        transporter.Transport(itemObj.transform, startingItemCont, destItemCont, arrow.linePoints, -1);
 
         if (OnExecute != null)
         {
-            OnExecute(selectedObjects[0]);
+            OnExecute(itemObj);
         }
     }
 
-    public override void Undo(bool skipPermanent = true)
+    public override bool Undo(bool skipPermanent = true)
     {
         if (affectedObjects[0].GetComponent<Item>().isPermanent  && skipPermanent)
         {
             InvokeOnUndoSkipped(this);
-            return;
+            //skipped = true;
+            return true;
+        }
+        else
+        {
+            if (gameManager.skippedOldCommands.Contains(this))
+            {
+                gameManager.RemoveFromSkippedOldCommands(this);
+            }
         }
 
         Vector3[] reversedPoints = (Vector3[])arrow.linePoints.Clone();
@@ -57,5 +71,6 @@ public class TransportCommand : Command
         {
             OnUndo(affectedObjects[0]);
         }
+        return false;
     }
 }

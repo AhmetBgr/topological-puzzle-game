@@ -35,10 +35,10 @@ public class Key : Obtainable
         base.MoveWithTween(moveAction);
     }
 
-    public Sequence GetUnlockSequence(Lock padlock, float dur = 1f)
+    public Sequence GetUnlockSequence(Vector3 padlockPos, float dur = 1f)
     {
         Sequence unlockSeq = DOTween.Sequence();
-        unlockSeq.Append(transform.DOMove(padlock.transform.position, dur*3/6));
+        unlockSeq.Append(transform.DOMove(padlockPos, dur*3/6));
         unlockSeq.Append(transform.DOScale(1f, dur*3/6)
             .SetDelay(-dur * 3 / 6)
             .OnComplete(() => {

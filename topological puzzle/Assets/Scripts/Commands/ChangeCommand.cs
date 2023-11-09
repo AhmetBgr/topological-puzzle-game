@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class ChangeCommand : Command
 {
+    public List<Command> affectedCommands = new List<Command>();
+
     public delegate void OnExecuteDelegate();
     public static event OnExecuteDelegate OnExecute;
 
@@ -37,7 +39,7 @@ public class ChangeCommand : Command
             if (commandOwner != null)
             {
                 transformToBasicNode = new TransformToBasicNode(gameManager, commandOwner);
-                transformToBasicNode.Transform();
+                transformToBasicNode.Execute();
             }
 
             gameManager.ChangeCommand(Commands.ChangeArrowDir, LayerMask.GetMask("Arrow"));
@@ -50,7 +52,7 @@ public class ChangeCommand : Command
             if (commandOwner != null)
             {
                 transformToBasicNode = new TransformToBasicNode(gameManager, commandOwner);
-                transformToBasicNode.Transform();
+                transformToBasicNode.Execute();
             }
 
             gameManager.ChangeCommand(Commands.SwapNodes, LayerMask.GetMask("Node"), levelEditorBypass: true);
@@ -60,7 +62,7 @@ public class ChangeCommand : Command
         return false;
     }
 
-    public override void Execute(List<GameObject> selectedObjects)
+    public override void Execute()
     {
         executionTime = gameManager.timeID;
 
@@ -72,13 +74,20 @@ public class ChangeCommand : Command
         }
     }
 
-    public override void Undo(bool skipPermanent = true)
+    public override bool Undo(bool skipPermanent = true)
     {
         if (isPermanent && skipPermanent)
         {
             InvokeOnUndoSkipped(this);
             Debug.Log("Change command is permanent");
-            return;
+            return true;
+        }
+        else
+        {
+            if (gameManager.skippedOldCommands.Contains(this))
+            {
+                gameManager.RemoveFromSkippedOldCommands(this);
+            }
         }
 
         gameManager.ChangeCommand(previousTarget.nextCommand, previousTarget.targetLM, 
@@ -90,10 +99,15 @@ public class ChangeCommand : Command
             transformToBasicNode.Undo();
             transformToBasicNode = null;
         }
-
-
+        for (int i = affectedCommands.Count -1; i >= 0; i--)
+        {
+            affectedCommands[i].Undo(skipPermanent);
+        }
+     
         if(OnUndo != null){
             OnUndo();
         }
+
+        return false;
     }
 }

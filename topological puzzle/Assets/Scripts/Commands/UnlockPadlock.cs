@@ -19,6 +19,7 @@ public class UnlockPadlock : Command
     private UseKey useKey;
     private Key key;
     private Lock padlock;
+    private Vector3 padlockPos;
     private int padlockIndex;
 
     private List<GameObject> affectedObjects = new List<GameObject>();
@@ -31,7 +32,7 @@ public class UnlockPadlock : Command
         this.key = key;
     }
 
-    public override void Execute(List<GameObject> selectedObjects = null)
+    public override void Execute()
     {
         executionTime = gameManager.timeID;
        
@@ -43,16 +44,27 @@ public class UnlockPadlock : Command
         GameState.OnAnimationStartEvent(1f);
 
         // move key to the padlock
-        padlock = itemController.FindLastItemWithType(ItemType.Padlock).GetComponent<Lock>();
-        useKey = new UseKey(padlock, itemManager, gameManager, dur);
-        useKey.Use();
+        Item padlockItem = itemController.FindLastItemWithType(ItemType.Padlock);
+        if (padlockItem)
+        {
+            padlock = padlockItem.GetComponent<Lock>();
+        }
+
+        padlockPos = padlock.transform.position;
+        //Key key = itemManager.GetLastItem().GetComponent<Key>();
+        useKey = new UseKey(key, padlockPos, itemManager, gameManager, dur);
+        useKey.Execute();
 
         // remove padlock from the node
-        itemController.hasPadLock = false;
+        //itemController.hasPadLock = false;
 
-        padlockIndex = itemController.itemContainer.GetItemIndex(padlock);
-        padlock.PlayAnimSequence(padlock.GetUnlockSequance(dur));
-        itemController.itemContainer.RemoveItem(padlock);
+        if (padlock)
+        {
+            padlockIndex = itemController.itemContainer.GetItemIndex(padlock);
+            padlock.PlayAnimSequence(padlock.GetUnlockSequance(dur));
+            itemController.RemoveItem(padlock);
+        }
+
 
         if (OnExecute != null)
         {
@@ -60,7 +72,7 @@ public class UnlockPadlock : Command
         }
     }
 
-    public override void Undo(bool skipPermanent = true)
+    public override bool Undo(bool skipPermanent = true)
     {
         if (useKey != null)
         {
@@ -71,7 +83,14 @@ public class UnlockPadlock : Command
         {
             InvokeOnUndoSkipped(this);
             Debug.Log("unlock undo skipped");
-            return;
+            return true;
+        }
+        else
+        {
+            if (gameManager.skippedOldCommands.Contains(this))
+            {
+                gameManager.RemoveFromSkippedOldCommands(this);
+            }
         }
         padlock.gameObject.SetActive(true);
         ItemController itemController = node.itemController;
@@ -98,5 +117,6 @@ public class UnlockPadlock : Command
         {
             OnUndo();
         }
+        return false;
     }
 }

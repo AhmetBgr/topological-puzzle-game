@@ -20,6 +20,8 @@ public class LevelCanvasManager : MonoBehaviour
     public Color red;
     public Color green;
 
+    public bool inEditor = true;
+
     private Sequence useItemButtonBCImageSeq;
 
     private void OnEnable()
@@ -56,18 +58,23 @@ public class LevelCanvasManager : MonoBehaviour
 
     private void UpdateNextLevelButton()
     {
-    #if UNITY_EDITOR
-        if (LevelManager.curLevelIndex == levelManager.levels.Length)
+
+        if (inEditor)
         {
-            nextLevelButton.gameObject.SetActive(false);
+            if (LevelManager.curLevelIndex == levelManager.levels.Length)
+            {
+                nextLevelButton.gameObject.SetActive(false);
+            }
+            else
+            {
+                nextLevelButton.gameObject.SetActive(true);
+            }
+            Debug.LogWarning("Unity Editor: " + this);
+            return;
         }
-        else
-        {
-            nextLevelButton.gameObject.SetActive(true);
-        }
-        Debug.LogWarning("Unity Editor: " + this);
-        return;
-    #endif
+        //#if UNITY_EDITOR
+
+        //#endif
 
         if (LevelManager.curLevelIndex == levelManager.levelProgressIndex )
         {

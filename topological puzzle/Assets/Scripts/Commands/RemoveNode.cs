@@ -14,20 +14,21 @@ public class RemoveNode : Command
 
     private ItemManager itemManager;
     private GameManager gameManager;
+    private GameObject obj;
     private List<RemoveArrow> removeArrows = new List<RemoveArrow>();
 
     private List<GameObject> affectedObjects = new List<GameObject>();
 
-    public RemoveNode(GameManager gameManager, ItemManager itemManager)
+    public RemoveNode(GameManager gameManager, ItemManager itemManager, GameObject obj)
     {
         this.itemManager = itemManager;
         this.gameManager = gameManager;
+        this.obj = obj;
     }
 
-    public override void Execute(List<GameObject> selectedObjects)
+    public override void Execute()
     {
         executionTime = gameManager.timeID;
-        GameObject obj = selectedObjects[0];
         affectedObjects.Add(obj);
 
         Node node = obj.GetComponent<Node>();
@@ -37,12 +38,20 @@ public class RemoveNode : Command
 
         itemController.GetObtainableItems(node.gameObject, this);
         node.RemoveFromGraph(obj);
-        foreach (var arrow in node.arrowsFromThisNode)
+        for (int i = node.arrowsFromThisNode.Count -1; i >= 0; i--)
         {
-            RemoveArrow removeArrow = new RemoveArrow(arrow.GetComponent<Arrow>(), gameManager);
-            removeArrow.Remove();
-            removeArrows.Add(removeArrow);
+            GameObject arrow = node.arrowsFromThisNode[i];
 
+            RemoveArrow removeArrow = new RemoveArrow(arrow.GetComponent<Arrow>(), gameManager);
+            removeArrow.Execute();
+            removeArrows.Add(removeArrow);
+        }
+
+        for (int i = affectedCommands.Count - 1; i >= 0; i--)
+        {
+            affectedCommands[i].isRewindCommand = true;
+            affectedCommands[i].Execute();
+            affectedCommands[i].isRewindCommand = false;
         }
 
         if (OnExecute != null)
@@ -51,7 +60,7 @@ public class RemoveNode : Command
         }
     }
 
-    public override void Undo(bool skipPermanent = true)
+    public override bool Undo(bool skipPermanent = true)
     {
         gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, 0.2f);
 
@@ -61,7 +70,14 @@ public class RemoveNode : Command
         if (node.isPermanent && skipPermanent)
         {
             InvokeOnUndoSkipped(this);
-            return;
+            return true;
+        }
+        else
+        {
+            if (gameManager.skippedOldCommands.Contains(this))
+            {
+                gameManager.RemoveFromSkippedOldCommands(this);
+            }
         }
 
         foreach (var item in affectedObjects)
@@ -74,7 +90,7 @@ public class RemoveNode : Command
         {
             removeArrow.Undo(skipPermanent);
         }
-        removeArrows.Clear();
+        //removeArrows.Clear();
 
         for (int i = affectedCommands.Count - 1; i >= 0; i--)
         {
@@ -91,5 +107,7 @@ public class RemoveNode : Command
         {
             OnUndo(affectedObjects[0]);
         }
+
+        return false;
     }
 }

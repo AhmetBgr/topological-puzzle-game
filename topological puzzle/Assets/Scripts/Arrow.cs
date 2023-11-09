@@ -93,11 +93,10 @@ public class Arrow : MonoBehaviour{
         if(startingNode.CompareTag("HexagonNode") || destinationNode.CompareTag("HexagonNode")){
             if (!(startingNode.CompareTag("HexagonNode") && destinationNode.CompareTag("HexagonNode")))
             {
-                ChangeArrowDir changeDirCommand = new ChangeArrowDir(gameManager, false);
-                changeDirCommand.Execute(new List<GameObject>(){gameObject});
+                ChangeArrowDir changeDirCommand = new ChangeArrowDir(gameManager, gameObject, false);
+                changeDirCommand.Execute();
                 changeDirCommands.Add(changeDirCommand);
-            }
-                
+            } 
         }
     }
     
@@ -115,14 +114,14 @@ public class Arrow : MonoBehaviour{
                 ChangeArrowDir lastChangeDirCommand = changeDirCommands[changeDirCommands.Count - 1];
                 lastChangeDirCommand.Undo(skipPermanent);
                 changeDirCommands.Remove(lastChangeDirCommand);
-            }
-                
+            } 
         }
     }
     
     public void Remove(){ //GameObject node
         LevelManager.ChangeArrowCount(-1);
         destinationNode.GetComponent<Node>().RemoveFromArrowsToThisNodeList(gameObject);
+        startingNode.GetComponent<Node>().RemoveFromArrowsFromThisNodeList(gameObject);
         RemoveCor = DisappearAnim(0.6f, onCompleteCallBack: () =>
         {
             DisableObject();
@@ -155,6 +154,7 @@ public class Arrow : MonoBehaviour{
         if(RemoveCor != null)
             StopCoroutine(RemoveCor);
         destinationNode.GetComponent<Node>().AddToArrowsToThisNodeList(gameObject);
+        startingNode.GetComponent<Node>().AddToArrowsFromThisNodeList(gameObject);
         StartCoroutine(AppearAnim(0.4f, 0.4f, () => {
             LevelManager.ChangeArrowCount(+1);
         }));

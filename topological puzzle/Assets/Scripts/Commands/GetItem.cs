@@ -26,7 +26,7 @@ public class GetItem : Command
         this.gameManager = gameManager;
         this.skipFix = skipFix;
     }
-    public override void Execute(List<GameObject> selectedObjects = null)
+    public override void Execute()
     {
         executionTime = gameManager.timeID;
         
@@ -40,14 +40,21 @@ public class GetItem : Command
         }
     }
 
-    public override void Undo(bool skipPermanent = true)
+    public override bool Undo(bool skipPermanent = true)
     {
 
         if (item.isPermanent && skipPermanent)
         {
             skipFix = false;
             InvokeOnUndoSkipped(this);
-            return;
+            return true;
+        }
+        else
+        {
+            if (gameManager.skippedOldCommands.Contains(this))
+            {
+                gameManager.RemoveFromSkippedOldCommands(this);
+            }
         }
 
         itemManager.itemContainer.RemoveItem(item, skipFix: skipFix);
@@ -57,5 +64,7 @@ public class GetItem : Command
         {
             OnUndo();
         }
+
+        return false;
     }
 }
