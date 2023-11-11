@@ -57,7 +57,9 @@ public class LevelCanvasManager : MonoBehaviour
     }
     private void UpdateLevelIndexText(int curLevelIndex)
     {
-        levelIndexText.text = curLevelIndex >= 10 ? curLevelIndex.ToString() : "0" + curLevelIndex.ToString();
+        int level = curLevelIndex +1;
+        Debug.Log("level index: " + level);
+        levelIndexText.text = level >= 10 ? level.ToString() : "0" + level.ToString();
     }
 
     private void UpdateNextLevelButton()
@@ -65,7 +67,7 @@ public class LevelCanvasManager : MonoBehaviour
 
         if (inEditor)
         {
-            if (LevelManager.curLevelIndex == levelManager.levels.Length)
+            if (LevelManager.curLevelIndex == levelManager.levels.Length - 1)
             {
                 nextLevelButton.gameObject.SetActive(false);
             }
@@ -80,7 +82,7 @@ public class LevelCanvasManager : MonoBehaviour
 
         //#endif
 
-        if (LevelManager.curLevelIndex == levelManager.levelProgressIndex )
+        if (LevelManager.curLevelIndex == levelManager.levelProgressIndex)
         {
             nextLevelButton.gameObject.SetActive(false);
         }
@@ -92,7 +94,7 @@ public class LevelCanvasManager : MonoBehaviour
 
     private void UpdatePreviousLevelButton()
     {
-        if (LevelManager.curLevelIndex <= 1)
+        if (LevelManager.curLevelIndex <= 0)
         {
             previousLevelButton.gameObject.SetActive(false);
         }

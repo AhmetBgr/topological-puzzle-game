@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEditor;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using SerializableTypes;
@@ -21,19 +22,28 @@ public class LevelManager : MonoBehaviour{
 
     public GameObject[] levels;
     public static GameObject curLevel;
+    //public GameObject levelContainer;
+    public DefaultAsset levelpropertty;
 
-    public static int curLevelIndex = 1;
+    public static int curLevelIndex = 0;
     public int levelProgressIndex;
 
     public static int nodecount = 0;
     public static int arrowCount = 0;
 
     private string saveName = "save01";
+    private string path = "Assets/Resources/Levels_txt/";
+    private string backupPath = "Assets/Resources/Levels_txt/Backup/";
 
     private IEnumerator loadLevelCor = null;
     public List<GameObject> nodesPool = new List<GameObject>();
     public List<GameObject> arrowsPool = new List<GameObject>();
 
+    private bool startIncreasingLevelIndex;
+    private bool startDecreasingLevelIndex;
+    private float time = 0;
+    public float changeLevelIndexDur = 0.3f;
+    private float defChangeLevelIndexDur;
 
     public delegate void OnCurLevelIndexChangeDelegate(int curIndex);
     public static OnCurLevelIndexChangeDelegate OnCurLevelIndexChange;
@@ -62,14 +72,17 @@ public class LevelManager : MonoBehaviour{
         else
         {
             // Create default level data
-            curLevelIndex = 1;
-            levelProgressIndex = 1;
+            curLevelIndex = 0;
+            levelProgressIndex = 0;
             SaveProgressionData();
             SetCurLevelIndex(curLevelIndex);
             Debug.Log("Save Created");
         }
 
-        LoadLevel(curLevelIndex);
+        //LoadLevel(curLevelIndex);
+        LoadLevelWithDeserialization(levels[curLevelIndex].name, curLevelIndex); // "multiple square test"
+
+        defChangeLevelIndexDur = changeLevelIndexDur;
         //arrowGlow = Resources.Load<Material>("Glow Materials/Arrow Glow");
         //nodeGlow = Resources.Load<Material>("Glow Materials/Node Glow");
 
@@ -90,6 +103,32 @@ public class LevelManager : MonoBehaviour{
         LevelEditor.OnExit -= UpdateObjectCount;
     }
 
+    private void Update()
+    {
+
+        int amount;
+        if (startDecreasingLevelIndex)
+        {
+            amount = -1;
+        }
+        else if (startIncreasingLevelIndex)
+        {
+            amount = 1;
+        }
+        else
+        {
+            return;
+        }
+
+        time += Time.deltaTime;
+        if (time >= changeLevelIndexDur)
+        {
+            ChangeCurLevelIndex(amount);
+            changeLevelIndexDur = changeLevelIndexDur >= 0.05f ? changeLevelIndexDur / 1.5f : 0.05f;
+            time = 0;
+        }
+    }
+
     private void LoadAndSetProgressionData()
     {
         SaveData saveData = (SaveData)Utility.BinaryDeserialization("/", saveName);
@@ -106,7 +145,7 @@ public class LevelManager : MonoBehaviour{
     }
 
     public void LoadNextLevel(float delay){
-        if(curLevelIndex >= levels.Length)  return;
+        if(curLevelIndex >= levels.Length -1)  return;
 
         if( loadLevelCor != null )
             StopCoroutine(loadLevelCor);
@@ -120,7 +159,7 @@ public class LevelManager : MonoBehaviour{
     }
 
     public void LoadPreviousLevel(){
-        if(curLevelIndex <= 1)  return;
+        if(curLevelIndex <= 0)  return;
 
         if( loadLevelCor != null )
             StopCoroutine(loadLevelCor);
@@ -131,9 +170,10 @@ public class LevelManager : MonoBehaviour{
     }
 
     private IEnumerator LoadLevelWithDelay(int curIndex, float delay = 0){
-        yield return new WaitForSeconds(delay);    
+        yield return new WaitForSeconds(delay);
 
-        LoadLevel(curLevelIndex);
+        //LoadLevel(curLevelIndex);
+        LoadLevelWithDeserialization(levels[curIndex].name, curIndex);
 
         loadLevelCor = null;
     }
@@ -142,7 +182,7 @@ public class LevelManager : MonoBehaviour{
         DestroyCurLevel();
         SetCurLevelIndex(index);
         curLevel = null;
-        curLevel = Instantiate(levels[index -1], Vector3.zero, Quaternion.identity);
+        curLevel = Instantiate(levels[index], Vector3.zero, Quaternion.identity);
         curLevel.gameObject.name = curLevel.name; //.Replace("(Clone)", "");
         Debug.Log("cur level name: " + curLevel.name);
         UpdateObjectCount();
@@ -156,6 +196,51 @@ public class LevelManager : MonoBehaviour{
 
     public void RestartCurLevel(){
         LoadLevel(curLevelIndex);
+    }
+
+    public void LoadLevelWithDeserialization(string levelName, int index = 0)
+    {
+        DestroyCurLevel();
+
+        Transform levelHolder = new GameObject(levelName).transform; //Instantiate(levelContainer, Vector3.zero, Quaternion.identity).transform;
+
+        levelHolder.gameObject.AddComponent<Level>();
+
+           
+        levelHolder.transform.position = Vector3.zero;
+        curLevel = levelHolder.gameObject;
+        try
+        {
+            LoadLevelProperty(levelName, levelHolder);
+            curLevel = levelHolder.gameObject;
+            Debug.Log("level loaded with Deserialization");
+        }
+        catch (System.Exception)
+        {
+            LoadLevel(index);
+            SaveLevelProperty(curLevel.transform);
+            //Destroy(curLevel);
+            //levelContainer = new GameObject("level").transform;
+            //LoadLevelProperty(levelName, level);
+            Debug.Log("level loaded with prefab");
+            throw;
+        }
+
+
+
+        if (OnLevelLoad != null)
+        {
+            OnLevelLoad();
+        }
+    }
+
+    public void LoadCurLevelWithDeserialization()
+    {
+        if (loadLevelCor != null)
+            StopCoroutine(loadLevelCor);
+
+        loadLevelCor = LoadLevelWithDelay(curLevelIndex, 0.2f);
+        StartCoroutine(loadLevelCor);
     }
 
     public static void ChangeNodeCount(int amount){
@@ -188,12 +273,17 @@ public class LevelManager : MonoBehaviour{
     }
 
     public void SetCurLevelIndex(int levelIndex){
-        if (levelIndex < 1 || levelIndex > levels.Length) return;
+        if (levelIndex < 0 || levelIndex > levels.Length - 1) return;
         curLevelIndex = levelIndex;
         if(OnCurLevelIndexChange != null){
             OnCurLevelIndexChange(curLevelIndex);
         }
 
+    }
+
+    public void ChangeCurLevelIndex(int amount)
+    {
+        SetCurLevelIndex(curLevelIndex + amount);
     }
     public static int GetCurLevelIndex()
     {
@@ -214,8 +304,9 @@ public class LevelManager : MonoBehaviour{
     }
 
 
-    public void SaveLevelProperty(Transform level){
-        
+    public void SaveLevelProperty(Transform level, bool saveAsBackup = false){
+        level.name = level.name.Replace("(Clone)", "");
+
         LevelProperty levelProperty = new LevelProperty();
         levelProperty.levelName = level.name;
         levelProperty.nodeCount = 0;
@@ -282,9 +373,21 @@ public class LevelManager : MonoBehaviour{
                 }
             }
         }
-
         // Serialize level property
-        BinaryFormatter bf = new BinaryFormatter();
+
+        string fullPath;
+        if (saveAsBackup)
+        {
+            fullPath = this.backupPath + levelProperty.levelName + ".txt";
+        }
+        else
+        {
+            fullPath = this.path + levelProperty.levelName + ".txt";
+        }
+
+        Utility.SaveAsJson(fullPath, levelProperty);
+
+        /*BinaryFormatter bf = new BinaryFormatter();
         string path = Application.persistentDataPath + "/Basic Levels";
         
         if(!Directory.Exists(path))
@@ -293,9 +396,9 @@ public class LevelManager : MonoBehaviour{
         FileStream file = File.Create(path + "/" + levelProperty.levelName + ".save");
         bf.Serialize(file, levelProperty);
         file.Close();
-
+        */
         //string json = JsonUtility.ToJson(levelProperty);
-        
+
     }
 
     public void LoadLevelWithName(string levelName)
@@ -323,19 +426,21 @@ public class LevelManager : MonoBehaviour{
             DestroyImmediate(obj);
         }
 
-
         string filePath = Application.persistentDataPath + "/Basic Levels/" + levelName + ".save";
         if (File.Exists(filePath)){
 
             // Deserialize level property
-            BinaryFormatter bf = new BinaryFormatter();
+            /*BinaryFormatter bf = new BinaryFormatter();
             FileStream file = File.Open(filePath, FileMode.Open);
-            
             LevelProperty levelProperty = (LevelProperty)bf.Deserialize(file);
-            file.Close();
+            file.Close();*/
+
+
+            string fullPath = this.path + levelName + ".txt";
+            LevelProperty levelProperty = Utility.LoadLevePropertyFromJson(fullPath);
 
             //FileStream file = File.Open(filePath, FileMode.Open);
-            
+
             //LevelProperty level = JsonUtility.FromJson<LevelProperty>()
 
             Debug.Log("should load level named " + levelName);
@@ -352,8 +457,9 @@ public class LevelManager : MonoBehaviour{
 
                 GameObject prefab;
                 // Generate items that this node have
-                foreach (var tag in nodeProperty.itemTags)
+                for (int i = 0; i < nodeProperty.itemTags.Count; i++)
                 {
+                    string tag = nodeProperty.itemTags[i];
                     prefab = GetPrefabAndPoolByTag(tag).prefab;
 
                     obj.GetComponent<ItemController>().GenerateItem(prefab);
@@ -426,6 +532,7 @@ public class LevelManager : MonoBehaviour{
         else
         {
             Debug.Log("No level found with given name: " + levelName);
+            throw new System.Exception();
         }
     }
 
@@ -491,6 +598,29 @@ public class LevelManager : MonoBehaviour{
         return obj;
     }
 
+    public void StartIncreasingLevelIndex()
+    {
+        startIncreasingLevelIndex = true;
+        changeLevelIndexDur = defChangeLevelIndexDur;
+        time = 0;
+    }
+
+    public void StopIncreasingLevelIndex()
+    {
+        startIncreasingLevelIndex = false;
+    }
+
+    public void StartDecreasingLevelIndex()
+    {
+        startDecreasingLevelIndex = true;
+        changeLevelIndexDur = defChangeLevelIndexDur;
+        time = 0;
+    }
+
+    public void StopDecreasingLevelIndex()
+    {
+        startDecreasingLevelIndex = false;
+    }
 
 
     struct PrefabAndPool

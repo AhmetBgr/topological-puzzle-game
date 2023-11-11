@@ -362,16 +362,17 @@ public class LevelEditor : MonoBehaviour{
 
     public void SaveLevelAsNew(){
         if(levelNameField.text == "") return;
-        
+
+        curLevelInEditing.name = levelNameField.text;
+
         DesTroyInActiveChildren(curLevelInEditing.transform);
 
         GameObject savedLevel = PrefabUtility.SaveAsPrefabAsset(curLevelInEditing, "Assets/Resources/Levels/" + levelNameField.text + ".prefab");
         
-        
         levelManager.SaveLevelProperty(LevelManager.curLevel.transform);
     }
 
-    private void SaveAsBackup()
+    public void SaveAsBackup()
     {
         if (levelNameField.text == "") return;
 
@@ -379,13 +380,10 @@ public class LevelEditor : MonoBehaviour{
 
         GameObject savedLevel = PrefabUtility.SaveAsPrefabAsset(curLevelInEditing, "Assets/Resources/Levels/backup/" + levelNameField.text + ".prefab");
 
+        levelManager.SaveLevelProperty(curLevelInEditing.transform, true);
     }
 
-    void UpdateExistingLevel(){
-        
-    }
-
-    public void UpdateLevelPrefab()
+    /*public void UpdateLevelPrefab()
     {
         // save level to backup
         SaveAsBackup();
@@ -399,22 +397,12 @@ public class LevelEditor : MonoBehaviour{
        
         // prefab save
         SaveLevelAsNew();
-    }
+    }*/
 
     public void ClearAllObjects(){
         LeCommand command = new ClearAll();
         command.Execute(curLevelInEditing);
         oldCommands.Add(command);
-
-        /*Transform objects = curLevel.transform;
-        int childCount = objects.childCount;
-        for (int i = 0; i < childCount; i++){
-            GameObject obj = objects.GetChild(i).gameObject;
-            if(obj.activeSelf){
-                obj.SetActive(false);
-            }
-
-        }*/
     }
 
     private void EnterLevelEditor(){

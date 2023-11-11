@@ -3,6 +3,7 @@ using UnityEngine;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine.UI;
+
 public enum Direction {
     right,
     left,
@@ -94,6 +95,38 @@ public static class Utility
         file.Close();
 
         return saveData;
+    }
+
+    public static void SaveAsJson(string path, object data)
+    {
+        string json = JsonUtility.ToJson(data, true);
+
+        FileStream fileStream = new FileStream(path, FileMode.Create);
+
+        using (StreamWriter writer = new StreamWriter(fileStream))
+        {
+            writer.Write(json);
+        }
+    }
+
+    public static LevelProperty LoadLevePropertyFromJson(string path)
+    {
+        if (File.Exists(path))
+        {
+            using (StreamReader reader = new StreamReader(path))
+            {
+                string json = reader.ReadToEnd();
+                //var data = new Object();
+                LevelProperty levelProperty = JsonUtility.FromJson<LevelProperty>(json);
+                return levelProperty;
+            }
+        }
+        else
+        {
+            Debug.LogWarning("File not found");
+            return null;
+        }
+
     }
 
     public static Vector3 DirToVectorDir(Direction dir)
