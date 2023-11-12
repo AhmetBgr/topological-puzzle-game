@@ -1,11 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEditor;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
-using SerializableTypes;
 
 public class LevelManager : MonoBehaviour{
     public GameObject arrow;
@@ -23,7 +19,6 @@ public class LevelManager : MonoBehaviour{
     public GameObject[] levels;
     public static GameObject curLevel;
     //public GameObject levelContainer;
-    public DefaultAsset levelpropertty;
 
     public static int curLevelIndex = 0;
     public int levelProgressIndex;
@@ -34,6 +29,7 @@ public class LevelManager : MonoBehaviour{
     private string saveName = "save01";
     private string path = "Assets/Resources/Levels_txt/";
     private string backupPath = "Assets/Resources/Levels_txt/Backup/";
+    
 
     private IEnumerator loadLevelCor = null;
     public List<GameObject> nodesPool = new List<GameObject>();
@@ -83,9 +79,6 @@ public class LevelManager : MonoBehaviour{
         LoadLevelWithDeserialization(levels[curLevelIndex].name, curLevelIndex); // "multiple square test"
 
         defChangeLevelIndexDur = changeLevelIndexDur;
-        //arrowGlow = Resources.Load<Material>("Glow Materials/Arrow Glow");
-        //nodeGlow = Resources.Load<Material>("Glow Materials/Node Glow");
-
 
         // Example for loading a level file from resources folder
         /*TextAsset textAsset =  Resources.Load<TextAsset>("level.save");
@@ -201,14 +194,9 @@ public class LevelManager : MonoBehaviour{
     public void LoadLevelWithDeserialization(string levelName, int index = 0)
     {
         DestroyCurLevel();
+        Transform levelHolder = GenerateNewLevelHolder(levelName);
 
-        Transform levelHolder = new GameObject(levelName).transform; //Instantiate(levelContainer, Vector3.zero, Quaternion.identity).transform;
 
-        levelHolder.gameObject.AddComponent<Level>();
-
-           
-        levelHolder.transform.position = Vector3.zero;
-        curLevel = levelHolder.gameObject;
         try
         {
             LoadLevelProperty(levelName, levelHolder);
@@ -292,7 +280,20 @@ public class LevelManager : MonoBehaviour{
 
     public void DestroyCurLevel(){
         if(curLevel != null)
+        {
             Destroy(curLevel);
+        }
+    }
+
+    public Transform GenerateNewLevelHolder(string levelName)
+    {
+        Transform levelHolder = new GameObject(levelName).transform; //Instantiate(levelContainer, Vector3.zero, Quaternion.identity).transform;
+
+        levelHolder.gameObject.AddComponent<Level>();
+
+        levelHolder.transform.position = Vector3.zero;
+        curLevel = levelHolder.gameObject;
+        return levelHolder;
     }
 
     private void UpdateObjectCount(){
@@ -305,74 +306,11 @@ public class LevelManager : MonoBehaviour{
 
 
     public void SaveLevelProperty(Transform level, bool saveAsBackup = false){
-        level.name = level.name.Replace("(Clone)", "");
 
-        LevelProperty levelProperty = new LevelProperty();
-        levelProperty.levelName = level.name;
-        levelProperty.nodeCount = 0;
-        levelProperty.arrowCount = 0;
+        LevelProperty levelProperty = CreateLevelProperty(level);
 
-        int objCount = level.childCount;
-        
-        for (int i = 0; i < objCount; i++){
-            Transform obj = level.GetChild(i);
-            if( ((1<<obj.gameObject.layer) & LayerMask.GetMask("Node")) != 0 && obj.gameObject.activeSelf){
-                Node node = obj.GetComponent<Node>();
-                NodeProperty nodeP = new NodeProperty();
-                
-                nodeP.tag = obj.tag;
-                nodeP.position = obj.position;
-                nodeP.id = obj.gameObject.GetInstanceID();
-                //nodeP.isLocked = node.isLocked;
-                foreach (var arrow in node.arrowsFromThisNode){
-                    nodeP.arrowsIDFromThisNode.Add(arrow.GetInstanceID());
-                }
-                foreach (var arrow in node.arrowsToThisNode){
-                    nodeP.arrowsIDToThisNode.Add(arrow.GetInstanceID());
-                }
 
-                foreach (var item in node.itemController.itemContainer.items)
-                {
-                    string tag = item.isPermanent ? "p," + item.tag : item.tag;
 
-                    nodeP.itemTags.Add(tag);
-                }
-
-                levelProperty.nodes.Add(nodeP);
-
-                levelProperty.nodeCount++;
-            }
-            else if( ((1<<obj.gameObject.layer) & LayerMask.GetMask("Arrow")) != 0 && obj.gameObject.activeSelf)
-            {
-                Arrow arrow = obj.GetComponent<Arrow>();
-                LineRenderer lr = obj.GetComponent<LineRenderer>();
-                ArrowProperty arrowP = new ArrowProperty();
-                
-                arrowP.tag = obj.tag;
-                arrowP.position = obj.position;
-
-                arrowP.id = obj.gameObject.GetInstanceID();
-                arrowP.startingNodeID = arrow.startingNode.GetInstanceID();
-                arrowP.destinationNodeID = arrow.destinationNode.GetInstanceID();
-
-                arrowP.points = new SVector3[lr.positionCount];
-                Vector3[] positions = new Vector3[lr.positionCount];
-
-                lr.GetPositions( positions );
-
-                for (int j = 0; j < positions.Length; j++){
-                    arrowP.points[j] = positions[j];
-                }
-
-                levelProperty.arrows.Add(arrowP);
-                levelProperty.arrowCount++;
-
-                if (arrow.CompareTag("TransporterArrow"))
-                {
-                    arrowP.priority = arrow.GetComponent<Transporter>().priority;
-                }
-            }
-        }
         // Serialize level property
 
         string fullPath;
@@ -401,6 +339,86 @@ public class LevelManager : MonoBehaviour{
 
     }
 
+    public LevelProperty CreateLevelProperty(Transform level)
+    {
+        level.name = level.name.Replace("(Clone)", "");
+
+        LevelProperty levelProperty = new LevelProperty();
+        levelProperty.levelName = level.name;
+        levelProperty.nodeCount = 0;
+        levelProperty.arrowCount = 0;
+
+        int objCount = level.childCount;
+
+        for (int i = 0; i < objCount; i++)
+        {
+            Transform obj = level.GetChild(i);
+            if (((1 << obj.gameObject.layer) & LayerMask.GetMask("Node")) != 0 && obj.gameObject.activeSelf)
+            {
+                Node node = obj.GetComponent<Node>();
+                NodeProperty nodeP = new NodeProperty();
+
+                nodeP.tag = obj.tag;
+                nodeP.posX = obj.position.x;
+                nodeP.posY = obj.position.y;
+                nodeP.id = obj.gameObject.GetInstanceID();
+
+                foreach (var item in node.itemController.itemContainer.items)
+                {
+                    string tag = item.isPermanent ? "p," + item.tag : item.tag;
+
+                    nodeP.itemTags.Add(tag);
+                }
+
+                levelProperty.nodes.Add(nodeP);
+
+                levelProperty.nodeCount++;
+            }
+            else if (((1 << obj.gameObject.layer) & LayerMask.GetMask("Arrow")) != 0 && obj.gameObject.activeSelf)
+            {
+                Arrow arrow = obj.GetComponent<Arrow>();
+                LineRenderer lr = obj.GetComponent<LineRenderer>();
+                ArrowProperty arrowP = new ArrowProperty();
+
+                arrowP.tag = obj.tag;
+                //arrowP.position = obj.position;
+
+                arrowP.id = obj.gameObject.GetInstanceID();
+                arrowP.startingNodeID = arrow.startingNode.GetInstanceID();
+                arrowP.destinationNodeID = arrow.destinationNode.GetInstanceID();
+
+                arrowP.pointsX = new float[lr.positionCount];
+                arrowP.pointsY = new float[lr.positionCount];
+                Vector3[] positions = new Vector3[lr.positionCount];
+
+                lr.GetPositions(positions);
+
+                for (int j = 0; j < positions.Length; j++)
+                {
+                    arrowP.pointsX[j] = positions[j].x;
+                    arrowP.pointsY[j] = positions[j].y;
+                }
+
+                levelProperty.arrows.Add(arrowP);
+                levelProperty.arrowCount++;
+
+                if (arrow.CompareTag("TransporterArrow"))
+                {
+                    arrowP.priority = arrow.GetComponent<Transporter>().priority;
+                }
+            }
+        }
+
+        return levelProperty;
+    }
+
+    public string SerializeLevelAsJson(Transform level)
+    {
+        LevelProperty levelProperty = CreateLevelProperty(level);
+
+        return Utility.JsonSerialization(levelProperty);
+    }
+
     public void LoadLevelWithName(string levelName)
     {
         LoadLevelProperty(levelName, transform);
@@ -411,8 +429,7 @@ public class LevelManager : MonoBehaviour{
         Transform objects = levelParent;
         int childCount = objects.childCount;
         List<GameObject> childrenToDestroy = new List<GameObject>();
-        nodesPool.Clear();
-        arrowsPool.Clear();
+
 
         for (int i = 0; i < childCount; i++)
         {
@@ -426,7 +443,7 @@ public class LevelManager : MonoBehaviour{
             DestroyImmediate(obj);
         }
 
-        string filePath = Application.persistentDataPath + "/Basic Levels/" + levelName + ".save";
+        string filePath = this.path + levelName + ".txt";
         if (File.Exists(filePath)){
 
             // Deserialize level property
@@ -443,97 +460,98 @@ public class LevelManager : MonoBehaviour{
 
             //LevelProperty level = JsonUtility.FromJson<LevelProperty>()
 
-            Debug.Log("should load level named " + levelName);
-            Debug.Log("node count in loaded level: " + levelProperty.nodes.Count);
-            Debug.Log("arrow count in loaded level: " + levelProperty.arrows.Count);
-
-            // Create nodes and set properties
-            foreach (var nodeProperty in levelProperty.nodes){
-                PrefabAndPool prefabAndPool = GetPrefabAndPoolByTag(nodeProperty.tag);
-                Transform obj = Instantiate(prefabAndPool.prefab, nodeProperty.position, Quaternion.identity).transform;
-                obj.tag = nodeProperty.tag;
-                obj.name = nodeProperty.id.ToString();
-                obj.SetParent(levelParent);
-
-                GameObject prefab;
-                // Generate items that this node have
-                for (int i = 0; i < nodeProperty.itemTags.Count; i++)
-                {
-                    string tag = nodeProperty.itemTags[i];
-                    prefab = GetPrefabAndPoolByTag(tag).prefab;
-
-                    obj.GetComponent<ItemController>().GenerateItem(prefab);
-                }
-
-                nodesPool.Add(obj.gameObject);
-                
-            }
-
-            foreach (var arrowProperty in levelProperty.arrows){
-                PrefabAndPool prefabAndPool = GetPrefabAndPoolByTag(arrowProperty.tag);
-                Transform obj = Instantiate(prefabAndPool.prefab, arrowProperty.position, Quaternion.identity).transform;
-                obj.tag = arrowProperty.tag;
-                obj.name = arrowProperty.id.ToString();
-                obj.SetParent(levelParent);
-                LineRenderer lr = obj.GetComponent<LineRenderer>();
-                lr.positionCount = arrowProperty.points.Length;
-                Vector3[] positions = new Vector3[arrowProperty.points.Length];
-                for (int i = 0; i < positions.Length; i++){
-                    positions[i] = arrowProperty.points[i];
-                }
-                lr.SetPositions(positions);
-
-                Arrow arrow = obj.GetComponent<Arrow>();
-                arrow.SavePoints();
-
-                arrow.FixHeadPos();
-                arrow.FixCollider();
-
-                if (arrow.CompareTag("TransporterArrow"))
-                {
-                    arrow.GetComponent<Transporter>().priority = arrowProperty.priority;
-                }
-
-                arrowsPool.Add(obj.gameObject);
-            }
-            
-
-            // Set links between objects
-            foreach (var nodeProperty in levelProperty.nodes){
-                //List<GameObject> pool = GetPrefabAndPoolByTag(nodeProperty.tag).pool;
-                GameObject obj = FindObjInPool(nodeProperty.id.ToString(), nodesPool);
-                
-                Node node = obj.GetComponent<Node>();
-                Debug.Log("to list count : " + nodeProperty.arrowsIDToThisNode.Count);
-                for (int i = 0; i < nodeProperty.arrowsIDFromThisNode.Count; i++)
-                {
-                    node.AddToArrowsFromThisNodeList( FindObjInPool(nodeProperty.arrowsIDFromThisNode[i].ToString(), arrowsPool) );
-                }
-                
-                for (int i = 0; i < nodeProperty.arrowsIDToThisNode.Count; i++)
-                {
-                    node.AddToArrowsToThisNodeList( FindObjInPool(nodeProperty.arrowsIDToThisNode[i].ToString(), arrowsPool) );
-                }
-                Debug.Log("here");
-            }
-            foreach (var arrowProperty in levelProperty.arrows){
-                //List<GameObject> pool = GetPrefabAndPoolByTag(arrowProperty.tag).pool;
-                GameObject obj = FindObjInPool(arrowProperty.id.ToString(), arrowsPool);
-                
-                Arrow arrow = obj.GetComponent<Arrow>();
-
-                arrow.startingNode = FindObjInPool(arrowProperty.startingNodeID.ToString(), nodesPool);
-                arrow.destinationNode = FindObjInPool(arrowProperty.destinationNodeID.ToString(), nodesPool);
-            }
-
-            nodecount = levelProperty.nodeCount;
-            arrowCount = levelProperty.arrowCount;
+            LoadLevelWithLevelProperty(levelProperty, levelName, levelParent);
         }
         else
         {
             Debug.Log("No level found with given name: " + levelName);
             throw new System.Exception();
         }
+    }
+
+    public void LoadLevelWithLevelProperty(LevelProperty levelProperty, string levelName, Transform levelParent)
+    {
+        Debug.Log("should load level named " + levelName);
+        Debug.Log("node count in loaded level: " + levelProperty.nodes.Count);
+        Debug.Log("arrow count in loaded level: " + levelProperty.arrows.Count);
+
+        nodesPool.Clear();
+        arrowsPool.Clear();
+
+        // Create nodes and set properties
+        foreach (var nodeProperty in levelProperty.nodes)
+        {
+            PrefabAndPool prefabAndPool = GetPrefabAndPoolByTag(nodeProperty.tag);
+            Vector3 pos = new Vector3(nodeProperty.posX, nodeProperty.posY, 0);
+            Transform obj = Instantiate(prefabAndPool.prefab, pos, Quaternion.identity).transform;
+            obj.tag = nodeProperty.tag;
+            obj.name = nodeProperty.id.ToString();
+            obj.SetParent(levelParent);
+
+            GameObject prefab;
+            // Generate items that this node have
+            for (int i = 0; i < nodeProperty.itemTags.Count; i++)
+            {
+                string tag = nodeProperty.itemTags[i];
+                prefab = GetPrefabAndPoolByTag(tag).prefab;
+
+                obj.GetComponent<ItemController>().GenerateItem(prefab);
+            }
+
+            nodesPool.Add(obj.gameObject);
+
+        }
+
+        foreach (var arrowProperty in levelProperty.arrows)
+        {
+            PrefabAndPool prefabAndPool = GetPrefabAndPoolByTag(arrowProperty.tag);
+            Transform obj = Instantiate(prefabAndPool.prefab, Vector3.zero, Quaternion.identity).transform;
+            obj.tag = arrowProperty.tag;
+            obj.name = arrowProperty.id.ToString();
+            obj.SetParent(levelParent);
+            LineRenderer lr = obj.GetComponent<LineRenderer>();
+            lr.positionCount = arrowProperty.pointsX.Length;
+            Vector3[] positions = new Vector3[arrowProperty.pointsX.Length];
+
+            for (int i = 0; i < positions.Length; i++)
+            {
+                positions[i] = new Vector3(arrowProperty.pointsX[i], arrowProperty.pointsY[i], 0);
+            }
+            lr.SetPositions(positions);
+
+            Arrow arrow = obj.GetComponent<Arrow>();
+            arrow.SavePoints();
+
+            arrow.FixHeadPos();
+            arrow.FixCollider();
+
+            if (arrow.CompareTag("TransporterArrow"))
+            {
+                arrow.GetComponent<Transporter>().priority = arrowProperty.priority;
+            }
+
+            arrowsPool.Add(obj.gameObject);
+        }
+
+        // Set links between objects
+        foreach (var arrowProperty in levelProperty.arrows)
+        {
+            //List<GameObject> pool = GetPrefabAndPoolByTag(arrowProperty.tag).pool;
+            GameObject obj = FindObjInPool(arrowProperty.id.ToString(), arrowsPool);
+
+            Arrow arrow = obj.GetComponent<Arrow>();
+
+            Node startingNode = FindObjInPool(arrowProperty.startingNodeID.ToString(), nodesPool).GetComponent<Node>();
+            Node destinationNode = FindObjInPool(arrowProperty.destinationNodeID.ToString(), nodesPool).GetComponent<Node>();
+
+            arrow.startingNode = startingNode.gameObject;
+            arrow.destinationNode = destinationNode.gameObject;
+            startingNode.AddToArrowsFromThisNodeList(obj);
+            destinationNode.AddToArrowsToThisNodeList(obj);
+        }
+
+        nodecount = levelProperty.nodeCount;
+        arrowCount = levelProperty.arrowCount;
     }
 
     private PrefabAndPool GetPrefabAndPoolByTag(string tag){

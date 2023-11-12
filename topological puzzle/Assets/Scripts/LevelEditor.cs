@@ -9,6 +9,10 @@ using UnityEngine.UI;
 using DG.Tweening;
 using TMPro;
 
+using System;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+
 public enum LeState{
     placingNode, drawingArrow, closed, waiting, movingObject
 }
@@ -32,9 +36,13 @@ public class LevelEditor : MonoBehaviour{
 
     public RectTransform topPanel;
     public RectTransform bottomPanel;
+    public RectTransform sharePanel;
+    public RectTransform GetLevelPanel;
     public TMP_InputField levelNameField;
     public TextMeshProUGUI levelNameText;
-    
+    public TextMeshProUGUI encodedLevelText;
+    public TMP_InputField encodedLevelTextField;
+
     public LeState state;
     //public LayerMask placementLayer;
 
@@ -230,6 +238,7 @@ public class LevelEditor : MonoBehaviour{
                         curObj = null;
                         InstantiateObject(arrow);
                     }
+                    
                 }
                 else{
                     clickCount = 0;
@@ -256,6 +265,7 @@ public class LevelEditor : MonoBehaviour{
                 }
 
                 state = lastState;
+
             }
         }
 
@@ -399,6 +409,51 @@ public class LevelEditor : MonoBehaviour{
         SaveLevelAsNew();
     }*/
 
+    public void UpdateEncodedLevelText()
+    {
+        string levelJson = levelManager.SerializeLevelAsJson(curLevelInEditing.transform);
+
+        byte[] bytesToEncode = Utility.Zip(levelJson);
+
+        encodedLevelText.text = Utility.EncodeBase64WithBytes(bytesToEncode);
+    }
+
+    public void CopyLevelCode()
+    {
+        GUIUtility.systemCopyBuffer = encodedLevelText.text;
+        ToggleSharePanel();
+    }
+
+    public void PasteLevelCode()
+    {
+        encodedLevelTextField.text = GUIUtility.systemCopyBuffer;
+    }
+
+    public void GenerateLevelFromLevelCode()
+    {
+        if (encodedLevelTextField.text == "" | encodedLevelTextField.text == "PASTE YOUR LEVEL CODE HERE.") return;
+
+        string encodedText = encodedLevelTextField.text;
+        byte[] decodedBytes;
+        try
+        {
+            decodedBytes = Utility.DecodeBase64ToBytes(encodedText);
+        }
+        catch(System.Exception)
+        {
+            return;
+        }
+
+        string unzippedText = Utility.Unzip(decodedBytes);
+        LevelProperty levelProperty = JsonUtility.FromJson<LevelProperty>(unzippedText);
+        levelManager.DestroyCurLevel();
+        Transform levelHolder = levelManager.GenerateNewLevelHolder(levelProperty.levelName);
+        ResetCurLevelInEditing();
+        levelManager.LoadLevelWithLevelProperty(levelProperty, levelProperty.levelName, levelHolder);
+        ToggleGetLevelPanel();
+        curLevelInEditing.SetActive(true);
+    }
+
     public void ClearAllObjects(){
         LeCommand command = new ClearAll();
         command.Execute(curLevelInEditing);
@@ -501,6 +556,36 @@ public class LevelEditor : MonoBehaviour{
         }
         else{
             EnterLevelEditor();
+        }
+    }
+
+    public void ToggleSharePanel()
+    {
+        if (sharePanel.gameObject.activeSelf)
+        {
+            sharePanel.gameObject.SetActive(false);
+            //curLevelInEditing.gameObject.SetActive(true);
+        }
+        else
+        {
+            sharePanel.gameObject.SetActive(true);
+            UpdateEncodedLevelText();
+            //curLevelInEditing.gameObject.SetActive(false);
+        }
+    }
+
+    public void ToggleGetLevelPanel()
+    {
+        if (GetLevelPanel.gameObject.activeSelf)
+        {
+            GetLevelPanel.gameObject.SetActive(false);
+            //curLevelInEditing.gameObject.SetActive(true);
+        }
+        else
+        {
+            GetLevelPanel.gameObject.SetActive(true);
+            //curLevelInEditing.gameObject.SetActive(false);
+            encodedLevelTextField.text = "PASTE YOUR LEVEL CODE HERE.";
         }
     }
 
