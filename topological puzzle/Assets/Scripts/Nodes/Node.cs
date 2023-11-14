@@ -18,7 +18,8 @@ public class Node : MonoBehaviour
     public List<GameObject> arrowsFromThisNode = new List<GameObject>();
     public List<GameObject> arrowsToThisNode = new List<GameObject>();
 
-    public bool selectable = false; 
+    public bool selectable = false;
+    public bool isSelected = false;
     public bool isPermanent = false;
     public bool isRemoved = false;
 
@@ -67,6 +68,7 @@ public class Node : MonoBehaviour
         GameManager.OnGetNodes += AddNodeToPool;
         LevelManager.OnLevelLoad += GetOnTheLevel;
         Item.OnUsabilityCheck += CheckIfSuitableForKey;
+        NodeSwapper.OnSwapperUsabilityCheck += CheckIfSuitableForNodeSwapper;
     }
 
     void OnDisable(){
@@ -76,15 +78,27 @@ public class Node : MonoBehaviour
         GameManager.OnGetNodes -= AddNodeToPool;
         LevelManager.OnLevelLoad -= GetOnTheLevel;
         Item.OnUsabilityCheck -= CheckIfSuitableForKey;
+        NodeSwapper.OnSwapperUsabilityCheck -= CheckIfSuitableForNodeSwapper;
     }
 
     void OnMouseEnter(){
+        if (isSelected)
+        {
+            nodeSprite.transform.DOScale(1.05f, 0.2f);
+            return;
+        }
+
         nodeSprite.transform.DOScale(1.1f, 0.3f);
         nodeColorController.Highlight(nodeColorController.glowIntensityHigh, 0.3f);
         
     }
 
     void OnMouseExit(){
+        if (isSelected)
+        {
+            return;
+        }
+
         nodeSprite.transform.DOScale(1f, 0.3f);
         nodeColorController.Highlight(nodeColorController.glowIntensityMedium, 0.3f);
     }
@@ -160,8 +174,9 @@ public class Node : MonoBehaviour
 
         //UpdateLockStatus();
         bool hasRequiredItem = itemType == ItemType.None | itemController.FindItemWithType(itemType) != null ? true : false;
+        bool hasEqualIndegree = targetIndegree == -1 ? true : targetIndegree == indegree;
 
-        if ( ( (((1<<gameObject.layer) & targetLM) != 0)  && targetIndegree == indegree  && hasRequiredItem) || levelEditorBypass){
+        if ( ( (((1<<gameObject.layer) & targetLM) != 0)  && hasEqualIndegree  && hasRequiredItem) || levelEditorBypass){
             nodeColorController.Highlight(nodeColorController.glowIntensityMedium, 1f);
             col.enabled = true;
 
@@ -192,6 +207,25 @@ public class Node : MonoBehaviour
             Key.suitableObjCount++;
         }
     }
+    
+    protected virtual void CheckIfSuitableForNodeSwapper()
+    {
+        //bool hasRequiredItem = itemController.FindItemWithType(ItemType.Padlock) != null ? true : false;
+
+        NodeSwapper.suitableObjCount++;
+    }
+
+    public void Select(float dur)
+    {
+        nodeSprite.transform.DOScale(1.15f, dur);
+        isSelected = true;
+    }
+
+    public void Deselect(float dur)
+    {
+        isSelected = false;
+        nodeSprite.transform.DOScale(1f, dur);
+    }
 
     public void AddToArrowsFromThisNodeList(GameObject arrowToAdd){
         arrowsFromThisNode.Add(arrowToAdd);
@@ -200,6 +234,7 @@ public class Node : MonoBehaviour
         arrowsFromThisNode.Remove(arrowToRemove);
     }
     public void AddToArrowsToThisNodeList(GameObject arrowToAdd){
+        Debug.Log("arrow added to arrows to this node list");
         arrowsToThisNode.Add(arrowToAdd);
         UpdateIndegree(arrowsToThisNode.Count);
     }

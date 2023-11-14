@@ -15,6 +15,7 @@ public class LevelManager : MonoBehaviour{
     public GameObject permanentPadLockPrefab;
     public GameObject keyPrefab;
     public GameObject permanentKeyPrefab;
+    public GameObject nodeSwapperPrefab;
 
     public GameObject[] levels;
     public static GameObject curLevel;
@@ -495,7 +496,17 @@ public class LevelManager : MonoBehaviour{
                 string tag = nodeProperty.itemTags[i];
                 prefab = GetPrefabAndPoolByTag(tag).prefab;
 
-                obj.GetComponent<ItemController>().GenerateItem(prefab);
+                GameObject itemObj = obj.GetComponent<ItemController>().GenerateItem(prefab);
+                if (tag.Contains("p,"))
+                {
+                    Debug.Log("should set permanent item : " + tag);
+                    Item item = itemObj.GetComponent<Item>();
+                    item.SetPermanent();
+                }
+                else
+                {
+                    Debug.Log(" item is not permanent : " + tag);
+                }
             }
 
             nodesPool.Add(obj.gameObject);
@@ -597,6 +608,10 @@ public class LevelManager : MonoBehaviour{
         else if (tag.Contains("Padlock"))
         {
             prefabAndPool.prefab = tag.Contains("p,") ? permanentPadLockPrefab : padLockPrefab;
+        }
+        else if (tag.Contains("NodeSwapper"))
+        {
+            prefabAndPool.prefab = nodeSwapperPrefab;
         }
         return prefabAndPool;
     }

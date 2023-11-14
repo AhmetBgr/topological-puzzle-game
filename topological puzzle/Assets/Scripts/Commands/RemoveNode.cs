@@ -38,14 +38,26 @@ public class RemoveNode : Command
 
         itemController.GetObtainableItems(node.gameObject, this);
         node.RemoveFromGraph(obj);
-        for (int i = node.arrowsFromThisNode.Count -1; i >= 0; i--)
-        {
-            GameObject arrow = node.arrowsFromThisNode[i];
 
-            RemoveArrow removeArrow = new RemoveArrow(arrow.GetComponent<Arrow>(), gameManager);
-            removeArrow.Execute();
-            removeArrows.Add(removeArrow);
+        if(removeArrows.Count > 0)
+        {
+            for (int i = removeArrows.Count - 1; i >= 0; i--)
+            {
+                removeArrows[i].Execute();
+            }
         }
+        else
+        {
+            for (int i = node.arrowsFromThisNode.Count - 1; i >= 0; i--)
+            {
+                GameObject arrow = node.arrowsFromThisNode[i];
+
+                RemoveArrow removeArrow = new RemoveArrow(arrow.GetComponent<Arrow>(), gameManager);
+                removeArrow.Execute();
+                removeArrows.Add(removeArrow);
+            }
+        }
+
 
         for (int i = affectedCommands.Count - 1; i >= 0; i--)
         {

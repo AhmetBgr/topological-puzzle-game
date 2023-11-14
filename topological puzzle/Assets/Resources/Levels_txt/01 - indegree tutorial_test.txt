@@ -1,0 +1,90 @@
+{
+    "levelName": "01 - indegree tutorial_test",
+    "nodes": [
+        {
+            "posX": 0.046799998730421069,
+            "posY": -0.01860000006854534,
+            "tag": "BasicNode",
+            "id": -23330,
+            "itemTags": [
+                "Key"
+            ]
+        },
+        {
+            "posX": -1.23989999294281,
+            "posY": -1.3495999574661255,
+            "tag": "BasicNode",
+            "id": -23410,
+            "itemTags": [
+                "Padlock"
+            ]
+        },
+        {
+            "posX": 1.399999976158142,
+            "posY": -1.3495999574661255,
+            "tag": "BasicNode",
+            "id": -23490,
+            "itemTags": [
+                "NodeSwapper"
+            ]
+        },
+        {
+            "posX": 0.02459999918937683,
+            "posY": 1.8671000003814698,
+            "tag": "BasicNode",
+            "id": -23550,
+            "itemTags": [
+                "p,NodeSwapper"
+            ]
+        }
+    ],
+    "arrows": [
+        {
+            "tag": "Arrow",
+            "id": -23630,
+            "startingNodeID": -23410,
+            "destinationNodeID": -23330,
+            "pointsX": [
+                -0.9176154732704163,
+                -0.4311099648475647
+            ],
+            "pointsY": [
+                -1.0148160457611085,
+                -0.5118986368179321
+            ],
+            "priority": 0
+        },
+        {
+            "tag": "Arrow",
+            "id": -23652,
+            "startingNodeID": -23490,
+            "destinationNodeID": -23330,
+            "pointsX": [
+                1.066464900970459,
+                0.5343790054321289
+            ],
+            "pointsY": [
+                -1.0228562355041505,
+                -0.49914729595184328
+            ],
+            "priority": 0
+        },
+        {
+            "tag": "Arrow",
+            "id": -23674,
+            "startingNodeID": -23550,
+            "destinationNodeID": -23330,
+            "pointsX": [
+                0.0287227313965559,
+                0.03771207481622696
+            ],
+            "pointsY": [
+                1.401335597038269,
+                0.6671633720397949
+            ],
+            "priority": 0
+        }
+    ],
+    "nodeCount": 4,
+    "arrowCount": 3
+}

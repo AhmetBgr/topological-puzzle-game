@@ -6,10 +6,10 @@ using System;
 
 public enum ItemType
 {
-    None, Key, Padlock
+    None, Key, Padlock, NodeSwapper
 }
 
-public class Item : MonoBehaviour
+public abstract class Item : MonoBehaviour
 {
     public ItemType type;
 
@@ -56,12 +56,17 @@ public class Item : MonoBehaviour
             Use();
         }
 
-        if(OnUsabilityChanged != null)
+        InvokeOnUsabilityCheckEvent(isUsable);
+
+        suitableObjCount = 0;
+    }
+
+    protected virtual void InvokeOnUsabilityCheckEvent(bool isUsable)
+    {
+        if (OnUsabilityChanged != null)
         {
             OnUsabilityChanged(isUsable);
         }
-
-        suitableObjCount = 0;
     }
 
     public virtual void Use()
@@ -94,4 +99,6 @@ public class Item : MonoBehaviour
         }
         moveAction();
     }
+
+    public abstract void SetPermanent();
 }

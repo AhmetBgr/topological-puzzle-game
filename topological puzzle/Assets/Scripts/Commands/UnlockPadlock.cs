@@ -92,6 +92,7 @@ public class UnlockPadlock : Command
                 gameManager.RemoveFromSkippedOldCommands(this);
             }
         }
+
         padlock.gameObject.SetActive(true);
         ItemController itemController = node.itemController;
         itemController.hasPadLock = true;

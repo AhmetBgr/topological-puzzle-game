@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour{
     public Palette changeArrowDirPalette;
     public Palette rewindPalette;
     public Palette unlockPadlockPalette;
+    public Palette swapNodePalette;
     public TextMeshProUGUI undoChangesCountText;
     public InfoIndicator InfoIndicator;
     public Commands curCommand;
@@ -168,16 +169,31 @@ public class GameManager : MonoBehaviour{
                 }
                 else if(curCommand == Commands.SwapNodes){
                     if(selectedObjects.Count == 2){
+                        if(selectedObjects[0] == selectedObjects[1])
+                        {
+                            selectedObjects[0].GetComponent<Node>().Deselect(0.2f);
+                            selectedObjects.Clear();
+                            return;
+                        }
+
+                        selectedObjects[1].GetComponent<Node>().Select(0.2f);
+
                         timeID++;
-                        Command command = new SwapNodes(this, commandOwner, selectedObjects);
+                        Command command = new SwapNodes(this, itemManager, itemManager.GetLastItem(), selectedObjects);
                         command.Execute();
                         //oldCommands.Add(command);
                         AddToOldCommands(command);
                         //rewindCount = 0;
-                        //paletteSwapper.ChangePalette(defPalette);
-                        ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node")); 
+                        //ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"));
+                        
+                        StartCoroutine(ChangeCommandWithDelay(Commands.RemoveNode, LayerMask.GetMask("Node"), delay: 0.1f));
+                        paletteSwapper.ChangePalette(defPalette);
                         selectedObjects.Clear();
-                    }   
+                    }
+                    else if(selectedObjects.Count == 1)
+                    {
+                        selectedObjects[0].GetComponent<Node>().Select(0.2f);
+                    }
                 }
                 else if (curCommand == Commands.UnlockPadlock)
                 {
@@ -192,6 +208,7 @@ public class GameManager : MonoBehaviour{
                     //oldCommands.Add(unlockPadlock);
                     AddToOldCommands(unlockPadlock);
                     //rewindCount = 0;
+
                     ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"));
                     paletteSwapper.ChangePalette(defPalette);
                     selectedObjects.Clear();
@@ -206,22 +223,16 @@ public class GameManager : MonoBehaviour{
             {
                 rewindStarted = true;
                 RewindBPointerDown(rewindImageParent.GetComponent<CanvasGroup>());
+                if(selectedObjects.Count == 1)
+                {
+                    DeselectObjects();
+                }
             }
             
             time += Time.deltaTime;
             if (time >= maxUndoDur)
             {
-                if(nonRewindCommands.Count > 0 )
-                {
-                    Rewind rewind = new Rewind(this, nonRewindCommands[nonRewindCommands.Count - 1]);
-                    
-                    rewind.Execute();
-                    nonRewindCommands.Remove(nonRewindCommands[nonRewindCommands.Count - 1]);
-                    if (!rewind.skipped)
-                    {
-                        AddToOldCommands(rewind);
-                    }
-                }
+                Rewind();
 
                 time = 0;
             }
@@ -359,8 +370,36 @@ public class GameManager : MonoBehaviour{
         UpdateChangesCounter();
     }
 
+    private void DeselectObjects()
+    {
+        if (selectedObjects.Count == 0) return;
+        Node node;
+        if (selectedObjects[0].TryGetComponent(out node))
+        {
+            node.Deselect(0.2f);
+            selectedObjects.Clear();
+        }
+    }
+
     private void ChangeTargetLayer(LayerMask targetLM){
         this.targetLM = targetLM;
+    }
+
+    public void Rewind()
+    {
+        if (nonRewindCommands.Count > 0)
+        {
+            DeselectObjects();
+
+            Rewind rewind = new Rewind(this, nonRewindCommands[nonRewindCommands.Count - 1]);
+
+            rewind.Execute();
+            nonRewindCommands.Remove(nonRewindCommands[nonRewindCommands.Count - 1]);
+            if (!rewind.skipped)
+            {
+                AddToOldCommands(rewind);
+            }
+        }
     }
 
     public void OnlyUndoLast(bool skipPermanants = true){
@@ -380,6 +419,7 @@ public class GameManager : MonoBehaviour{
         Debug.Log("skipped old commands count : " + skippedOldCommands.Count);
         if (oldCommands.Count <= 0 ) return; //&& rewindCommands.Count <= 0
 
+        DeselectObjects();
         OnlyUndoLast(false);
         Debug.Log("skipped old commands count after undos : " + skippedOldCommands.Count);
     }

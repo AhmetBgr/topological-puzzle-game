@@ -14,8 +14,27 @@ public class Lock : Item
     protected override void Start()
     {
         base.Start();
+        if (isPermanent)
+        {
+            SetPermanent();
+        }
+    }
 
-        if(padlockSR == null)
+
+    public Sequence GetUnlockSequance(float dur)
+    {
+        Sequence padlockSeq = DOTween.Sequence();
+        padlockSeq.Append(transform.DOScale(0f, dur*1/3).SetDelay(dur*2/3).OnComplete(() =>
+        {
+            gameObject.SetActive(false);
+        }));
+        return padlockSeq;
+    }
+
+    public override void SetPermanent()
+    {
+
+        if (padlockSR == null)
         {
             Transform image = transform.Find("Image");
             image.TryGetComponent(out padlockSR);
@@ -31,15 +50,5 @@ public class Lock : Item
         }
 
         randomSpriteColor.enabled = isPermanent;
-    }
-
-    public Sequence GetUnlockSequance(float dur)
-    {
-        Sequence padlockSeq = DOTween.Sequence();
-        padlockSeq.Append(transform.DOScale(0f, dur*1/3).SetDelay(dur*2/3).OnComplete(() =>
-        {
-            gameObject.SetActive(false);
-        }));
-        return padlockSeq;
     }
 }

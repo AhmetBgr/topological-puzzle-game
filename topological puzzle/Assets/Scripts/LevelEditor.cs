@@ -28,6 +28,8 @@ public class LevelEditor : MonoBehaviour{
     public GameObject permanentPadLockPrefab;
     public GameObject keyPrefab;
     public GameObject permanentKeyPrefab;
+    public GameObject nodeSwapperPrefab;
+    public GameObject permanentNodeSwapperPrefab;
 
 
     //public Button arrowSelButton;
@@ -187,8 +189,30 @@ public class LevelEditor : MonoBehaviour{
                 oldCommands.Add((command));
             }
         }
+        if (Input.GetKeyDown(KeyCode.J))
+        {
+            Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero, LayerMask.GetMask("Node"));
+            if (hit)
+            {
+                ToggleKey command = new ToggleKey(nodeSwapperPrefab);
+                command.Execute(hit.transform.gameObject);
+                oldCommands.Add((command));
+            }
+        }
+        if (Input.GetKeyDown(KeyCode.I))
+        {
+            Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero, LayerMask.GetMask("Node"));
+            if (hit)
+            {
+                ToggleKey command = new ToggleKey(permanentNodeSwapperPrefab);
+                command.Execute(hit.transform.gameObject);
+                oldCommands.Add((command));
+            }
+        }
 
-        if(state == LeState.placingNode ){
+        if (state == LeState.placingNode ){
             // selected node follows mouse pos until placing
             Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             curObj.localPosition = curLevelInEditing.transform.InverseTransformPoint(ray);

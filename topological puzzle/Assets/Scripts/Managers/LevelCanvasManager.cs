@@ -135,7 +135,7 @@ public class LevelCanvasManager : MonoBehaviour
         StartCoroutine(Utility.MakeButtonNoninteractive(undoButton, duration));
     }
 
-    private void UpdateUseItemButtonBCImage(bool isUsable) //List<Item> items
+    public void UpdateUseItemButtonBCImage(bool isUsable) //List<Item> items
     {
         if(!isUsable) //items.Count == 0
         {
