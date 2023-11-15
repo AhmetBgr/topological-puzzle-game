@@ -14,7 +14,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
 public enum LeState{
-    placingNode, drawingArrow, closed, waiting, movingObject
+    placingNode, drawingArrow, closed, waiting, movingObject, placingItem
 }
 public class LevelEditor : MonoBehaviour{
     public LevelManager levelManager;
@@ -44,6 +44,8 @@ public class LevelEditor : MonoBehaviour{
     public TextMeshProUGUI levelNameText;
     public TextMeshProUGUI encodedLevelText;
     public TMP_InputField encodedLevelTextField;
+
+    private Cursor cursor;
 
     public LeState state;
     //public LayerMask placementLayer;
@@ -77,7 +79,7 @@ public class LevelEditor : MonoBehaviour{
     void Start(){
         state = LeState.closed;
         gameManager = FindObjectOfType<GameManager>();
-
+        cursor = Cursor.instance;
         //arrowSelButton.onClick.AddListener(  () => { OnSelectionButtonDown(arrow, arrowSelButton, LeState.drawingArrow); });
         //basicNodeSelButton.onClick.AddListener(  () => { OnSelectionButtonDown(basicNode, basicNodeSelButton, LeState.placingNode); });
         //squareNodeSelButton.onClick.AddListener(  () => { OnSelectionButtonDown(squareNode, squareNodeSelButton, LeState.placingNode); });
@@ -105,7 +107,8 @@ public class LevelEditor : MonoBehaviour{
 
         // Delete Object
         if(Input.GetMouseButtonDown(2) && GameState.gameState == GameState_EN.inLevelEditor){
-            Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            //Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector2 ray = cursor.worldPos;
             RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero);
             if(hit){
                 LeCommand command = new DeleteObject();
@@ -120,7 +123,8 @@ public class LevelEditor : MonoBehaviour{
             
             if (!isButtonDown)
             {
-                Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                //Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                Vector2 ray = cursor.worldPos;
                 RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero, LayerMask.GetMask("Node"));
                 if (hit){ // Holding starting over a node
                     movingNode = hit.transform;
@@ -148,7 +152,8 @@ public class LevelEditor : MonoBehaviour{
 
 
         if ( Input.GetKeyDown(KeyCode.P)){
-            Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            //Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector2 ray = cursor.worldPos;
             RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero, LayerMask.GetMask("Node"));
             if (hit){
                 Node node = hit.transform.GetComponent<Node>();
@@ -159,7 +164,8 @@ public class LevelEditor : MonoBehaviour{
         }
         if (Input.GetKeyDown(KeyCode.L))
         {
-            Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            //Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector2 ray = cursor.worldPos;
             RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero, LayerMask.GetMask("Node"));
             if (hit){
                 Node node = hit.transform.GetComponent<Node>();
@@ -169,7 +175,8 @@ public class LevelEditor : MonoBehaviour{
             }
         }
         if (Input.GetKeyDown(KeyCode.O)){
-            Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            //Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector2 ray = cursor.worldPos;
             RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero, LayerMask.GetMask("Node"));
             if (hit){
                 Node node = hit.transform.GetComponent<Node>();
@@ -180,7 +187,8 @@ public class LevelEditor : MonoBehaviour{
         }
         if( Input.GetKeyDown(KeyCode.K) )
         {
-            Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            //Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector2 ray = cursor.worldPos;
             RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero, LayerMask.GetMask("Node"));
             if (hit){
                 Node node = hit.transform.GetComponent<Node>();
@@ -191,7 +199,8 @@ public class LevelEditor : MonoBehaviour{
         }
         if (Input.GetKeyDown(KeyCode.J))
         {
-            Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            //Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector2 ray = cursor.worldPos;
             RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero, LayerMask.GetMask("Node"));
             if (hit)
             {
@@ -202,7 +211,8 @@ public class LevelEditor : MonoBehaviour{
         }
         if (Input.GetKeyDown(KeyCode.I))
         {
-            Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            //Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector2 ray = cursor.worldPos;
             RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero, LayerMask.GetMask("Node"));
             if (hit)
             {
@@ -214,7 +224,8 @@ public class LevelEditor : MonoBehaviour{
 
         if (state == LeState.placingNode ){
             // selected node follows mouse pos until placing
-            Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            //Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector2 ray = cursor.worldPos;
             curObj.localPosition = curLevelInEditing.transform.InverseTransformPoint(ray);
             if( Input.GetMouseButtonDown(0) ){
                 // place the node
@@ -245,8 +256,9 @@ public class LevelEditor : MonoBehaviour{
             }
         }
         else if(state == LeState.drawingArrow ){
-            Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            if(clickCount > 0)
+            //Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector2 ray = cursor.worldPos;
+            if (clickCount > 0)
                 curObj.GetChild(0).position = ray;
             if( Input.GetMouseButtonDown(0) ){
                 
@@ -272,7 +284,8 @@ public class LevelEditor : MonoBehaviour{
         else if(state == LeState.movingObject && moveNode != null)
         {
             //Debug.Log("movingNode");
-            Vector3 targetPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            //Vector3 targetPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector2 targetPos = cursor.worldPos;
             moveNode.Move( new Vector3(targetPos.x, targetPos.y, 0) );
             if (Input.GetMouseButtonUp(0))
             {
@@ -291,6 +304,11 @@ public class LevelEditor : MonoBehaviour{
                 state = lastState;
 
             }
+            return;
+        }
+        else if(state == LeState.placingItem)
+        {
+
         }
 
         if(Input.GetMouseButtonDown(1) && state != LeState.waiting && GameState.gameState == GameState_EN.inLevelEditor)
