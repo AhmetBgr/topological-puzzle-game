@@ -111,8 +111,25 @@ public class LevelEditor : MonoBehaviour{
             Vector2 ray = cursor.worldPos;
             RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero);
             if(hit){
-                LeCommand command = new DeleteObject();
-                command.Execute(hit.transform.gameObject);
+                GameObject selectedObject = hit.transform.gameObject;
+                if (((1 << selectedObject.layer) & LayerMask.GetMask("Item")) != 0)
+                {
+                    DeleteItem deleteItem = new DeleteItem();
+                    deleteItem.Execute(selectedObject);
+                    oldCommands.Add(deleteItem);
+                }
+                else if (((1 << selectedObject.layer) & LayerMask.GetMask("Node")) != 0)
+                {
+                    DeleteNode deleteNode = new DeleteNode();
+                    deleteNode.Execute(selectedObject);
+                    oldCommands.Add(deleteNode);
+                }
+                else if (((1 << selectedObject.layer) & LayerMask.GetMask("Arrow")) != 0)
+                {
+                    DeleteArrow deleteArrow = new DeleteArrow();
+                    deleteArrow.Execute(selectedObject);
+                    oldCommands.Add(deleteArrow);
+                }
             }
         }
         
@@ -225,7 +242,8 @@ public class LevelEditor : MonoBehaviour{
         if (state == LeState.placingNode ){
             // selected node follows mouse pos until placing
             //Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector2 ray = cursor.worldPos;
+            //Vector2 ray = cursor.worldPos;
+            Vector2 ray = Camera.main.ScreenToWorldPoint(cursor.pos);
             curObj.localPosition = curLevelInEditing.transform.InverseTransformPoint(ray);
             if( Input.GetMouseButtonDown(0) ){
                 // place the node
@@ -257,7 +275,8 @@ public class LevelEditor : MonoBehaviour{
         }
         else if(state == LeState.drawingArrow ){
             //Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector2 ray = cursor.worldPos;
+            //Vector2 ray = cursor.worldPos;
+            Vector2 ray = Camera.main.ScreenToWorldPoint(cursor.pos);
             if (clickCount > 0)
                 curObj.GetChild(0).position = ray;
             if( Input.GetMouseButtonDown(0) ){

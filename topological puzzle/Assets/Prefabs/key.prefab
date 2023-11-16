@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3553593484378885375}
   - component: {fileID: 3553593484378885344}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Image
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3553593484987286461}
   - component: {fileID: 3553593484987286462}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: invisibility mask
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -177,9 +177,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3553593485385679790}
+  - component: {fileID: 6513307769391640821}
   - component: {fileID: -3170718174226725651}
   - component: {fileID: 3112652153225994893}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: key
   m_TagString: Key
   m_Icon: {fileID: 0}
@@ -203,6 +204,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!58 &6513307769391640821
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3553593485385679789}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
+  m_Radius: 0.19171342
 --- !u!114 &-3170718174226725651
 MonoBehaviour:
   m_ObjectHideFlags: 0

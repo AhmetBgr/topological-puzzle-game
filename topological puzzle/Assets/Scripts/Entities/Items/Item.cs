@@ -13,7 +13,7 @@ public abstract class Item : MonoBehaviour
 {
     public ItemType type;
 
-    protected Node owner;
+    public Node owner;
     protected Tween moveTween;
     protected Sequence sequence;
     protected GameManager gameManager;
@@ -34,6 +34,16 @@ public abstract class Item : MonoBehaviour
     protected virtual void Start()
     {
         gameManager = FindObjectOfType<GameManager>();
+    }
+
+    private void OnMouseEnter()
+    {
+        transform.localScale = Vector3.one * 1.2f;
+    }
+
+    private void OnMouseExit()
+    {
+        transform.localScale = Vector3.one;
     }
 
     public virtual void CheckAndUse()
@@ -68,6 +78,8 @@ public abstract class Item : MonoBehaviour
             OnUsabilityChanged(isUsable);
         }
     }
+
+    
 
     public virtual void Use()
     {

@@ -16,7 +16,12 @@ public class ItemController : MonoBehaviour
     
     public delegate void OnNodeWithPadlockHighlihtChangedDelegate(bool isHighlighted);
     public static event OnNodeWithPadlockHighlihtChangedDelegate OnNodeWithPadlockHighlihtChanged;
-    
+
+    private void Awake()
+    {
+        node = GetComponent<Node>();
+    }
+
     void Start()
     {
         /*if (hasPadLock && !padLock)
@@ -141,7 +146,7 @@ public class ItemController : MonoBehaviour
         Transform item = Instantiate(prefab, Vector3.zero, Quaternion.identity, parent: itemContainer.transform).transform;
         //item.SetParent(itemContainer.itemContainer);
         itemContainer.FindContainerPos();
-        itemContainer.AddItem(item.GetComponent<Item>(), -1, setInstantAnim: true);
+        AddItem(item.GetComponent<Item>(), -1, setInstantAnim: true);
 
         if (item.CompareTag("Padlock"))
         {
@@ -152,14 +157,26 @@ public class ItemController : MonoBehaviour
         return item.gameObject;
     }
 
+    public void AddItem(Item item, int index, bool skipFix = false, bool setInstantAnim = false)
+    {
+        if (item.CompareTag("Padlock"))
+        {
+            hasPadLock = true;
+            padlocks.Add(item.GetComponent<Lock>());
+        }
+        item.owner = node;
+        itemContainer.AddItem(item, index, skipFix: skipFix, setInstantAnim: setInstantAnim);
+    }
+
     public void RemoveItem(Item item, bool skipFix = false)
     {
         if (item.CompareTag("Padlock"))
         {
-            hasPadLock = false;
             padlocks.Remove(item.GetComponent<Lock>());
+            hasPadLock = padlocks.Count == 0 ? false : true;
         }
 
         itemContainer.RemoveItem(item, skipFix: skipFix);
+        item.owner = null;
     }
 }

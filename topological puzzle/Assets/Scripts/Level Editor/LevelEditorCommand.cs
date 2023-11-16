@@ -55,7 +55,6 @@ public class DrawArrow : LeCommand{
             return clickCount;
         }
         else{
-            
             if( hit ){
                 lr.positionCount += 1;
                 int posCount = lr.positionCount;
@@ -88,7 +87,6 @@ public class DrawArrow : LeCommand{
                 arrow.destinationNode = hit.transform.gameObject;
                 arrow.SavePoints();
 
-
                 // Create polygon collider
                 selectedObject.GetComponent<Collider2D>().enabled = true;
                 arrow.FixCollider();
@@ -97,7 +95,7 @@ public class DrawArrow : LeCommand{
             }
             else{
                 lr.positionCount += 1;
-                Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                Vector3 pos = Camera.main.ScreenToWorldPoint(Cursor.instance.pos);
                 //pos = curObj.transform.InverseTransformPoint(pos);
                 pos = new Vector3(pos.x, pos.y, 0f);
                 lr.SetPosition(lr.positionCount -1, pos);
@@ -121,50 +119,111 @@ public class DrawArrow : LeCommand{
     }
 }
 
-public class DeleteObject : LeCommand{
-    private List<GameObject> affectedObjects = new List<GameObject>();
+public class DeleteItem : LeCommand
+{
+    private Item item;
+    private Node node;
+    private int index;
 
-    public override int Execute(GameObject selectedObject){
-        if( ((1<<selectedObject.layer) & LayerMask.GetMask("Node")) != 0 ){
-            Node node = selectedObject.GetComponent<Node>();
-            GameObject[] arrows = node.arrowsFromThisNode.ToArray();
-            GameObject[] arrows2 = node.arrowsToThisNode.ToArray();
-            
-            for (int i = 0; i < arrows.Length; i++)
-            {
-                DeleteArrow(arrows[i]);
-            }
-            for (int i = 0; i < arrows2.Length; i++)
-            {
-                DeleteArrow(arrows2[i]);
-            }
+    /*public DeleteItem(Item item, ItemController itemController)
+    {
+        this.item = item;
+        this.itemController = itemController;
+    }*/
 
-            affectedObjects.Add(selectedObject);
+    public override int Execute(GameObject selectedItem)
+    {
+        item = selectedItem.GetComponent<Item>();
+        node = item.owner;
+        index = node.itemController.itemContainer.GetItemIndex(item);
+        node.itemController.RemoveItem(item);
+        item.gameObject.SetActive(false);
+        return 0;
+    }
+    
+    public override GameObject Undo()
+    {
+        node.itemController.AddItem(item, index, setInstantAnim: true);
+        item.gameObject.SetActive(true);
+
+        return null;
+    }
+}
+
+public class DeleteNode : LeCommand
+{
+    private Node node;
+    private List<DeleteArrow> deleteArrowCommands = new List<DeleteArrow>();
+    private int index;
+
+    /*public DeleteNode(Item item, ItemController itemController)
+    {
+        this.item = item;
+        this.itemController = itemController;
+    }*/
+
+    public override int Execute(GameObject selectedNode)
+    {
+        node = selectedNode.GetComponent<Node>();
+        GameObject[] arrowsFromThisNode = node.arrowsFromThisNode.ToArray();
+        GameObject[] arrowsToThisNode = node.arrowsToThisNode.ToArray();
+
+        for (int i = 0; i < arrowsFromThisNode.Length; i++)
+        {
+            DeleteArrow deleteArrow = new DeleteArrow();
+            deleteArrow.Execute(arrowsFromThisNode[i]);
+            deleteArrowCommands.Add(deleteArrow);
         }
-        else if( ((1<<selectedObject.layer) & LayerMask.GetMask("Arrow")) != 0 ){
-            DeleteArrow(selectedObject);
+        for (int i = 0; i < arrowsToThisNode.Length; i++)
+        {
+            DeleteArrow deleteArrow = new DeleteArrow();
+            deleteArrow.Execute(arrowsToThisNode[i]);
+            deleteArrowCommands.Add(deleteArrow);
         }
 
-        foreach (var affectedObject in affectedObjects){
-            affectedObject.SetActive(false);
-        }
-
-        return 1;
+        selectedNode.gameObject.SetActive(false);
+        return 0;
     }
 
-    public override GameObject Undo(){
-        return  null;
+    public override GameObject Undo()
+    {
+        node.gameObject.SetActive(true);
+
+        foreach (var item in deleteArrowCommands)
+        {
+            item.Undo();
+        }
+
+        return null;
+    }
+}
+
+public class DeleteArrow : LeCommand
+{
+    private Arrow arrow;
+    private Node startNode;
+    private Node destinationNode;
+
+    public override int Execute(GameObject selectedArrow)
+    {
+        arrow = selectedArrow.GetComponent<Arrow>();
+        startNode = arrow.startingNode.GetComponent<Node>();
+        destinationNode = arrow.destinationNode.GetComponent<Node>();
+        startNode.RemoveFromArrowsFromThisNodeList(selectedArrow);
+        destinationNode.RemoveFromArrowsToThisNodeList(selectedArrow);
+
+        selectedArrow.gameObject.SetActive(false);
+        return 0;
     }
 
-    private void DeleteArrow(GameObject arrowObj){
-        Arrow arrow = arrowObj.GetComponent<Arrow>();
-        Node startNode = arrow.startingNode.GetComponent<Node>();
-        Node destinationNode = arrow.destinationNode.GetComponent<Node>();
-        startNode.RemoveFromArrowsFromThisNodeList(arrowObj);
-        destinationNode.RemoveFromArrowsToThisNodeList(arrowObj);
-        affectedObjects.Add(arrowObj);
-    }
+    public override GameObject Undo()
+    {
+        arrow.gameObject.SetActive(true);
+        startNode.AddToArrowsFromThisNodeList(arrow.gameObject);
+        destinationNode.AddToArrowsToThisNodeList(arrow.gameObject);
 
+        return null;
+    }
 }
 
 public class ClearAll : LeCommand{
@@ -280,32 +339,6 @@ public class ToggleKey : LeCommand
     }
 }
 
-public class DeleteItem : LeCommand
-{
-    private Item item;
-    private int index;
-    ItemController itemController;
-
-    public DeleteItem(Item item, ItemController itemController)
-    {
-        this.item = item;
-        this.itemController = itemController;
-    }
-    public override int Execute(GameObject selectedObject)
-    {
-        itemController.RemoveItem(item);
-        item.transform.SetParent(LevelManager.curLevel.transform);
-        item.gameObject.SetActive(false);
-        return 1;
-    }
-
-    public override GameObject Undo()
-    {
-        item.gameObject.SetActive(true);
-        itemController.itemContainer.AddItem(item, index);
-        return null;
-    }
-}
 
 public class MoveNode : LeCommand
 {
