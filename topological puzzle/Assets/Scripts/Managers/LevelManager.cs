@@ -5,16 +5,14 @@ using System.IO;
 
 public class LevelManager : MonoBehaviour{
     public GameObject arrow;
-    public GameObject permanentArrow;
+    //public GameObject permanentArrow;
     public GameObject transporterArrow;
     public GameObject basicNode;
     public GameObject squareNode;
     public GameObject lockedNode;
     public GameObject hexagonNode;
     public GameObject padLockPrefab;
-    public GameObject permanentPadLockPrefab;
     public GameObject keyPrefab;
-    public GameObject permanentKeyPrefab;
     public GameObject nodeSwapperPrefab;
 
     public GameObject[] levels;
@@ -197,7 +195,6 @@ public class LevelManager : MonoBehaviour{
         DestroyCurLevel();
         Transform levelHolder = GenerateNewLevelHolder(levelName);
 
-
         try
         {
             LoadLevelProperty(levelName, levelHolder);
@@ -207,15 +204,13 @@ public class LevelManager : MonoBehaviour{
         catch (System.Exception)
         {
             LoadLevel(index);
-            SaveLevelProperty(curLevel.transform);
+            //SaveLevelProperty(curLevel.transform);
             //Destroy(curLevel);
             //levelContainer = new GameObject("level").transform;
             //LoadLevelProperty(levelName, level);
             Debug.Log("level loaded with prefab");
             throw;
         }
-
-
 
         if (OnLevelLoad != null)
         {
@@ -359,7 +354,7 @@ public class LevelManager : MonoBehaviour{
                 Node node = obj.GetComponent<Node>();
                 NodeProperty nodeP = new NodeProperty();
 
-                nodeP.tag = obj.tag;
+                nodeP.tag = node.isPermanent ? "p," + obj.tag : obj.tag;
                 nodeP.posX = obj.position.x;
                 nodeP.posY = obj.position.y;
                 nodeP.id = obj.gameObject.GetInstanceID();
@@ -383,7 +378,7 @@ public class LevelManager : MonoBehaviour{
                 LineRenderer lr = obj.GetComponent<LineRenderer>();
                 ArrowProperty arrowP = new ArrowProperty();
 
-                arrowP.tag = obj.tag;
+                arrowP.tag = arrow.isPermanent ? "p," + obj.tag : obj.tag;
                 //arrowP.position = obj.position;
 
                 arrowP.id = obj.gameObject.GetInstanceID();
@@ -484,26 +479,31 @@ public class LevelManager : MonoBehaviour{
         // Create nodes and set properties
         foreach (var nodeProperty in levelProperty.nodes)
         {
-            PrefabAndPool prefabAndPool = GetPrefabAndPoolByTag(nodeProperty.tag);
+            PrefabAndPool prefabAndPool = GetPrefabAndPoolByTag(nodeProperty.tag.Replace("p,", ""));
             Vector3 pos = new Vector3(nodeProperty.posX, nodeProperty.posY, 0);
             Transform obj = Instantiate(prefabAndPool.prefab, pos, Quaternion.identity).transform;
-            obj.tag = nodeProperty.tag;
+            //obj.tag = nodeProperty.tag;
             obj.name = nodeProperty.id.ToString();
             obj.SetParent(levelParent);
-
+            if (nodeProperty.tag.Contains("p,"))
+            {
+                Debug.Log("should set permanent item : " + tag);
+                Node node = obj.GetComponent<Node>();
+                node.ChangePermanent(true);
+            }
             GameObject prefab;
             // Generate items that this node have
             for (int i = 0; i < nodeProperty.itemTags.Count; i++)
             {
                 string tag = nodeProperty.itemTags[i];
-                prefab = GetPrefabAndPoolByTag(tag).prefab;
+                prefab = GetPrefabAndPoolByTag(tag.Replace("p,", "")).prefab;
 
                 GameObject itemObj = obj.GetComponent<ItemController>().GenerateItem(prefab);
                 if (tag.Contains("p,"))
                 {
                     Debug.Log("should set permanent item : " + tag);
                     Item item = itemObj.GetComponent<Item>();
-                    item.SetPermanent();
+                    item.ChangePermanent(true);
                 }
                 else
                 {
@@ -517,9 +517,9 @@ public class LevelManager : MonoBehaviour{
 
         foreach (var arrowProperty in levelProperty.arrows)
         {
-            PrefabAndPool prefabAndPool = GetPrefabAndPoolByTag(arrowProperty.tag);
+            PrefabAndPool prefabAndPool = GetPrefabAndPoolByTag(arrowProperty.tag.Replace("p,", ""));
             Transform obj = Instantiate(prefabAndPool.prefab, Vector3.zero, Quaternion.identity).transform;
-            obj.tag = arrowProperty.tag;
+            //obj.tag = arrowProperty.tag;    //.Split(",")[1];
             obj.name = arrowProperty.id.ToString();
             obj.SetParent(levelParent);
             LineRenderer lr = obj.GetComponent<LineRenderer>();
@@ -537,6 +537,12 @@ public class LevelManager : MonoBehaviour{
 
             arrow.FixHeadPos();
             arrow.FixCollider();
+
+            if (arrowProperty.tag.Contains("p,"))
+            {
+                Debug.Log("should set permanent item : " + tag);
+                arrow.ChangePermanent(true);
+            }
 
             if (arrow.CompareTag("TransporterArrow"))
             {
@@ -595,23 +601,19 @@ public class LevelManager : MonoBehaviour{
             prefabAndPool.prefab = squareNode;
             //prefabAndPool.pool = nodesPool;
         }
-        else if (tag == "PermanentArrow")
-        {
-            prefabAndPool.prefab = permanentArrow;
-        }
         else if (tag == "TransporterArrow")
         {
             prefabAndPool.prefab = transporterArrow;
         }
-        else if (tag.Contains("Key"))
+        else if (tag == "Key")
         {
-            prefabAndPool.prefab = tag.Contains("p,") ? permanentKeyPrefab : keyPrefab;
+            prefabAndPool.prefab = keyPrefab;
         }
-        else if (tag.Contains("Padlock"))
+        else if (tag == "Padlock")
         {
-            prefabAndPool.prefab = tag.Contains("p,") ? permanentPadLockPrefab : padLockPrefab;
+            prefabAndPool.prefab = padLockPrefab;
         }
-        else if (tag.Contains("NodeSwapper"))
+        else if (tag == "NodeSwapper")
         {
             prefabAndPool.prefab = nodeSwapperPrefab;
         }

@@ -10,7 +10,8 @@ public class Arrow : MonoBehaviour{
     public GameObject destinationNode;
     //public Material defultMaterial;
     public ArrowCC arrowColorController;
-
+    public RandomLRColor randomLRColor;
+    public RandomSpriteColor randomSprite;
     public bool isPermanent = false;
 
     private GameManager gameManager;
@@ -190,6 +191,17 @@ public class Arrow : MonoBehaviour{
         //head.DOScale(Vector3.one, 1f);
         float duration = UnityEngine.Random.Range(0.2f, 0.6f);
         StartCoroutine(AppearAnim(duration, 0f));
+    }
+
+    public void ChangePermanent(bool isPermanent)
+    {
+        this.isPermanent = isPermanent;
+        randomLRColor.enabled = isPermanent;
+        randomSprite.enabled = isPermanent;
+        if (!isPermanent)
+        {
+            arrowColorController.ChangeToDefaultColors();
+        }
     }
 
     public void ChangeDirOnUndo(GameObject arrow){

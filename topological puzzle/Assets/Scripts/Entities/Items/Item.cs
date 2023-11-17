@@ -12,12 +12,16 @@ public enum ItemType
 public abstract class Item : MonoBehaviour
 {
     public ItemType type;
+    public SpriteRenderer itemSR;
+    public RandomSpriteColor randomSpriteColor;
 
     public Node owner;
     protected Tween moveTween;
     protected Sequence sequence;
     protected GameManager gameManager;
     protected Collider2D col;
+
+    protected Color nonPermanentColor;
 
     public static int suitableObjCount = 0;
 
@@ -36,6 +40,24 @@ public abstract class Item : MonoBehaviour
     {
         gameManager = FindObjectOfType<GameManager>();
         col = GetComponent<Collider2D>();
+
+        if (itemSR == null)
+        {
+            Transform image = transform.Find("Image");
+            image.TryGetComponent(out itemSR);
+        }
+
+        if (randomSpriteColor == null)
+        {
+            if (!randomSpriteColor.TryGetComponent(out randomSpriteColor))
+            {
+                randomSpriteColor = gameObject.AddComponent<RandomSpriteColor>();
+                randomSpriteColor.sr = itemSR;
+            }
+        }
+        nonPermanentColor = new Color(0.71f, 0.71f, 0.71f, 1f); 
+        ChangePermanent(isPermanent);
+
         DisableCollider();
     }
 
@@ -53,7 +75,7 @@ public abstract class Item : MonoBehaviour
 
     protected void OnMouseEnter()
     {
-        transform.localScale = Vector3.one * 1.2f;
+        transform.localScale = Vector3.one * 1.5f;
         owner.col.enabled = false;
     }
 
@@ -129,9 +151,15 @@ public abstract class Item : MonoBehaviour
         moveAction();
     }
 
-    public virtual void SetPermanent()
+    public virtual void ChangePermanent(bool isPermanent)
     {
+        this.isPermanent = isPermanent;
+        randomSpriteColor.enabled = isPermanent;
 
+        if (!isPermanent)
+        {
+            itemSR.color = nonPermanentColor;
+        }
     }
 
     protected void EnableCollider()

@@ -158,12 +158,6 @@ public class ItemController : MonoBehaviour
         itemContainer.FindContainerPos();
         AddItem(item.GetComponent<Item>(), index, setInstantAnim: true);
 
-        if (item.CompareTag("Padlock"))
-        {
-            hasPadLock = true;
-            padlocks.Add(item.GetComponent<Lock>());
-        }
-
         return item.gameObject;
     }
 

@@ -4,22 +4,8 @@ using UnityEngine;
 
 public class NodeSwapper : Item
 {
-    public SpriteRenderer nodeSwapperSR;
-    public RandomSpriteColor randomSpriteColor;
-
     public delegate void OnSwapperUsabilityCheckDelegate();
     public static event OnSwapperUsabilityCheckDelegate OnSwapperUsabilityCheck;
-
-    protected override void Start()
-    {
-        base.Start();
-
-        if (isPermanent)
-        {
-            SetPermanent();
-        }
-
-    }
 
     public override void CheckAndUse()
     {
@@ -61,24 +47,4 @@ public class NodeSwapper : Item
         //gameManager.AddToOldCommands(changeCommand);
     }
 
-    public override void SetPermanent()
-    {
-        isPermanent = true;
-        if (nodeSwapperSR == null)
-        {
-            Transform image = transform.Find("Image");
-            image.TryGetComponent(out nodeSwapperSR);
-        }
-
-        if (randomSpriteColor == null)
-        {
-            if (!randomSpriteColor.TryGetComponent(out randomSpriteColor))
-            {
-                randomSpriteColor = gameObject.AddComponent<RandomSpriteColor>();
-                randomSpriteColor.sr = nodeSwapperSR;
-            }
-        }
-
-        randomSpriteColor.enabled = isPermanent;
-    }
 }

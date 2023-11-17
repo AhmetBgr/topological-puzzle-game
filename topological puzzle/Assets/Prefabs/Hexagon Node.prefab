@@ -422,6 +422,7 @@ GameObject:
   - component: {fileID: 765830797248088566}
   - component: {fileID: 1321164788204144646}
   - component: {fileID: -2699468760208413358}
+  - component: {fileID: 1428006616134960087}
   m_Layer: 6
   m_Name: Hexagon Node
   m_TagString: HexagonNode
@@ -480,12 +481,15 @@ MonoBehaviour:
   indegree_text: {fileID: 765830796897585540}
   nodeColorController: {fileID: 1321164788204144646}
   itemController: {fileID: -2699468760208413358}
+  randomSpriteColor: {fileID: 1428006616134960087}
   arrowsFromThisNode: []
   arrowsToThisNode: []
   selectable: 0
+  isSelected: 0
   isPermanent: 0
   isRemoved: 0
   defSprite: {fileID: 0}
+  col: {fileID: 0}
   indegree: 0
 --- !u!114 &1321164788204144646
 MonoBehaviour:
@@ -519,14 +523,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemContainer: {fileID: 8937615638573105814}
-  key: {fileID: 0}
-  padLock: {fileID: 0}
+  padlocks: []
   hasPadLock: 0
-  hasKey: 0
-  padLockImage: {fileID: 0}
-  keyImage: {fileID: 0}
-  padLockPos: {x: 0.5, y: -0.5, z: 0}
-  keyPos: {x: 0.5, y: -0.5, z: 0}
+--- !u!114 &1428006616134960087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 765830797248088564}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73f426b498131fa4eb8afb79bb255da3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sr: {fileID: 765830796177310838}
 --- !u!1 &1494469044396510377
 GameObject:
   m_ObjectHideFlags: 0

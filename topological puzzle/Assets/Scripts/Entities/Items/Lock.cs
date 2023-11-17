@@ -5,20 +5,8 @@ using DG.Tweening;
 
 public class Lock : Item
 {
-    public SpriteRenderer padlockSR;
-    public RandomSpriteColor randomSpriteColor;
-
     public delegate void OnUnlockDelegate();
     public event OnUnlockDelegate OnUnlock;
-
-    protected override void Start()
-    {
-        base.Start();
-        if (isPermanent)
-        {
-            SetPermanent();
-        }
-    }
 
 
     public Sequence GetUnlockSequance(float dur)
@@ -29,26 +17,5 @@ public class Lock : Item
             gameObject.SetActive(false);
         }));
         return padlockSeq;
-    }
-
-    public override void SetPermanent()
-    {
-
-        if (padlockSR == null)
-        {
-            Transform image = transform.Find("Image");
-            image.TryGetComponent(out padlockSR);
-        }
-
-        if (randomSpriteColor == null)
-        {
-            if (!randomSpriteColor.TryGetComponent(out randomSpriteColor))
-            {
-                randomSpriteColor = gameObject.AddComponent<RandomSpriteColor>();
-                randomSpriteColor.sr = padlockSR;
-            }
-        }
-
-        randomSpriteColor.enabled = isPermanent;
     }
 }

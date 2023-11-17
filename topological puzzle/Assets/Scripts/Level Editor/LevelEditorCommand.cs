@@ -23,7 +23,6 @@ public class PlaceNode : LeCommand{
         return affectedObject;
     }
 }
-
 public class DrawArrow : LeCommand{
     private LineRenderer lr;
     private RaycastHit2D hit;
@@ -118,7 +117,6 @@ public class DrawArrow : LeCommand{
         return null;
     }
 }
-
 public class DeleteItem : LeCommand
 {
     private Item item;
@@ -149,7 +147,6 @@ public class DeleteItem : LeCommand
         return null;
     }
 }
-
 public class DeleteNode : LeCommand
 {
     private Node node;
@@ -197,7 +194,6 @@ public class DeleteNode : LeCommand
         return null;
     }
 }
-
 public class DeleteArrow : LeCommand
 {
     private Arrow arrow;
@@ -225,7 +221,6 @@ public class DeleteArrow : LeCommand
         return null;
     }
 }
-
 public class ClearAll : LeCommand{
     private List<GameObject> affectedObjects = new List<GameObject>();
 
@@ -256,7 +251,6 @@ public class ClearAll : LeCommand{
         return null;
     }
 }
-
 public class AddItem : LeCommand
 {
     GameObject itemPrefab;
@@ -286,89 +280,6 @@ public class AddItem : LeCommand
     }
 
 }
-
-public class TogglePadLock : LeCommand
-{
-    private Node affectedNode;
-    private GameObject prefab;
-
-    public TogglePadLock(GameObject prefab)
-    {
-        this.prefab = prefab;
-    }
-    public override int Execute(GameObject selectedObject)
-    {
-        
-        Node node = selectedObject.GetComponent<Node>();
-        TogglePadLockFunc(node);
-
-        affectedNode = node;
-        return 1;
-    }
-
-    private void TogglePadLockFunc(Node node)
-    {
-        ItemController itemController = node.itemController;
-        if (itemController.hasPadLock)
-        {
-            //Remove PadLock
-            //itemController.DestroPadLock();
-            itemController.RemoveItem(itemController.FindLastPadlock());
-            
-        }
-        else
-        {
-            //Add PadLock
-            //itemController.GeneratePadLock(prefab);
-            itemController.GenerateItem(prefab);
-        }
-        itemController.itemContainer.FixItemPositions();
-    }
-
-
-    public override GameObject Undo()
-    {
-        TogglePadLockFunc(affectedNode);
-        return null;
-    }
-
-}
-public class ToggleKey : LeCommand
-{
-    private Node affectedNode;
-    private GameObject prefab;
-    private Item item;
-    ItemController itemController;
-
-    public ToggleKey(GameObject prefab)
-    {
-        this.prefab = prefab;
-    }
-    public override int Execute(GameObject selectedObject)
-    {
-        
-        Node node = selectedObject.GetComponent<Node>();
-        ToggleKeyFunc(node);
-        affectedNode = node;
-        return 1;
-    }
-
-    private void ToggleKeyFunc(Node node)
-    {
-        itemController = node.itemController;
-        item = itemController.GenerateItem(prefab).GetComponent<Item>();
-        itemController.itemContainer.FixItemPositions();
-    }
-
-
-    public override GameObject Undo()
-    {
-        itemController.RemoveItem(item);
-        LevelEditor.Destroy(item.gameObject);
-        return null;
-    }
-}
-
 
 public class MoveNode : LeCommand
 {
@@ -478,8 +389,6 @@ public class MoveNode : LeCommand
                 arrowLR.SetPosition(0, fixedFirstPointPos);
             }
         }
-
-        
     }
 
     public override GameObject Undo()
@@ -501,6 +410,74 @@ public class MoveNode : LeCommand
             arrowComponents.arrow.FixCollider();
             arrowComponents.arrow.FixHeadPos();
         }
+        return null;
+    }
+}
+
+public class ToggleItemPermanent : LeCommand
+{
+    Item item;
+    bool defState;
+    public ToggleItemPermanent(Item item)
+    {
+        this.item = item;
+    }
+
+    public override int Execute(GameObject selectedObject)
+    {
+        defState = item.isPermanent;
+        item.ChangePermanent(!defState);
+        return 0;
+    }
+
+    public override GameObject Undo()
+    {
+        item.ChangePermanent(defState);
+        return null;
+    }
+}
+
+public class ToggleArrowPermanent : LeCommand
+{
+    Arrow arrow;
+    bool defState;
+    public ToggleArrowPermanent(Arrow arrow)
+    {
+        this.arrow = arrow;
+    }
+
+    public override int Execute(GameObject selectedObject)
+    {
+        defState = arrow.isPermanent;
+        arrow.ChangePermanent(!defState);
+        return 0;
+    }
+
+    public override GameObject Undo()
+    {
+        arrow.ChangePermanent(defState);
+        return null;
+    }
+}
+public class ToggleNodePermanent : LeCommand
+{
+    Node node;
+    bool defState;
+    public ToggleNodePermanent(Node node)
+    {
+        this.node = node;
+    }
+
+    public override int Execute(GameObject selectedObject)
+    {
+        defState = node.isPermanent;
+        node.ChangePermanent(!defState);
+        return 0;
+    }
+
+    public override GameObject Undo()
+    {
+        node.ChangePermanent(defState);
         return null;
     }
 }

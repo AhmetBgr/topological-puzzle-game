@@ -11,8 +11,9 @@ public class ArrowCC : ColorController
     public LineRenderer lr;
     public Material defMaterial;
     public Material defHeadMaterial;
-    
-    
+
+
+    private Palette defPalette;
     private Material material;
     private Material headMaterial;
     
@@ -31,19 +32,26 @@ public class ArrowCC : ColorController
         material = lr.material;
         headMaterial = arrowHead.material;
         glowIntensityMedium = 0f;
-        glowIntensityHigh = 5f;
+        glowIntensityHigh = 2.5f;
+
+        defPalette = FindObjectOfType<GameManager>().defPalette;
     }
     
 
     protected override void ChangeColorsOnPaletteSwap(Palette palette, float duration)
     {
-        arrowHead.DOColor(palette.arrowColor, duration);
+        
         StartCoroutine((ChangeArrowColor(palette.arrowColor, palette.arrowColor, duration)));
 
+    }
+    public void ChangeToDefaultColors()
+    {
+        StartCoroutine((ChangeArrowColor(defPalette.arrowColor, defPalette.arrowColor, 0.02f)));
     }
 
     private IEnumerator ChangeArrowColor(Color startColor, Color endColor, float duration, float delay = 0f, Action OnComplete = null)
     {
+        arrowHead.DOColor(endColor, duration);
         yield return new WaitForSeconds(delay);
 
         float initialTime = Time.time;

@@ -112,7 +112,6 @@ public class LevelEditor : MonoBehaviour{
 
         // Delete Object
         if(Input.GetMouseButtonDown(2) && GameState.gameState == GameState_EN.inLevelEditor){
-            //Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector2 ray = cursor.worldPos;
             RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero);
             if(hit){
@@ -143,11 +142,8 @@ public class LevelEditor : MonoBehaviour{
         // Checks if player intents to move a node, If so change the level editor state to movingObject
         if ( ( state == LeState.waiting  && Input.GetMouseButtonDown(0) ) || isButtonDown)
         {
-
-            
             if (!isButtonDown)
             {
-                //Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 Vector2 ray = cursor.worldPos;
                 RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero, LayerMask.GetMask("Node"));
                 if (hit){ // Holding starting over a node
@@ -176,82 +172,8 @@ public class LevelEditor : MonoBehaviour{
             }
         }
 
-
-        if ( Input.GetKeyDown(KeyCode.P)){
-            //Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector2 ray = cursor.worldPos;
-            RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero, LayerMask.GetMask("Node"));
-            if (hit){
-                Node node = hit.transform.GetComponent<Node>();
-                TogglePadLock command = new TogglePadLock(permanentPadLockPrefab);
-                command.Execute(hit.transform.gameObject);
-                oldCommands.Add((command));
-            }
-        }
-        if (Input.GetKeyDown(KeyCode.L))
-        {
-            //Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector2 ray = cursor.worldPos;
-            RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero, LayerMask.GetMask("Node"));
-            if (hit){
-                Node node = hit.transform.GetComponent<Node>();
-                TogglePadLock command = new TogglePadLock(padLockPrefab);
-                command.Execute(hit.transform.gameObject);
-                oldCommands.Add((command));
-            }
-        }
-        if (Input.GetKeyDown(KeyCode.O)){
-            //Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector2 ray = cursor.worldPos;
-            RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero, LayerMask.GetMask("Node"));
-            if (hit){
-                Node node = hit.transform.GetComponent<Node>();
-                ToggleKey command = new ToggleKey(permanentKeyPrefab);
-                command.Execute(hit.transform.gameObject);
-                oldCommands.Add((command));
-            }
-        }
-        if( Input.GetKeyDown(KeyCode.K) )
-        {
-            //Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector2 ray = cursor.worldPos;
-            RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero, LayerMask.GetMask("Node"));
-            if (hit){
-                Node node = hit.transform.GetComponent<Node>();
-                ToggleKey command = new ToggleKey(keyPrefab);
-                command.Execute(hit.transform.gameObject);
-                oldCommands.Add((command));
-            }
-        }
-        if (Input.GetKeyDown(KeyCode.J))
-        {
-            //Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector2 ray = cursor.worldPos;
-            RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero, LayerMask.GetMask("Node"));
-            if (hit)
-            {
-                ToggleKey command = new ToggleKey(nodeSwapperPrefab);
-                command.Execute(hit.transform.gameObject);
-                oldCommands.Add((command));
-            }
-        }
-        if (Input.GetKeyDown(KeyCode.I))
-        {
-            //Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector2 ray = cursor.worldPos;
-            RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero, LayerMask.GetMask("Node"));
-            if (hit)
-            {
-                ToggleKey command = new ToggleKey(permanentNodeSwapperPrefab);
-                command.Execute(hit.transform.gameObject);
-                oldCommands.Add((command));
-            }
-        }
-
         if (state == LeState.placingNode ){
             // selected node follows mouse pos until placing
-            //Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            //Vector2 ray = cursor.worldPos;
             Vector2 ray = Camera.main.ScreenToWorldPoint(cursor.pos);
             curObj.localPosition = curLevelInEditing.transform.InverseTransformPoint(ray);
             if( Input.GetMouseButtonDown(0) ){
@@ -283,8 +205,6 @@ public class LevelEditor : MonoBehaviour{
             }
         }
         else if(state == LeState.drawingArrow ){
-            //Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            //Vector2 ray = cursor.worldPos;
             Vector2 ray = Camera.main.ScreenToWorldPoint(cursor.pos);
             if (clickCount > 0)
                 curObj.GetChild(0).position = ray;
@@ -311,8 +231,6 @@ public class LevelEditor : MonoBehaviour{
         }
         else if(state == LeState.movingObject && moveNode != null)
         {
-            //Debug.Log("movingNode");
-            //Vector3 targetPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector2 targetPos = cursor.worldPos;
             moveNode.Move( new Vector3(targetPos.x, targetPos.y, 0) );
             if (Input.GetMouseButtonUp(0))
@@ -334,11 +252,35 @@ public class LevelEditor : MonoBehaviour{
             }
             return;
         }
-        else if(state == LeState.addingItem)
+
+        if (Input.GetKeyDown(KeyCode.P))
         {
+            Vector2 ray = Camera.main.ScreenToWorldPoint(cursor.pos);
+            RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero, LayerMask.GetMask("Item", "Arrow", "Node"));
+            if (hit)
+            {
+                GameObject selectedObject = hit.transform.gameObject;
+                if (((1 << selectedObject.layer) & LayerMask.GetMask("Item")) != 0)
+                {
+                    if (selectedObject.CompareTag("AddNewItem")) return;
 
-
-
+                    ToggleItemPermanent toggleItemPermanent = new ToggleItemPermanent(selectedObject.GetComponent<Item>());
+                    toggleItemPermanent.Execute(null);
+                    oldCommands.Add(toggleItemPermanent);
+                }
+                else if (((1 << selectedObject.layer) & LayerMask.GetMask("Node")) != 0)
+                {
+                    ToggleNodePermanent toggleNodePermanent = new ToggleNodePermanent(selectedObject.GetComponent<Node>());
+                    toggleNodePermanent.Execute(null);
+                    oldCommands.Add(toggleNodePermanent);
+                }
+                else if (((1 << selectedObject.layer) & LayerMask.GetMask("Arrow")) != 0)
+                {
+                    ToggleArrowPermanent toggleArrowPermanent = new ToggleArrowPermanent(selectedObject.GetComponent<Arrow>());
+                    toggleArrowPermanent.Execute(null);
+                    oldCommands.Add(toggleArrowPermanent);
+                }
+            }
         }
 
         if(Input.GetMouseButtonDown(1) && state != LeState.waiting && GameState.gameState == GameState_EN.inLevelEditor)

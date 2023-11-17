@@ -95,8 +95,7 @@ public class UnlockPadlock : Command
 
         padlock.gameObject.SetActive(true);
         ItemController itemController = node.itemController;
-        itemController.hasPadLock = true;
-        itemController.itemContainer.AddItem(padlock, padlockIndex);
+        itemController.AddItem(padlock, padlockIndex);
         
         float dur = 0.5f;
         Sequence seq = DOTween.Sequence();

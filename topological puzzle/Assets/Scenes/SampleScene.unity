@@ -7316,16 +7316,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   arrow: {fileID: 282529941782624232, guid: 2e036caab3ed378448a5e76e59c7b573, type: 3}
-  permanentArrow: {fileID: 282529941782624232, guid: 6fd48aac26c1cba4eaf6208ca655ec3d, type: 3}
   transporterArrow: {fileID: 282529941782624232, guid: f73c28668a1dba941aa176b724a24233, type: 3}
   basicNode: {fileID: 765830797248088564, guid: a353f47a4118ad944a99d7334dd1c593, type: 3}
   squareNode: {fileID: 1229220417504542100, guid: 0ed31d438f26a1a4f9ed33e5254dc516, type: 3}
   lockedNode: {fileID: 765830797248088564, guid: 1e569b4c2265b064c92a21e6a1faf4a0, type: 3}
   hexagonNode: {fileID: 765830797248088564, guid: dae3e49ae6a7e634e96127d6d0e33327, type: 3}
   padLockPrefab: {fileID: 7871593577314733723, guid: 8e051fe8b9074a242b103c7f1101e01a, type: 3}
-  permanentPadLockPrefab: {fileID: 8838386290905338420, guid: 294d34734e373194892ba8c70b269390, type: 3}
   keyPrefab: {fileID: 3553593485385679789, guid: dc6b6610fc9dc9840b21e5a20241d155, type: 3}
-  permanentKeyPrefab: {fileID: 8054850336622291759, guid: e33c0fafe9c0e6f4084886bba04849bd, type: 3}
   nodeSwapperPrefab: {fileID: 5304421237793316639, guid: fe927311adaefff48a8f6ced4a12f465, type: 3}
   levels:
   - {fileID: 3879538869886281923, guid: a038a58f62e29bf4096771fb58fa46ff, type: 3}
@@ -7350,7 +7347,6 @@ MonoBehaviour:
   - {fileID: 1377484413537049320, guid: 9938d00c42b145a4480850752ecf49a9, type: 3}
   - {fileID: 4295909646612489986, guid: 6812c30f2559a7a46a9c535a6c1efdc2, type: 3}
   - {fileID: 1931154514945066047, guid: 5b9612b91e50ac846860670c70b7a791, type: 3}
-  - {fileID: 7758848206727948295, guid: 5fa738b67867b0d4ebbb3f92dea9be88, type: 3}
   levelProgressIndex: 0
   nodesPool: []
   arrowsPool: []
@@ -31242,7 +31238,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1954240330}
-  - component: {fileID: 1954240331}
   m_Layer: 2
   m_Name: Cursor
   m_TagString: Untagged
@@ -31272,24 +31267,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1954240331
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1954240329}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d7161c57722303a4bbeacded16bb02e8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  snapToGrid: 0
-  gridSize: 0.5
-  pos: {x: 0, y: 0, z: 0}
-  worldPos: {x: 0, y: 0, z: 0}
-  mouseWorldPos: {x: 0, y: 0, z: 0}
-  isHiden: 0
 --- !u!4 &1966680718 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8836993183200230801, guid: cdcecb8ae17e6e549aba42a32066e745, type: 3}
@@ -32254,6 +32231,7 @@ GameObject:
   - component: {fileID: 2046448516}
   - component: {fileID: 2046448515}
   - component: {fileID: 2046448514}
+  - component: {fileID: 2046448517}
   m_Layer: 2
   m_Name: Cursor Canvas
   m_TagString: Untagged
@@ -32327,6 +32305,25 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &2046448517
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2046448512}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7161c57722303a4bbeacded16bb02e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cursor: {fileID: 1954240330}
+  snapToGrid: 0
+  gridSize: 0.5
+  pos: {x: 0, y: 0, z: 0}
+  worldPos: {x: 0, y: 0, z: 0}
+  mouseWorldPos: {x: 0, y: 0, z: 0}
+  isHiden: 0
 --- !u!1 &2053726920
 GameObject:
   m_ObjectHideFlags: 0

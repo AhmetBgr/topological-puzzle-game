@@ -14,6 +14,7 @@ public class Node : MonoBehaviour
     
     public NodeCC nodeColorController;
     public ItemController itemController;
+    public RandomSpriteColor randomSpriteColor;
 
     public List<GameObject> arrowsFromThisNode = new List<GameObject>();
     public List<GameObject> arrowsToThisNode = new List<GameObject>();
@@ -30,6 +31,7 @@ public class Node : MonoBehaviour
     //private Material material;
     public Collider2D col;
     private Tween disappearTween;
+    private Color nonPermanentColor;
 
     private string defTag;
     private float initialTopPosY;
@@ -56,7 +58,7 @@ public class Node : MonoBehaviour
         //material = nodeSprite.material;
         defSprite = nodeSprite.sprite;
         defTag = gameObject.tag;
-
+        nonPermanentColor = nodeSprite.color;
         //initialColor = material.GetColor("_Color");
         UpdateIndegree(indegree);
     }
@@ -213,6 +215,17 @@ public class Node : MonoBehaviour
         //bool hasRequiredItem = itemController.FindItemWithType(ItemType.Padlock) != null ? true : false;
 
         NodeSwapper.suitableObjCount++;
+    }
+
+    public void ChangePermanent(bool isPermanent)
+    {
+        this.isPermanent = isPermanent;
+        randomSpriteColor.enabled = isPermanent;
+
+        if (!isPermanent)
+        {
+            nodeSprite.color = nonPermanentColor;
+        }
     }
 
     public void Select(float dur)

@@ -212,9 +212,9 @@ GameObject:
   - component: {fileID: 282529941782624234}
   - component: {fileID: 4770241840631699826}
   - component: {fileID: 282529941782624245}
+  - component: {fileID: -4542943842018105911}
   - component: {fileID: 2906467770978984395}
   - component: {fileID: 3029745935353946619}
-  - component: {fileID: -4542943842018105911}
   m_Layer: 8
   m_Name: Transporter Arrow
   m_TagString: TransporterArrow
@@ -375,9 +375,28 @@ MonoBehaviour:
   startingNode: {fileID: 0}
   destinationNode: {fileID: 0}
   arrowColorController: {fileID: 2906467770978984395}
+  randomLRColor: {fileID: 3029745935353946619}
+  randomSprite: {fileID: 1937073300682839724}
   isPermanent: 1
   lr: {fileID: 0}
   linePoints: []
+--- !u!114 &-4542943842018105911
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 282529941782624232}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7871cb068811306488a29e745c142c5b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  arrow: {fileID: 282529941782624245}
+  priorityText: {fileID: 7319390914366868208}
+  priorityObj: {fileID: 2811908579823633424}
+  speed: 0.5
+  priority: 0
 --- !u!114 &2906467770978984395
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -409,24 +428,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lr: {fileID: 282529941782624234}
-  particleSystem: {fileID: 0}
---- !u!114 &-4542943842018105911
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 282529941782624232}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7871cb068811306488a29e745c142c5b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  arrow: {fileID: 282529941782624245}
-  priorityText: {fileID: 7319390914366868208}
-  priorityObj: {fileID: 2811908579823633424}
-  speed: 0.5
-  priority: 0
 --- !u!1 &4889164055374982552
 GameObject:
   m_ObjectHideFlags: 0

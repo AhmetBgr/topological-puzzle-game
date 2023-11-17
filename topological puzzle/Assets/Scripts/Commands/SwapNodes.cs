@@ -30,7 +30,7 @@ public class SwapNodes : Command
         NodeSwapper nodeSwapper = commandOwner.GetComponent<NodeSwapper>();
         nodeSwapper.randomSpriteColor.enabled = false;
         commandOwner.transform.DOMoveY(commandOwner.transform.position.y + 2f, 0.5f);
-        commandOwner.GetComponent<NodeSwapper>().nodeSwapperSR.DOFade(0f, 0.3f).SetDelay(0.2f);
+        commandOwner.GetComponent<NodeSwapper>().itemSR.DOFade(0f, 0.3f).SetDelay(0.2f);
         SwapNodesFunc(selectedObjects);
 
         for (int i = 0; i < selectedObjects.Count; i++)
@@ -45,7 +45,7 @@ public class SwapNodes : Command
         //commandOwner.transform.DOMoveY(commandOwner.transform.position.y + 2f, 0.5f);
         NodeSwapper nodeSwapper = commandOwner.GetComponent<NodeSwapper>();
         nodeSwapper.randomSpriteColor.enabled = false;
-        nodeSwapper.nodeSwapperSR.DOFade(1f, 0.3f).OnComplete(() => {
+        nodeSwapper.itemSR.DOFade(1f, 0.3f).OnComplete(() => {
             if (nodeSwapper.isPermanent)
                 nodeSwapper.randomSpriteColor.enabled = true;
         });

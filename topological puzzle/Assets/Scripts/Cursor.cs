@@ -6,6 +6,7 @@ using UnityEngine;
 public class Cursor : MonoBehaviour
 {
     private Camera cam;
+    public Transform cursor;
     public bool snapToGrid = false;
     public float gridSize = 1f;
     //public bool onlyUpdateOnHover = false;
@@ -53,13 +54,13 @@ public class Cursor : MonoBehaviour
             worldPos = Camera.main.ScreenToWorldPoint(mousePos);
             Vector3 snappedWorldPos = new Vector3(CustomRound(worldPos.x), CustomRound(worldPos.y), 0f);
             pos = Camera.main.WorldToScreenPoint(snappedWorldPos);
-            transform.position = pos;
+            cursor.position = pos;
             worldPos = Camera.main.ScreenToWorldPoint(pos);
         }
         else
         {
             pos = Input.mousePosition;
-            transform.position = pos;
+            cursor.position = pos;
             worldPos = Camera.main.ScreenToWorldPoint(pos);
         }
         mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -67,7 +68,7 @@ public class Cursor : MonoBehaviour
 
     public void HideCursor()
     {
-        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+        SpriteRenderer spriteRenderer = cursor.GetComponent<SpriteRenderer>();
         spriteRenderer.enabled = false;
         snapToGrid = false;
         isHiden = true;
@@ -75,7 +76,7 @@ public class Cursor : MonoBehaviour
 
     public void ShowCursor()
     {
-        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+        SpriteRenderer spriteRenderer = cursor.GetComponent<SpriteRenderer>();
         spriteRenderer.enabled = true;
         snapToGrid = true;
         isHiden = false;

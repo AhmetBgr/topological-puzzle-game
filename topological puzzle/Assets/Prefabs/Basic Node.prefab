@@ -422,6 +422,7 @@ GameObject:
   - component: {fileID: 765830797248088566}
   - component: {fileID: 2331233250471143629}
   - component: {fileID: 8404885716331390287}
+  - component: {fileID: 7809475441952512927}
   m_Layer: 6
   m_Name: Basic Node
   m_TagString: BasicNode
@@ -480,12 +481,15 @@ MonoBehaviour:
   indegree_text: {fileID: 765830796897585540}
   nodeColorController: {fileID: 2331233250471143629}
   itemController: {fileID: 8404885716331390287}
+  randomSpriteColor: {fileID: 7809475441952512927}
   arrowsFromThisNode: []
   arrowsToThisNode: []
   selectable: 0
+  isSelected: 0
   isPermanent: 0
   isRemoved: 0
   defSprite: {fileID: 0}
+  col: {fileID: 0}
   indegree: 0
 --- !u!114 &2331233250471143629
 MonoBehaviour:
@@ -519,14 +523,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemContainer: {fileID: 2158780942557572678}
-  key: {fileID: 0}
-  padLock: {fileID: 0}
+  padlocks: []
   hasPadLock: 0
-  hasKey: 0
-  padLockImage: {fileID: 0}
-  keyImage: {fileID: 0}
-  padLockPos: {x: 0.5, y: -0.5, z: 0}
-  keyPos: {x: 0.5, y: -0.5, z: 0}
+--- !u!114 &7809475441952512927
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 765830797248088564}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73f426b498131fa4eb8afb79bb255da3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sr: {fileID: 765830796177310838}
 --- !u!1 &8776631468420257885
 GameObject:
   m_ObjectHideFlags: 0
