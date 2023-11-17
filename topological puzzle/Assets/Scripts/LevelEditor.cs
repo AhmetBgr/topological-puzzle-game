@@ -14,7 +14,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
 public enum LeState{
-    placingNode, drawingArrow, closed, waiting, movingObject, placingItem
+    placingNode, drawingArrow, closed, waiting, movingObject, addingItem
 }
 public class LevelEditor : MonoBehaviour{
     public LevelManager levelManager;
@@ -40,6 +40,7 @@ public class LevelEditor : MonoBehaviour{
     public RectTransform bottomPanel;
     public RectTransform sharePanel;
     public RectTransform GetLevelPanel;
+    public RectTransform addItemPanel;
     public TMP_InputField levelNameField;
     public TextMeshProUGUI levelNameText;
     public TextMeshProUGUI encodedLevelText;
@@ -55,6 +56,8 @@ public class LevelEditor : MonoBehaviour{
     private Transform curObj; // change to selectedObj
     private GameObject lastPrefab;
     private Node curLockedNode;
+    public Node addItemNode;
+    public GameObject itemToAdd;
     private Button curSelButton;
     private LineRenderer lr;
     private List<LeCommand> oldCommands = new List<LeCommand>();
@@ -88,10 +91,12 @@ public class LevelEditor : MonoBehaviour{
     void OnEnable()
     {
         LevelManager.OnLevelLoad += ResetCurLevelInEditing;
+        AddNewItem.OnMouseEnter += OpenAddItemPanel;
     }
     void OnDisable()
     {
         LevelManager.OnLevelLoad -= ResetCurLevelInEditing;
+        AddNewItem.OnMouseEnter -= OpenAddItemPanel;
     }
 
     void Update(){
@@ -114,6 +119,8 @@ public class LevelEditor : MonoBehaviour{
                 GameObject selectedObject = hit.transform.gameObject;
                 if (((1 << selectedObject.layer) & LayerMask.GetMask("Item")) != 0)
                 {
+                    if (selectedObject.CompareTag("AddNewItem")) return;
+
                     DeleteItem deleteItem = new DeleteItem();
                     deleteItem.Execute(selectedObject);
                     oldCommands.Add(deleteItem);
@@ -158,6 +165,8 @@ public class LevelEditor : MonoBehaviour{
                 t = 0;
             }
             if (t >= minDragTime) { // Enough hold time for dragging, So changes level editor state to moving object
+                if (((1 << movingNode.gameObject.layer) & LayerMask.GetMask("Node")) == 0) return;
+
                 moveNode = new MoveNode(movingNode, curLevelInEditing.transform);
                 oldCommands.Add(moveNode);
                 lastState = state;
@@ -325,17 +334,27 @@ public class LevelEditor : MonoBehaviour{
             }
             return;
         }
-        else if(state == LeState.placingItem)
+        else if(state == LeState.addingItem)
         {
+
+
 
         }
 
         if(Input.GetMouseButtonDown(1) && state != LeState.waiting && GameState.gameState == GameState_EN.inLevelEditor)
         {
+            if (state == LeState.addingItem)
+                CloseAddItemPanel();
+
             clickCount = 0;
-            curSelButton.interactable = true;
+
+            if(curSelButton)
+                curSelButton.interactable = true;
+
             curSelButton = null;
-            Destroy(curObj.gameObject);
+            if(curObj)
+                Destroy(curObj.gameObject);
+
             state = LeState.waiting;
             lastState = state;
         }
@@ -348,6 +367,17 @@ public class LevelEditor : MonoBehaviour{
         //Debug.Log( state.ToString() );  
     }
 
+    public void AddItem(GameObject itemPrefab, Node node)
+    {
+        if (addItemNode)
+        {
+            AddItem addItem = new AddItem(itemPrefab, node, node.itemController.itemContainer.items.Count - 1);
+            addItem.Execute(null);
+            oldCommands.Add(addItem);
+            state = LeState.waiting;
+            //Destroy(curObj);
+        }
+    }
     public void OnSelectionButtonDown(GameObject prefab, Button button, LeState state){
         if(curSelButton != null)
             curSelButton.interactable = true;
@@ -368,6 +398,7 @@ public class LevelEditor : MonoBehaviour{
         Transform obj = Instantiate(prefab, Vector3.zero, Quaternion.identity).transform;
         obj.SetParent(curLevelInEditing.transform);
         obj.GetComponent<Collider2D>().enabled = false;
+
         //obj.localPosition = hit.transform.localPosition;
         curObj = obj;
         lastPrefab = prefab;
@@ -382,6 +413,7 @@ public class LevelEditor : MonoBehaviour{
         lastState = state;
         
     }
+
 
     public void InstantiateObject(GameObject prefab){
 
@@ -618,6 +650,19 @@ public class LevelEditor : MonoBehaviour{
         else{
             EnterLevelEditor();
         }
+    }
+
+    public void OpenAddItemPanel(Item item)
+    {
+        addItemPanel.gameObject.SetActive(true);
+        addItemPanel.position = Camera.main.WorldToScreenPoint(item.transform.position + (Vector3.up * -0.5f));
+        addItemNode = item.owner;
+        state = LeState.addingItem;
+    }
+
+    public void CloseAddItemPanel()
+    {
+        addItemPanel.gameObject.SetActive(false);
     }
 
     public void ToggleSharePanel()

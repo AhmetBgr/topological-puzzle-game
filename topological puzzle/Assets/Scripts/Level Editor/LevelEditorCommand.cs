@@ -257,6 +257,36 @@ public class ClearAll : LeCommand{
     }
 }
 
+public class AddItem : LeCommand
+{
+    GameObject itemPrefab;
+    Item item;
+    Node node;
+    int index;
+
+    public AddItem(GameObject itemPrefab, Node node, int index = -1)
+    {
+        this.itemPrefab = itemPrefab;
+        this.node = node;
+        this.index = index;
+    }
+    public override int Execute(GameObject selectedObject)
+    {
+
+        item = node.itemController.GenerateItem(itemPrefab, index).GetComponent<Item>();
+        item.gameObject.SetActive(true);
+        return 1;
+    }
+
+    public override GameObject Undo()
+    {
+        node.itemController.RemoveItem(item);
+        item.gameObject.SetActive(false);
+        return null;
+    }
+
+}
+
 public class TogglePadLock : LeCommand
 {
     private Node affectedNode;

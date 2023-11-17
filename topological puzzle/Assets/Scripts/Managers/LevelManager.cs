@@ -366,6 +366,8 @@ public class LevelManager : MonoBehaviour{
 
                 foreach (var item in node.itemController.itemContainer.items)
                 {
+                    if (item.CompareTag("AddNewItem")) continue;
+
                     string tag = item.isPermanent ? "p," + item.tag : item.tag;
 
                     nodeP.itemTags.Add(tag);

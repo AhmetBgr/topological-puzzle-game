@@ -16,7 +16,8 @@ public class LEObjectSelHandler : MonoBehaviour{
     void Start(){
         levelEditor = FindObjectOfType<LevelEditor>();
         button = GetComponent<Button>();
-        button.onClick.AddListener(  () => { levelEditor.OnSelectionButtonDown(objPrefab, button, leState); });
+        button.onClick.AddListener(() => { levelEditor.OnSelectionButtonDown(objPrefab, button, leState); });
+        
     }
 
 }

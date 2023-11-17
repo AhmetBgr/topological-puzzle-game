@@ -28,7 +28,7 @@ public class Node : MonoBehaviour
     [HideInInspector] public Sprite defSprite;
     private GameManager gameManager;
     //private Material material;
-    protected Collider2D col;
+    public Collider2D col;
     private Tween disappearTween;
 
     private string defTag;

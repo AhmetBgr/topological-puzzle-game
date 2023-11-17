@@ -36,6 +36,16 @@ public class ItemController : MonoBehaviour
 
         //node = GetComponent<Node>();
     }
+    private void OnEnable()
+    {
+        LevelEditor.OnEnter += GenerateAddNewItem;
+        LevelEditor.OnExit += DestroyAddNewItem;
+    }
+    private void OnDisable()
+    {
+        LevelEditor.OnEnter -= GenerateAddNewItem;
+        LevelEditor.OnExit -= DestroyAddNewItem;
+    }
 
     private void OnMouseEnter()
     {
@@ -141,12 +151,12 @@ public class ItemController : MonoBehaviour
         itemContainer.FixItemPositions(setDelayBetweenFixes: isMultiple);
     }
 
-    public GameObject GenerateItem(GameObject prefab)
+    public GameObject GenerateItem(GameObject prefab, int index = -1)
     {
         Transform item = Instantiate(prefab, Vector3.zero, Quaternion.identity, parent: itemContainer.transform).transform;
         //item.SetParent(itemContainer.itemContainer);
         itemContainer.FindContainerPos();
-        AddItem(item.GetComponent<Item>(), -1, setInstantAnim: true);
+        AddItem(item.GetComponent<Item>(), index, setInstantAnim: true);
 
         if (item.CompareTag("Padlock"))
         {
@@ -178,5 +188,24 @@ public class ItemController : MonoBehaviour
 
         itemContainer.RemoveItem(item, skipFix: skipFix);
         item.owner = null;
+    }
+
+    private void GenerateAddNewItem()
+    {
+        GameObject addNewItemPrefab = Resources.Load("Add New Item") as GameObject;
+
+        GenerateItem(addNewItemPrefab);
+    }
+    private void DestroyAddNewItem()
+    {
+        for (int i = itemContainer.items.Count -1; i>= 0; i--)
+        {
+            Item item = itemContainer.items[i];
+            if (item.type == ItemType.AddNewItem)
+            {
+                RemoveItem(item);
+                Destroy(item.gameObject);
+            }
+        }
     }
 }

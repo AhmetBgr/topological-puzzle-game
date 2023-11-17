@@ -6,7 +6,7 @@ using System;
 
 public enum ItemType
 {
-    None, Key, Padlock, NodeSwapper
+    None, Key, Padlock, NodeSwapper, AddNewItem
 }
 
 public abstract class Item : MonoBehaviour
@@ -17,6 +17,7 @@ public abstract class Item : MonoBehaviour
     protected Tween moveTween;
     protected Sequence sequence;
     protected GameManager gameManager;
+    protected Collider2D col;
 
     public static int suitableObjCount = 0;
 
@@ -34,16 +35,32 @@ public abstract class Item : MonoBehaviour
     protected virtual void Start()
     {
         gameManager = FindObjectOfType<GameManager>();
+        col = GetComponent<Collider2D>();
+        DisableCollider();
     }
 
-    private void OnMouseEnter()
+    protected void OnEnable()
+    {
+        LevelEditor.OnEnter += EnableCollider;
+        LevelEditor.OnExit += DisableCollider;
+    }
+
+    protected void OnDisable()
+    {
+        LevelEditor.OnEnter -= EnableCollider;
+        LevelEditor.OnExit -= DisableCollider;
+    }
+
+    protected void OnMouseEnter()
     {
         transform.localScale = Vector3.one * 1.2f;
+        owner.col.enabled = false;
     }
 
-    private void OnMouseExit()
+    protected void OnMouseExit()
     {
         transform.localScale = Vector3.one;
+        owner.col.enabled = true;
     }
 
     public virtual void CheckAndUse()
@@ -112,5 +129,17 @@ public abstract class Item : MonoBehaviour
         moveAction();
     }
 
-    public abstract void SetPermanent();
+    public virtual void SetPermanent()
+    {
+
+    }
+
+    protected void EnableCollider()
+    {
+        col.enabled = true;
+    }
+    protected void DisableCollider()
+    {
+        col.enabled = false;
+    }
 }
