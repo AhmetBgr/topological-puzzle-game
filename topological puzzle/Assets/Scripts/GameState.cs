@@ -17,7 +17,7 @@ public class GameState : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        ChangeGameState(GameState_EN.playing);
+        //ChangeGameState(GameState_EN.playing);
     }
 
     public static void ChangeGameState(GameState_EN state){
@@ -43,5 +43,5 @@ public class GameState : MonoBehaviour
 
 
 public enum GameState_EN{
-    playing, inLevelEditor, paused
+    playing, inLevelEditor, paused, inMenu
 };
