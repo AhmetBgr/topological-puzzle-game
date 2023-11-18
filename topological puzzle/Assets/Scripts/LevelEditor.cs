@@ -18,8 +18,8 @@ public enum LeState{
 }
 public class LevelEditor : MonoBehaviour{
     public LevelManager levelManager;
-    //public GameObject curLevel;
-    private GameObject curLevelInEditing;
+    public GameObject curLevelInEditing;
+    public GameObject levelBeforeTesting;
 
     public GameObject arrow;
     public GameObject basicNode;
@@ -31,11 +31,6 @@ public class LevelEditor : MonoBehaviour{
     public GameObject nodeSwapperPrefab;
     public GameObject permanentNodeSwapperPrefab;
 
-
-    //public Button arrowSelButton;
-    //public Button basicNodeSelButton;
-    //public Button squareNodeSelButton;
-
     public RectTransform topPanel;
     public RectTransform bottomPanel;
     public RectTransform sharePanel;
@@ -45,11 +40,12 @@ public class LevelEditor : MonoBehaviour{
     public TextMeshProUGUI levelNameText;
     public TextMeshProUGUI encodedLevelText;
     public TMP_InputField encodedLevelTextField;
+    public Button enterTestButton;
+    public Button exitTestButton;
 
     private Cursor cursor;
 
     public LeState state;
-    //public LayerMask placementLayer;
 
     public float gapForArrowHead = 0.22f;
 
@@ -66,7 +62,6 @@ public class LevelEditor : MonoBehaviour{
     MoveNode moveNode = null;
     Transform movingNode = null;
 
-
     private int clickCount = 0;
     private float minDragTime = 0.1f;
     private float t = 0;
@@ -78,25 +73,23 @@ public class LevelEditor : MonoBehaviour{
     public delegate void OnEnterDelegate();
     public static OnEnterDelegate OnEnter;
 
-
     void Start(){
         state = LeState.closed;
         gameManager = FindObjectOfType<GameManager>();
         cursor = Cursor.instance;
-        //arrowSelButton.onClick.AddListener(  () => { OnSelectionButtonDown(arrow, arrowSelButton, LeState.drawingArrow); });
-        //basicNodeSelButton.onClick.AddListener(  () => { OnSelectionButtonDown(basicNode, basicNodeSelButton, LeState.placingNode); });
-        //squareNodeSelButton.onClick.AddListener(  () => { OnSelectionButtonDown(squareNode, squareNodeSelButton, LeState.placingNode); });
     }
 
     void OnEnable()
     {
         LevelManager.OnLevelLoad += ResetCurLevelInEditing;
         AddNewItem.OnMouseEnter += OpenAddItemPanel;
+        GameManager.OnLevelComplete += ExitTestingWithDelay;
     }
     void OnDisable()
     {
         LevelManager.OnLevelLoad -= ResetCurLevelInEditing;
         AddNewItem.OnMouseEnter -= OpenAddItemPanel;
+        GameManager.OnLevelComplete -= ExitTestingWithDelay;
     }
 
     void Update(){
@@ -246,9 +239,7 @@ public class LevelEditor : MonoBehaviour{
                     arrowComponents.arrow.SavePoints();
                     arrowComponents.arrow.FixCollider();
                 }
-
                 state = lastState;
-
             }
             return;
         }
@@ -301,12 +292,9 @@ public class LevelEditor : MonoBehaviour{
             lastState = state;
         }
 
-        
         /*if(Input.GetKeyDown(KeyCode.Space)){
             ExitLevelEditor();
         }*/
-
-        //Debug.Log( state.ToString() );  
     }
 
     public void AddItem(GameObject itemPrefab, Node node)
@@ -390,10 +378,6 @@ public class LevelEditor : MonoBehaviour{
                 Destroy(destroyObject);
                 
             }
-            //Debug.Log("undo list count: " + oldCommands.Count);
-        }
-        else{
-            //Debug.Log("undo list zero");
         }
     }
 
@@ -495,23 +479,20 @@ public class LevelEditor : MonoBehaviour{
         oldCommands.Add(command);
     }
 
-    private void EnterLevelEditor(){
+    private void OpenLevelEditor(){
         if(OnEnter != null){
             OnEnter();
         }
 
-        //curLevelInEditing.SetActive(true);
-        //LevelManager.curLevel.SetActive(false);
-
         GameObject curLevel = LevelManager.curLevel;
         bottomPanel.gameObject.SetActive(true);
         Vector3 initialPos = bottomPanel.localPosition;
-        bottomPanel.localPosition = Vector3.down * 300f;
+        bottomPanel.localPosition -= Vector3.up * 100f;
         bottomPanel.DOLocalMoveY(initialPos.y, 0.5f);
 
         topPanel.gameObject.SetActive(true);
         Vector3 initialPos2 = topPanel.localPosition;
-        topPanel.localPosition = Vector3.up * 300f;
+        topPanel.localPosition += Vector3.up * 100f;
         topPanel.DOLocalMoveY(initialPos2.y, 0.5f);
 
         curLevel.name = curLevel.name.Replace("(Clone)", "");
@@ -519,78 +500,93 @@ public class LevelEditor : MonoBehaviour{
         levelNameText.text = curLevel.name.Replace("(Clone)", "");
         levelNameField.text = curLevel.name.Replace("(Clone)", "");
 
-        GameState.ChangeGameState(GameState_EN.inLevelEditor);
+        enterTestButton.gameObject.SetActive(true);
+
         gameManager.ChangeCommand(Commands.None, LayerMask.GetMask("Node", "Arrow"), 0, levelEditorBypass: true);
         lastState = LeState.waiting;
         state = LeState.waiting;
-        //StartCoroutine(commandHandler.UndoAll());
     }   
 
-    private void ExitLevelEditor(){
-        //bottomPanel.gameObject.SetActive(true);
+    private void CloseLevelEditor(){
         Vector3 initialPos = bottomPanel.localPosition;
-        bottomPanel.DOLocalMoveY(-300f, 0.5f).OnComplete(() => {
+        bottomPanel.DOLocalMoveY(initialPos.y -  100f, 0.5f).OnComplete(() => {
             bottomPanel.localPosition = initialPos;
             bottomPanel.gameObject.SetActive(false);
         });
 
         Vector3 initialPos2 = topPanel.localPosition;
-        topPanel.DOLocalMoveY(300f, 0.5f).OnComplete(() => {
+        topPanel.DOLocalMoveY(initialPos2.y + 100f, 0.5f).OnComplete(() => {
             topPanel.localPosition = initialPos2;
             topPanel.gameObject.SetActive(false);
         });
 
-        GameState.ChangeGameState(GameState_EN.playing);
-
         gameManager.ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"));
+        enterTestButton.gameObject.SetActive(false);
 
-        
-        //GameObject clonedCurLevelInEditing = Instantiate(curLevelInEditing, Vector3.zero, Quaternion.identity);
-        //clonedCurLevelInEditing.name = curLevel.name.Replace("(Clone)", "");
-        //DesTroyInActiveChildren(clonedCurLevelInEditing.transform);
-        //Destroy(LevelManager.curLevel);
-        //LevelManager.curLevel = clonedCurLevelInEditing;
-        //curLevelInEditing.SetActive(false);
-
-        if(OnExit != null){
+        if (OnExit != null){
             OnExit();
         }
     }
     private void ResetCurLevelInEditing()
     {
-        /*if(curLevelInEditing != null)
-        {
-            Destroy(curLevelInEditing.gameObject);
-            curLevelInEditing = null;
-        }*/
-
-        //curLevelInEditing = Instantiate(LevelManager.curLevel, Vector3.zero, Quaternion.identity);
         curLevelInEditing = LevelManager.curLevel;
 
-
-        //curLevelInEditing.name = curLevel.name.Replace("(Clone)", "");
-        //LevelManager.curLevel.name = curLevel.name.Replace("(Clone)", "");
         levelNameText.text = LevelManager.curLevel.name.Replace("(Clone)", "");
         levelNameField.text = LevelManager.curLevel.name.Replace("(Clone)", "");
-
-        if (GameState.gameState == GameState_EN.inLevelEditor)
-        {
-            LevelManager.curLevel.SetActive(false);
-        }
-        else if (GameState.gameState == GameState_EN.playing)
-        {
-            //curLevelInEditing.SetActive(false);
-        }
-            
-
     }
 
     public void ToggleLevelEditor(){
         if(GameState.gameState == GameState_EN.inLevelEditor ){
-            ExitLevelEditor();
+            CloseLevelEditor();
+            GameState.ChangeGameState(GameState_EN.playing);
         }
         else{
-            EnterLevelEditor();
+            OpenLevelEditor();
+            GameState.ChangeGameState(GameState_EN.inLevelEditor);
+        }
+    }
+
+    public void EnterTesting()
+    {
+        levelBeforeTesting = Instantiate(curLevelInEditing, Vector3.zero, Quaternion.identity);
+        levelBeforeTesting.gameObject.SetActive(false);
+        
+        CloseLevelEditor();
+
+        GameState.ChangeGameState(GameState_EN.testingLevel);
+
+        exitTestButton.gameObject.SetActive(true);
+    }
+
+    public void ExitTesting()
+    {
+        if (GameState.gameState != GameState_EN.testingLevel) return;
+
+        Destroy(LevelManager.curLevel);
+        LevelManager.curLevel = levelBeforeTesting;
+        OpenLevelEditor();
+        ResetCurLevelInEditing();
+        LevelManager.curLevel.SetActive(true);
+        levelBeforeTesting = null;
+        GameState.ChangeGameState(GameState_EN.inLevelEditor);
+
+        exitTestButton.gameObject.SetActive(false);
+    }
+
+    private void ExitTestingWithDelay(float delay)
+    {
+        Invoke("ExitTesting", delay);
+    }
+
+    public void ToggleTesting()
+    {
+        if(GameState.gameState == GameState_EN.inLevelEditor)
+        {
+            EnterTesting();
+        }
+        else if(GameState.gameState == GameState_EN.testingLevel)
+        {
+            ExitTesting();
         }
     }
 
@@ -612,13 +608,11 @@ public class LevelEditor : MonoBehaviour{
         if (sharePanel.gameObject.activeSelf)
         {
             sharePanel.gameObject.SetActive(false);
-            //curLevelInEditing.gameObject.SetActive(true);
         }
         else
         {
             sharePanel.gameObject.SetActive(true);
             UpdateEncodedLevelText();
-            //curLevelInEditing.gameObject.SetActive(false);
         }
     }
 
@@ -627,19 +621,16 @@ public class LevelEditor : MonoBehaviour{
         if (GetLevelPanel.gameObject.activeSelf)
         {
             GetLevelPanel.gameObject.SetActive(false);
-            //curLevelInEditing.gameObject.SetActive(true);
         }
         else
         {
             GetLevelPanel.gameObject.SetActive(true);
-            //curLevelInEditing.gameObject.SetActive(false);
             encodedLevelTextField.text = "PASTE YOUR LEVEL CODE HERE.";
         }
     }
 
     private void DesTroyInActiveChildren(Transform parent)
     {
-        
         // Find Inactive objects in level
         int childCount = parent.childCount;
         List<GameObject> childrenToDestroy = new List<GameObject>();
@@ -657,7 +648,5 @@ public class LevelEditor : MonoBehaviour{
             DestroyImmediate(obj);
         }
     }
-
-
 }
 

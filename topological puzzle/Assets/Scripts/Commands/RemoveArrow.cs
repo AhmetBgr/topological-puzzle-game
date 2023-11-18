@@ -33,7 +33,7 @@ public class RemoveArrow : Command
     }
 
     public override bool Undo(bool skipPermanent = true){
-        if (arrow.gameObject.CompareTag("PermanentArrow") && skipPermanent)
+        if (arrow.isPermanent && skipPermanent)
         {
             arrow.gameObject.SetActive(false);
             InvokeOnUndoSkipped(this);

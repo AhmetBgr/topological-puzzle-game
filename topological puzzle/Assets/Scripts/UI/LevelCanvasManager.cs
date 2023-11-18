@@ -34,6 +34,7 @@ public class LevelCanvasManager : MonoBehaviour
         //mainItemContainer.OnContainerChanged += UpdateUseItemButtonBCImage;
         Item.OnUsabilityChanged += UpdateUseItemButtonBCImage;
         LevelManager.OnLevelLoad += Reset;
+        LevelEditor.OnExit += Reset;
         LevelEditor.OnEnter += DisableUseItemButton;
         LevelEditor.OnExit += EnableUseItemButton;
         //LevelEditor.OnEnter += ToggleLevelChangeButtons;
@@ -49,7 +50,8 @@ public class LevelCanvasManager : MonoBehaviour
         GameState.OnAnimationStart -= MakeUndoNoninteractive;
         //mainItemContainer.OnContainerChanged -= UpdateUseItemButtonBCImage;
         Item.OnUsabilityChanged -= UpdateUseItemButtonBCImage;
-        LevelManager.OnLevelLoad += Reset;
+        LevelManager.OnLevelLoad -= Reset;
+        LevelEditor.OnExit -= Reset;
         LevelEditor.OnEnter -= DisableUseItemButton;
         LevelEditor.OnExit -= EnableUseItemButton;
         //LevelEditor.OnEnter -= ToggleLevelChangeButtons;

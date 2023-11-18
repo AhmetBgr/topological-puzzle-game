@@ -68,6 +68,7 @@ public class GameManager : MonoBehaviour{
         LevelManager.OnLevelLoad += ResetData;
         LevelManager.OnLevelLoad += GetNodes;
         LevelEditor.OnExit += ResetData;
+        LevelEditor.OnExit += GetNodes;
         Command.OnUndoSkipped += AddToSkippedOldCommands;
         Node.OnNodeRemove += CheckForLevelComplete;
     }
@@ -76,6 +77,7 @@ public class GameManager : MonoBehaviour{
         LevelManager.OnLevelLoad -= ResetData;
         LevelManager.OnLevelLoad -= GetNodes;
         LevelEditor.OnExit -= ResetData;
+        LevelEditor.OnExit -= GetNodes;
         Command.OnUndoSkipped -= AddToSkippedOldCommands;
         Node.OnNodeRemove -= CheckForLevelComplete;
     }
@@ -84,9 +86,9 @@ public class GameManager : MonoBehaviour{
         skippedOldCommandCount = skippedOldCommands.Count;
         oldCommandCount = oldCommands.Count;
 
-        if (GameState.gameState != GameState_EN.playing) return;
+        if (GameState.gameState != GameState_EN.playing & GameState.gameState != GameState_EN.testingLevel) return;
 
-        if(Input.GetMouseButtonDown(0)){
+        if (Input.GetMouseButtonDown(0)){
             Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
             RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero, distance: 100f, layerMask : targetLM);
@@ -217,7 +219,8 @@ public class GameManager : MonoBehaviour{
             }
         }
 
-        if ( (Input.GetMouseButtonDown(1) || rewindStarted) && GameState.gameState == GameState_EN.playing )
+        if ( (Input.GetMouseButtonDown(1) || rewindStarted) && 
+            (GameState.gameState == GameState_EN.playing | GameState.gameState == GameState_EN.testingLevel))
         {
             if (!rewindStarted)
             {
@@ -237,7 +240,8 @@ public class GameManager : MonoBehaviour{
                 time = 0;
             }
             
-            if ( ( rewindFinished || (rewindStarted && Input.GetMouseButtonUp(1)) ) && GameState.gameState == GameState_EN.playing)
+            if ( ( rewindFinished || (rewindStarted && Input.GetMouseButtonUp(1)) ) 
+                && (GameState.gameState == GameState_EN.playing | GameState.gameState == GameState_EN.testingLevel))
             {
                 Palette palette = defPalette;
                 if (curCommand == Commands.ChangeArrowDir)

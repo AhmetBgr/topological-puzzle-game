@@ -43,5 +43,5 @@ public class GameState : MonoBehaviour
 
 
 public enum GameState_EN{
-    playing, inLevelEditor, paused, inMenu
+    playing, inLevelEditor, paused, inMenu, testingLevel
 };

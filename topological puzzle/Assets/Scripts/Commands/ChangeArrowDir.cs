@@ -68,7 +68,7 @@ public class ChangeArrowDir : Command
             }
         }*/
 
-        if (arrow.gameObject.CompareTag("PermanentArrow") && skipPermanent)
+        if (arrow.isPermanent && skipPermanent)
         {
             InvokeOnUndoSkipped(this);
             return true;

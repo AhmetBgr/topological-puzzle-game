@@ -16,6 +16,7 @@ public class LevelManager : MonoBehaviour{
     public GameObject nodeSwapperPrefab;
 
     public GameObject[] levels;
+    public string[] myLevels;
     public static GameObject curLevel;
     //public GameObject levelContainer;
 
@@ -137,7 +138,8 @@ public class LevelManager : MonoBehaviour{
     }
 
     public void LoadNextLevel(float delay){
-        if(curLevelIndex >= levels.Length -1)  return;
+        if(GameState.gameState == GameState_EN.testingLevel)    return;
+        if(curLevelIndex >= levels.Length -1)                   return;
 
         if( loadLevelCor != null )
             StopCoroutine(loadLevelCor);

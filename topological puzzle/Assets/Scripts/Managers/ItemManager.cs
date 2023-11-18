@@ -12,11 +12,13 @@ public class ItemManager : MonoBehaviour
     void OnEnable()
     {
         LevelManager.OnLevelLoad += ResetContainer;
+        LevelEditor.OnExit += ResetContainer;
         itemContainer.OnContainerChanged += CheckAndUseLastItem;
     }
     void OnDisable()
     {
         LevelManager.OnLevelLoad -= ResetContainer;
+        LevelEditor.OnExit -= ResetContainer;
         itemContainer.OnContainerChanged -= CheckAndUseLastItem;
     }
 
