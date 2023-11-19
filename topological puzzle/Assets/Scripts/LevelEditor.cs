@@ -18,6 +18,8 @@ public enum LeState{
 }
 public class LevelEditor : MonoBehaviour{
     public LevelManager levelManager;
+    public BasicPanel panel;
+    public BasicPanel gameplayPanel;
     public GameObject curLevelInEditing;
     public GameObject levelBeforeTesting;
 
@@ -73,10 +75,13 @@ public class LevelEditor : MonoBehaviour{
     public delegate void OnEnterDelegate();
     public static OnEnterDelegate OnEnter;
 
-    void Start(){
+    void Awake(){
         state = LeState.closed;
         gameManager = FindObjectOfType<GameManager>();
         cursor = Cursor.instance;
+        gameObject.SetActive(false);
+        panel.OnOpen += OpenLevelEditor;
+        panel.OnClose += CloseLevelEditor;
     }
 
     void OnEnable()
@@ -84,25 +89,25 @@ public class LevelEditor : MonoBehaviour{
         LevelManager.OnLevelLoad += ResetCurLevelInEditing;
         AddNewItem.OnMouseEnter += OpenAddItemPanel;
         GameManager.OnLevelComplete += ExitTestingWithDelay;
+        
     }
     void OnDisable()
     {
         LevelManager.OnLevelLoad -= ResetCurLevelInEditing;
         AddNewItem.OnMouseEnter -= OpenAddItemPanel;
         GameManager.OnLevelComplete -= ExitTestingWithDelay;
+        //panel.OnOpen -= OpenLevelEditor;
     }
 
     void Update(){
-        /*if(GameState.gameState != GameState_EN.inLevelEditor){
-            if( Input.GetKeyDown(KeyCode.Space)){
-                EnterLevelEditor();
-            }
+        if (Input.GetKeyUp(KeyCode.Escape) && GameState.gameState == GameState_EN.testingLevel)
+        {
+            Invoke("ExitTesting", 0.02f);
             return;
-        } */
+        }
 
         if (GameState.gameState != GameState_EN.inLevelEditor) return;
         
-
         // Delete Object
         if(Input.GetMouseButtonDown(2) && GameState.gameState == GameState_EN.inLevelEditor){
             Vector2 ray = cursor.worldPos;
@@ -291,10 +296,6 @@ public class LevelEditor : MonoBehaviour{
             state = LeState.waiting;
             lastState = state;
         }
-
-        /*if(Input.GetKeyDown(KeyCode.Space)){
-            ExitLevelEditor();
-        }*/
     }
 
     public void AddItem(GameObject itemPrefab, Node node)
@@ -480,6 +481,8 @@ public class LevelEditor : MonoBehaviour{
     }
 
     private void OpenLevelEditor(){
+        gameObject.SetActive(true);
+
         if(OnEnter != null){
             OnEnter();
         }
@@ -505,9 +508,16 @@ public class LevelEditor : MonoBehaviour{
         gameManager.ChangeCommand(Commands.None, LayerMask.GetMask("Node", "Arrow"), 0, levelEditorBypass: true);
         lastState = LeState.waiting;
         state = LeState.waiting;
+        ResetCurLevelInEditing();
     }   
 
     private void CloseLevelEditor(){
+        if(GameState.gameState == GameState_EN.testingLevel)
+        {
+            ExitTesting();
+            return;
+        }
+
         Vector3 initialPos = bottomPanel.localPosition;
         bottomPanel.DOLocalMoveY(initialPos.y -  100f, 0.5f).OnComplete(() => {
             bottomPanel.localPosition = initialPos;
@@ -519,7 +529,7 @@ public class LevelEditor : MonoBehaviour{
             topPanel.localPosition = initialPos2;
             topPanel.gameObject.SetActive(false);
         });
-
+        state = LeState.closed;
         gameManager.ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"));
         enterTestButton.gameObject.SetActive(false);
 
@@ -544,6 +554,7 @@ public class LevelEditor : MonoBehaviour{
             OpenLevelEditor();
             GameState.ChangeGameState(GameState_EN.inLevelEditor);
         }
+
     }
 
     public void EnterTesting()
@@ -552,7 +563,7 @@ public class LevelEditor : MonoBehaviour{
         levelBeforeTesting.gameObject.SetActive(false);
         
         CloseLevelEditor();
-
+        gameplayPanel.Open();
         GameState.ChangeGameState(GameState_EN.testingLevel);
 
         exitTestButton.gameObject.SetActive(true);
@@ -565,6 +576,7 @@ public class LevelEditor : MonoBehaviour{
         Destroy(LevelManager.curLevel);
         LevelManager.curLevel = levelBeforeTesting;
         OpenLevelEditor();
+        gameplayPanel.Close();
         ResetCurLevelInEditing();
         LevelManager.curLevel.SetActive(true);
         levelBeforeTesting = null;

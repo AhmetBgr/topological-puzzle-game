@@ -11224,7 +11224,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1361513883}
         m_TargetAssemblyTypeName: MainCanvasManager, Assembly-CSharp
-        m_MethodName: ToggleMainMenu
+        m_MethodName: ToggleGameplayPanel
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -18460,6 +18460,8 @@ RectTransform:
   m_Children:
   - {fileID: 2127393229}
   - {fileID: 2114183918}
+  - {fileID: 1481792628}
+  - {fileID: 1283165982}
   m_Father: {fileID: 442016446}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -21283,6 +21285,7 @@ GameObject:
   - component: {fileID: 932178245}
   - component: {fileID: 932178247}
   - component: {fileID: 932178248}
+  - component: {fileID: 932178249}
   m_Layer: 5
   m_Name: Gameplay Panel
   m_TagString: Untagged
@@ -21302,8 +21305,6 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1481792628}
-  - {fileID: 1283165982}
   - {fileID: 1878880950}
   - {fileID: 2029844710}
   - {fileID: 1016227825}
@@ -21390,6 +21391,23 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &932178249
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 932178243}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01a98d46e9cffea44b61edcb0bc4d059, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameState: 0
+  dofAmountOpen: 1
+  canvasGroup: {fileID: 932178248}
+  openDur: 0.04
+  closeDur: 0.5
 --- !u!1 &933713372
 GameObject:
   m_ObjectHideFlags: 0
@@ -23863,13 +23881,15 @@ GameObject:
   m_Component:
   - component: {fileID: 1093102610}
   - component: {fileID: 1093102611}
+  - component: {fileID: 1093102612}
+  - component: {fileID: 1093102613}
   m_Layer: 5
   m_Name: Level Editor Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1093102610
 RectTransform:
   m_ObjectHideFlags: 0
@@ -23913,6 +23933,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   levelManager: {fileID: 195511187}
+  panel: {fileID: 1093102613}
+  gameplayPanel: {fileID: 932178249}
   curLevelInEditing: {fileID: 0}
   levelBeforeTesting: {fileID: 0}
   arrow: {fileID: 282529941782624232, guid: 2e036caab3ed378448a5e76e59c7b573, type: 3}
@@ -23939,6 +23961,35 @@ MonoBehaviour:
   gapForArrowHead: 0.22
   addItemNode: {fileID: 0}
   itemToAdd: {fileID: 0}
+--- !u!225 &1093102612
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1093102609}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &1093102613
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1093102609}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01a98d46e9cffea44b61edcb0bc4d059, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameState: 1
+  dofAmountOpen: 1
+  canvasGroup: {fileID: 1093102612}
+  openDur: 0.04
+  closeDur: 0.5
 --- !u!1 &1098195292
 GameObject:
   m_ObjectHideFlags: 0
@@ -26490,7 +26541,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 932178244}
+  m_Father: {fileID: 660505826}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -27251,9 +27302,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ee793be60cad06449578d1115863a92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MainMenuPanel: {fileID: 1554776107}
-  levelPanel: {fileID: 932178248}
+  mainMenuPanel: {fileID: 1554776108}
+  gameplayPanel: {fileID: 932178249}
+  levelEditorPanel: {fileID: 1093102613}
   currentPanel: {fileID: 0}
+  previousPanel: {fileID: 1554776108}
 --- !u!1 &1363842466
 GameObject:
   m_ObjectHideFlags: 0
@@ -28679,7 +28732,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1473781151
 RectTransform:
   m_ObjectHideFlags: 0
@@ -28827,7 +28880,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 932178244}
+  m_Father: {fileID: 660505826}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -29187,7 +29240,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1509710084
 RectTransform:
   m_ObjectHideFlags: 0
@@ -29628,6 +29681,7 @@ GameObject:
   - component: {fileID: 1554776106}
   - component: {fileID: 1554776105}
   - component: {fileID: 1554776107}
+  - component: {fileID: 1554776108}
   m_Layer: 5
   m_Name: Main Menu Panel
   m_TagString: Untagged
@@ -29710,6 +29764,23 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &1554776108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1554776103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01a98d46e9cffea44b61edcb0bc4d059, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameState: 3
+  dofAmountOpen: 300
+  canvasGroup: {fileID: 1554776107}
+  openDur: 0.04
+  closeDur: 0.5
 --- !u!1 &1565447358
 GameObject:
   m_ObjectHideFlags: 0
@@ -32746,7 +32817,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1846570953
 RectTransform:
   m_ObjectHideFlags: 0
@@ -33330,7 +33401,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1903634760}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1361513883}
+        m_TargetAssemblyTypeName: MainCanvasManager, Assembly-CSharp
+        m_MethodName: ToggleLevelEditorPanel
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1903634760
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -34054,6 +34137,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   levelManager: {fileID: 195511187}
+  panel: {fileID: 0}
+  gameplayPanel: {fileID: 0}
   curLevelInEditing: {fileID: 0}
   levelBeforeTesting: {fileID: 0}
   arrow: {fileID: 282529941782624232, guid: 2e036caab3ed378448a5e76e59c7b573, type: 3}
