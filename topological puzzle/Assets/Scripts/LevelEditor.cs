@@ -396,7 +396,7 @@ public class LevelEditor : MonoBehaviour{
 
         DesTroyInActiveChildren(curLevelInEditing.transform);
 
-        GameObject savedLevel = PrefabUtility.SaveAsPrefabAsset(curLevelInEditing, "Assets/Resources/Levels/" + levelNameField.text + ".prefab");
+        //GameObject savedLevel = PrefabUtility.SaveAsPrefabAsset(curLevelInEditing, "Assets/Resources/Levels/" + levelNameField.text + ".prefab");
         
         levelManager.SaveLevelProperty(LevelManager.curLevel.transform);
     }
@@ -407,7 +407,7 @@ public class LevelEditor : MonoBehaviour{
 
         DesTroyInActiveChildren(curLevelInEditing.transform);
 
-        GameObject savedLevel = PrefabUtility.SaveAsPrefabAsset(curLevelInEditing, "Assets/Resources/Levels/backup/" + levelNameField.text + ".prefab");
+        //GameObject savedLevel = PrefabUtility.SaveAsPrefabAsset(curLevelInEditing, "Assets/Resources/Levels/backup/" + levelNameField.text + ".prefab");
 
         levelManager.SaveLevelProperty(curLevelInEditing.transform, true);
     }

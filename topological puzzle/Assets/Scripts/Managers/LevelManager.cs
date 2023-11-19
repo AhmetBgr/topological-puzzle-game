@@ -16,6 +16,7 @@ public class LevelManager : MonoBehaviour{
     public GameObject nodeSwapperPrefab;
 
     public GameObject[] levels;
+    public LevelProperty[] mainLevels;
     public string[] myLevels;
     public static GameObject curLevel;
     //public GameObject levelContainer;
@@ -28,7 +29,7 @@ public class LevelManager : MonoBehaviour{
 
     private string saveName = "save01";
     private string path = "Assets/Resources/Levels_txt/";
-    private string backupPath = "Assets/Resources/Levels_txt/Backup/";
+    private string backupPath = "Assets/Resources/Levels_txt Backup/";
     
 
     private IEnumerator loadLevelCor = null;
@@ -38,7 +39,7 @@ public class LevelManager : MonoBehaviour{
     private bool startIncreasingLevelIndex;
     private bool startDecreasingLevelIndex;
     private float time = 0;
-    public float changeLevelIndexDur = 0.3f;
+    public float changeLevelIndexDur = 1f;
     private float defChangeLevelIndexDur;
 
     public delegate void OnCurLevelIndexChangeDelegate(int curIndex);
@@ -56,6 +57,13 @@ public class LevelManager : MonoBehaviour{
         print(path);
         permanentArrow = Resources.Load(path) as GameObject;*/
 
+        TextAsset[] levelsAsTextFiles = Resources.LoadAll<TextAsset>("Levels_txt");
+        mainLevels = new LevelProperty[levelsAsTextFiles.Length];
+        for (int i = 0; i < levelsAsTextFiles.Length; i++)
+        {
+            mainLevels[i] = JsonUtility.FromJson<LevelProperty>(levelsAsTextFiles[i].text);
+        }
+          
     }
 
     void Start(){
@@ -76,7 +84,7 @@ public class LevelManager : MonoBehaviour{
         }
 
         //LoadLevel(curLevelIndex);
-        LoadLevelWithDeserialization(levels[curLevelIndex].name, curLevelIndex); // "multiple square test"
+        LoadLevelWithDeserialization(mainLevels[curLevelIndex].levelName, curLevelIndex); // "multiple square test"
 
         defChangeLevelIndexDur = changeLevelIndexDur;
 
@@ -117,6 +125,7 @@ public class LevelManager : MonoBehaviour{
         if (time >= changeLevelIndexDur)
         {
             ChangeCurLevelIndex(amount);
+
             changeLevelIndexDur = changeLevelIndexDur >= 0.05f ? changeLevelIndexDur / 1.5f : 0.05f;
             time = 0;
         }
@@ -139,7 +148,7 @@ public class LevelManager : MonoBehaviour{
 
     public void LoadNextLevel(float delay){
         if(GameState.gameState == GameState_EN.testingLevel)    return;
-        if(curLevelIndex >= levels.Length -1)                   return;
+        if(curLevelIndex >= mainLevels.Length -1)                   return;
 
         if( loadLevelCor != null )
             StopCoroutine(loadLevelCor);
@@ -167,7 +176,7 @@ public class LevelManager : MonoBehaviour{
         yield return new WaitForSeconds(delay);
 
         //LoadLevel(curLevelIndex);
-        LoadLevelWithDeserialization(levels[curIndex].name, curIndex);
+        LoadLevelWithDeserialization(mainLevels[curIndex].levelName, curIndex);
 
         loadLevelCor = null;
     }
@@ -264,7 +273,6 @@ public class LevelManager : MonoBehaviour{
         if(OnCurLevelIndexChange != null){
             OnCurLevelIndexChange(curLevelIndex);
         }
-
     }
 
     public void ChangeCurLevelIndex(int amount)
@@ -307,10 +315,7 @@ public class LevelManager : MonoBehaviour{
 
         LevelProperty levelProperty = CreateLevelProperty(level);
 
-
-
         // Serialize level property
-
         string fullPath;
         if (saveAsBackup)
         {
@@ -443,23 +448,18 @@ public class LevelManager : MonoBehaviour{
             DestroyImmediate(obj);
         }
 
-        string filePath = this.path + levelName + ".txt";
-        if (File.Exists(filePath)){
+        LevelProperty levelProperty = null;
+        foreach (var item in mainLevels)
+        {
+            if(item.levelName == levelName)
+            {
+                levelProperty = item;
+                break;
+            }
+        }
 
-            // Deserialize level property
-            /*BinaryFormatter bf = new BinaryFormatter();
-            FileStream file = File.Open(filePath, FileMode.Open);
-            LevelProperty levelProperty = (LevelProperty)bf.Deserialize(file);
-            file.Close();*/
-
-
-            string fullPath = this.path + levelName + ".txt";
-            LevelProperty levelProperty = Utility.LoadLevePropertyFromJson(fullPath);
-
-            //FileStream file = File.Open(filePath, FileMode.Open);
-
-            //LevelProperty level = JsonUtility.FromJson<LevelProperty>()
-
+        if (levelProperty != null)
+        {
             LoadLevelWithLevelProperty(levelProperty, levelName, levelParent);
         }
         else
@@ -467,6 +467,25 @@ public class LevelManager : MonoBehaviour{
             Debug.Log("No level found with given name: " + levelName);
             throw new System.Exception();
         }
+        ///string filePath = this.path + levelName + ".txt";
+        //if (File.Exists(filePath)){
+
+        // Deserialize level property
+        /*BinaryFormatter bf = new BinaryFormatter();
+        FileStream file = File.Open(filePath, FileMode.Open);
+        LevelProperty levelProperty = (LevelProperty)bf.Deserialize(file);
+        file.Close();*/
+
+
+        //string fullPath = this.path + levelName + ".txt";
+        //LevelProperty levelProperty = Utility.LoadLevePropertyFromJson(fullPath);
+
+        //FileStream file = File.Open(filePath, FileMode.Open);
+
+        //LevelProperty level = JsonUtility.FromJson<LevelProperty>()
+
+        //LoadLevelWithLevelProperty(levelProperty, levelName, levelParent);
+        //}
     }
 
     public void LoadLevelWithLevelProperty(LevelProperty levelProperty, string levelName, Transform levelParent)

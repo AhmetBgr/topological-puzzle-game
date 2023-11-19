@@ -77,7 +77,6 @@ public class LevelCanvasManager : MonoBehaviour
             {
                 nextLevelButton.gameObject.SetActive(true);
             }
-            Debug.LogWarning("Unity Editor: " + this);
             return;
         }
         //#if UNITY_EDITOR

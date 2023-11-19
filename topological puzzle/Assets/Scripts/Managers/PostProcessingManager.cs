@@ -29,6 +29,7 @@ public class PostProcessingManager : MonoBehaviour
     public void ChangeDOF(float endValue, float dur)
     {
         StartCoroutine(ChangeFocalLenght(endValue, dur));
+
     }
 
     public IEnumerator ChangeFocalLenght(float endValue, float duration)
@@ -47,7 +48,9 @@ public class PostProcessingManager : MonoBehaviour
 
             float percent = Mathf.Clamp01(t / duration);
             depthOfField.focalLength.Interp(startValue, endValue, percent);
+            Debug.Log("should change dof: " + percent);
             yield return null;
         }
+
     }
 }

@@ -23,6 +23,7 @@ public class MainCanvasManager : MonoBehaviour
 
         PanelTransition(MainMenuPanel, 0.04f);
         GameState.ChangeGameState(GameState_EN.inMenu);
+        PostProcessingManager.instance.ChangeDOF(300f, 0.02f);
     }
 
     // Update is called once per frame
@@ -44,7 +45,7 @@ public class MainCanvasManager : MonoBehaviour
         }
         else
         {
-            PostProcessingManager.instance.ChangeDOF(200f, 0.04f);
+            PostProcessingManager.instance.ChangeDOF(300f, 0.04f);
             PanelTransition(MainMenuPanel, 0.04f);
             GameState.ChangeGameState(GameState_EN.inMenu);
         }
