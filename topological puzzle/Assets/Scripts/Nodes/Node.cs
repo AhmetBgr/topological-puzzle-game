@@ -170,13 +170,14 @@ public class Node : MonoBehaviour
 
 
 
-    protected virtual void CheckIfSuitable(LayerMask targetLM, int targetIndegree, ItemType itemType, bool levelEditorBypass){
+    protected virtual void CheckIfSuitable(LayerMask targetLM, int targetIndegree, ItemType itemType, int targetPermanent, bool levelEditorBypass){
 
         //UpdateLockStatus();
         bool hasRequiredItem = itemType == ItemType.None | itemController.FindItemWithType(itemType) != null ? true : false;
         bool hasEqualIndegree = targetIndegree == -1 ? true : targetIndegree == indegree;
+        bool permanentCheck = targetPermanent == -1 ? true : (isPermanent && targetPermanent == 1) | (!isPermanent && targetPermanent == 0);
 
-        if ( ( (((1<<gameObject.layer) & targetLM) != 0)  && hasEqualIndegree  && hasRequiredItem) || levelEditorBypass){
+        if ( ( (((1<<gameObject.layer) & targetLM) != 0)  && hasEqualIndegree  && hasRequiredItem && permanentCheck) || levelEditorBypass){
             nodeColorController.Highlight(nodeColorController.glowIntensityMedium, 1f);
             col.enabled = true;
 

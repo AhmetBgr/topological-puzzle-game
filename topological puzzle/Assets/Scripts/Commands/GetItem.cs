@@ -30,6 +30,8 @@ public class GetItem : Command
     {
         executionTime = gameManager.timeID;
         
+        if (!item.gameObject.activeSelf) return;
+
         index = itemController.itemContainer.GetItemIndex(item);
         itemController.RemoveItem(item, dur, skipFix: true);
         itemManager.itemContainer.AddItem(item, -1, dur, skipFix: true);

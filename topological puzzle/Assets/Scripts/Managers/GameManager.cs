@@ -6,7 +6,7 @@ using UnityEngine;
 using TMPro;
 
 public enum Commands{
-    None, RemoveNode, SwapNodes, ChangeArrowDir, TransformNode, UnlockPadlock
+    None, RemoveNode, SwapNodes, ChangeArrowDir, TransformNode, UnlockPadlock, SetArrowPermanent, SetNodePermanent, SetItemPermanent
 }
 
 public class GameManager : MonoBehaviour{
@@ -23,6 +23,7 @@ public class GameManager : MonoBehaviour{
     public Palette rewindPalette;
     public Palette unlockPadlockPalette;
     public Palette swapNodePalette;
+    public Palette brushPalette;
     public TextMeshProUGUI undoChangesCountText;
     public InfoIndicator InfoIndicator;
     public Commands curCommand;
@@ -50,7 +51,8 @@ public class GameManager : MonoBehaviour{
     public Transform rewindImageParent;
         
     
-    public delegate void OnCurCommandChangeDelegate(LayerMask targetLM, int targetIndegree, ItemType itemType,  bool bypass);
+    public delegate void OnCurCommandChangeDelegate(LayerMask targetLM, int targetIndegree, ItemType itemType, 
+        int targetPermanent, bool bypass);
     public static OnCurCommandChangeDelegate OnCurCommandChange;
 
     public delegate void OnLevelCompleteDelegate(float delay);
@@ -220,6 +222,22 @@ public class GameManager : MonoBehaviour{
                     paletteSwapper.ChangePalette(defPalette);
                     selectedObjects.Clear();
                 }
+                else if (curCommand == Commands.SetArrowPermanent)
+                {
+                    timeID++;
+                    Arrow arrow = selectedObjects[0].GetComponent<Arrow>();
+                    Item item = itemManager.itemContainer.GetLastItem();
+                    SetArrowPermanent setArrowPermanent = new SetArrowPermanent(arrow, item, this, itemManager);
+                    setArrowPermanent.Execute(commandDur);
+
+                    //oldCommands.Add(unlockPadlock);
+                    AddToOldCommands(setArrowPermanent);
+                    //rewindCount = 0;
+
+                    ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"));
+                    paletteSwapper.ChangePalette(defPalette);
+                    selectedObjects.Clear();
+                }
                 //timeID++;
             }
         }
@@ -277,7 +295,7 @@ public class GameManager : MonoBehaviour{
     }
 
     public void ChangeCommand(Commands command, LayerMask targetLayerMask, int targetIndegree = 0,
-        ItemType itemType = ItemType.None, bool levelEditorBypass = false
+        ItemType itemType = ItemType.None, int targetPermanent= -1, bool levelEditorBypass = false
     ){
         curCommand = command;
         ChangeTargetLayer(targetLayerMask);
@@ -298,7 +316,7 @@ public class GameManager : MonoBehaviour{
             InfoIndicator.HideInfoText();
         }
         if(OnCurCommandChange != null){
-            OnCurCommandChange(targetLayerMask, targetIndegree, itemType, levelEditorBypass);
+            OnCurCommandChange(targetLayerMask, targetIndegree, itemType, targetPermanent, levelEditorBypass);
         }       
     }
 
@@ -540,16 +558,18 @@ public struct Target
     public LayerMask targetLM;
     public ItemType itemType;
     public int targetIndegree;
+    public int targetPermanent; // -1 is any, 0 is non-permanet, 1 is permanent
     public Palette palette;
 
     public Target(Commands nextCommand, LayerMask targetLM, Palette palette,
-        ItemType itemType = ItemType.None, int targetIndegree = 0)
+        ItemType itemType = ItemType.None, int targetIndegree = 0, int targetPermanent = -1)
     {
         this.nextCommand = nextCommand;
         this.targetLM = targetLM;
         this.targetIndegree = targetIndegree;
         this.itemType = itemType;
         this.palette = palette;
+        this.targetPermanent = targetPermanent;
     }
 }
 

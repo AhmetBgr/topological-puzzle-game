@@ -20,6 +20,7 @@ public abstract class Item : MonoBehaviour
     protected Sequence sequence;
     protected GameManager gameManager;
     protected Collider2D col;
+    protected LevelManager levelManager;
 
     protected Color nonPermanentColor;
 
@@ -59,6 +60,8 @@ public abstract class Item : MonoBehaviour
         ChangePermanent(isPermanent);
 
         DisableCollider();
+
+        levelManager = FindObjectOfType<LevelManager>();
     }
 
     protected void OnEnable()
@@ -139,6 +142,15 @@ public abstract class Item : MonoBehaviour
             //this.sequence.Kill();
             //this.sequence = null;
         });
+    }
+
+    public virtual void PlayUseAnim(Vector3 targetPos, float dur)
+    {
+        randomSpriteColor.enabled = false;
+        transform.DOMoveY(targetPos.y, dur);
+        GetComponent<Item>().itemSR.DOFade(0f, dur * 3 / 5)
+            .SetDelay(dur * 2 / 5)
+            .OnComplete(() => { gameObject.SetActive(false); });
     }
 
     public virtual void MoveWithTween(Action moveAction)

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UseKey : Command
+public class UseItem : Command
 {
     public delegate void OnExecuteDelegate();
     public static event OnExecuteDelegate OnExecute;
@@ -13,21 +13,16 @@ public class UseKey : Command
     //private Lock padlock;
     private ItemManager itemManager;
     private GameManager gameManager;
-    private Key key;
-    private Vector3 padlockPos;
+    private Item item;
+    private Vector3 targetPos;
 
-    private float dur = 1;
-
-    private List<GameObject> affectedObjects = new List<GameObject>();
-
-    public UseKey(Key key, Vector3 padlockPos, ItemManager itemManager, GameManager gameManager, float dur = 1)
+    public UseItem(Item item, Vector3 targetPos, ItemManager itemManager, GameManager gameManager)
     {
         //this.padlock = padlock;
-        this.key = key;
-        this.padlockPos = padlockPos;
+        this.item = item;
+        this.targetPos = targetPos;
         this.itemManager = itemManager;
         this.gameManager = gameManager;
-        this.dur = dur;
     }
 
     public override void Execute(float dur)
@@ -35,8 +30,9 @@ public class UseKey : Command
         executionTime = gameManager.timeID;
 
         // = itemManager.GetLastItem().GetComponent<Key>();
-        itemManager.itemContainer.RemoveItem(key, dur);
-        key.PlayAnimSequence(key.GetUnlockSequence(padlockPos, dur));
+        itemManager.itemContainer.RemoveItem(item, dur);
+        item.PlayUseAnim(targetPos, dur);
+        //key.PlayAnimSequence(key.GetUnlockSequence(padlockPos, dur));
 
         if (OnExecute != null)
         {
@@ -46,7 +42,7 @@ public class UseKey : Command
 
     public override bool Undo(float dur, bool skipPermanent = true)
     {
-        if (key.isPermanent && skipPermanent)
+        if (item.isPermanent && skipPermanent)
         {
             InvokeOnUndoSkipped(this);
             return true;
@@ -58,8 +54,8 @@ public class UseKey : Command
                 gameManager.RemoveFromSkippedOldCommands(this);
             }
         }
-
-        itemManager.itemContainer.AddItem(key, -1, dur);
+        item.gameObject.SetActive(true);
+        itemManager.itemContainer.AddItem(item, -1, dur);
 
         if (OnUndo != null)
         {

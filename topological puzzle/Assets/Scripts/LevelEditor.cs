@@ -515,13 +515,13 @@ public class LevelEditor : MonoBehaviour{
 
         enterTestButton.gameObject.SetActive(true);
 
-        gameManager.ChangeCommand(Commands.None, LayerMask.GetMask("Node", "Arrow"), 0, levelEditorBypass: true);
+        gameManager.ChangeCommand(Commands.None, LayerMask.GetMask("Node", "Arrow"), targetIndegree: 0, levelEditorBypass: true);
         lastState = LeState.waiting;
         state = LeState.waiting;
         ResetCurLevelInEditing();
 
         levelsDropdownHandler.AddOptions(levelManager.GetCurLevelsNameList());
-        levelsDropdownHandler.UpdateCurrentValue(LevelManager.curLevelIndex);
+        //levelsDropdownHandler.UpdateCurrentValue(LevelManager.curLevelIndex);
         UpdateLevelPoolName();
     }   
 
@@ -574,7 +574,7 @@ public class LevelEditor : MonoBehaviour{
 
     private void UpdateHighlights(int value)
     {
-        gameManager.ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"));
+        gameManager.ChangeCommand(Commands.None, LayerMask.GetMask("Node", "Arrow"), targetIndegree: 0, levelEditorBypass: true);
     }
 
     private void ResetCurLevelInEditing()

@@ -20,6 +20,7 @@ public class LevelManager : MonoBehaviour{
     public GameObject padLockPrefab;
     public GameObject keyPrefab;
     public GameObject nodeSwapperPrefab;
+    public GameObject brushAPrefab;
 
     public GameObject[] levelPrefabs;
     public TextAsset[] levelTxts;
@@ -44,8 +45,9 @@ public class LevelManager : MonoBehaviour{
     private string myLevelsPath = "/My Levels";
 
     private IEnumerator loadLevelCor = null;
-    public List<GameObject> nodesPool = new List<GameObject>();
-    public List<GameObject> arrowsPool = new List<GameObject>();
+    public List<Node> nodesPool = new List<Node>();
+    public List<Arrow> arrowsPool = new List<Arrow>();
+    public List<Item> itemsPool = new List<Item>();
     private List<string> playerLevelsNames = new List<string>();
     private List<string> originalLevelsNames = new List<string>();
 
@@ -587,10 +589,11 @@ public class LevelManager : MonoBehaviour{
             //obj.tag = nodeProperty.tag;
             obj.name = nodeProperty.id.ToString();
             obj.SetParent(levelParent);
+            Node node = obj.GetComponent<Node>();
             if (nodeProperty.tag.Contains("p,"))
             {
                 Debug.Log("should set permanent item : " + tag);
-                Node node = obj.GetComponent<Node>();
+
                 node.ChangePermanent(true);
             }
             GameObject prefab;
@@ -613,7 +616,7 @@ public class LevelManager : MonoBehaviour{
                 }
             }
 
-            nodesPool.Add(obj.gameObject);
+            nodesPool.Add(node);
         }
 
         foreach (var arrowProperty in levelProperty.arrows)
@@ -650,24 +653,24 @@ public class LevelManager : MonoBehaviour{
                 arrow.GetComponent<Transporter>().priority = arrowProperty.priority;
             }
 
-            arrowsPool.Add(obj.gameObject);
+            arrowsPool.Add(arrow);
         }
 
         // Set links between objects
         foreach (var arrowProperty in levelProperty.arrows)
         {
             //List<GameObject> pool = GetPrefabAndPoolByTag(arrowProperty.tag).pool;
-            GameObject obj = FindObjInPool(arrowProperty.id.ToString(), arrowsPool);
+            Arrow arrow = FindObjInArrowPool(arrowProperty.id.ToString(), arrowsPool);
 
-            Arrow arrow = obj.GetComponent<Arrow>();
+            //Arrow arrow = obj.GetComponent<Arrow>();
 
-            Node startingNode = FindObjInPool(arrowProperty.startingNodeID.ToString(), nodesPool).GetComponent<Node>();
-            Node destinationNode = FindObjInPool(arrowProperty.destinationNodeID.ToString(), nodesPool).GetComponent<Node>();
+            Node startingNode = FindObjInNodePool(arrowProperty.startingNodeID.ToString(), nodesPool);
+            Node destinationNode = FindObjInNodePool(arrowProperty.destinationNodeID.ToString(), nodesPool);
 
             arrow.startingNode = startingNode.gameObject;
             arrow.destinationNode = destinationNode.gameObject;
-            startingNode.AddToArrowsFromThisNodeList(obj);
-            destinationNode.AddToArrowsToThisNodeList(obj);
+            startingNode.AddToArrowsFromThisNodeList(arrow.gameObject);
+            destinationNode.AddToArrowsToThisNodeList(arrow.gameObject);
         }
 
         nodecount = levelProperty.nodeCount;
@@ -752,11 +755,15 @@ public class LevelManager : MonoBehaviour{
         {
             prefabAndPool.prefab = nodeSwapperPrefab;
         }
+        else if (tag == "BrushA")
+        {
+            prefabAndPool.prefab = brushAPrefab;
+        }
         return prefabAndPool;
     }
 
-    private GameObject FindObjInPool(string id, List<GameObject> pool){
-        GameObject obj = null;
+    private Arrow FindObjInArrowPool(string id, List<Arrow> pool){
+        Arrow obj = null;
         
         foreach (var item in pool){
             //Debug.Log("-----------------------------");
@@ -767,6 +774,23 @@ public class LevelManager : MonoBehaviour{
             }
         }
         
+        return obj;
+    }
+    private Node FindObjInNodePool(string id, List<Node> pool)
+    {
+        Node obj = null;
+
+        foreach (var item in pool)
+        {
+            //Debug.Log("-----------------------------");
+            //Debug.Log("name: " + item.name + " =? " + "id: " + id);
+            if (id == item.name)
+            {
+                obj = item;
+                break;
+            }
+        }
+
         return obj;
     }
 

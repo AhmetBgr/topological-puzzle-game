@@ -1,15 +1,32 @@
-
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
-using System;
 
-public class Key : Obtainable
+public class BrushA : Item
 {
+    public override IEnumerator CheckAndUseWithDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        bool isUsable = false;
+
+        foreach (var item in levelManager.arrowsPool)
+        {
+            if (!item.gameObject.activeSelf) continue;
+
+            if (item.isPermanent) continue;
+
+            isUsable = true;
+            Use();
+        }
+
+        InvokeOnUsabilityCheckEvent(isUsable);
+    }
+
     public override void Use()
     {
-        Target target = new Target(Commands.UnlockPadlock, LayerMask.GetMask("Node"), gameManager.unlockPadlockPalette, ItemType.Padlock);
+        Target target = new Target(Commands.SetArrowPermanent, LayerMask.GetMask("Arrow"), gameManager.brushPalette, targetPermanent: 0);
 
         Target previousTarget = new Target(Commands.RemoveNode, LayerMask.GetMask("Node"), gameManager.defPalette);
 
@@ -17,12 +34,6 @@ public class Key : Obtainable
         changeCommand.isPermanent = isPermanent;
         changeCommand.Execute(gameManager.commandDur);
 
-        //gameManager.AddToOldCommands(changeCommand);
-    }
-
-    public override void MoveWithTween(Action moveAction)
-    {
-        base.MoveWithTween(moveAction);
     }
 
     public override void PlayUseAnim(Vector3 targetPos, float dur)

@@ -16,7 +16,7 @@ public class UnlockPadlock : Command
     public Node node;
     private GameManager gameManager;
     private ItemManager itemManager;
-    private UseKey useKey;
+    private UseItem useItem;
     private Key key;
     private Lock padlock;
     private Vector3 padlockPos;
@@ -51,8 +51,8 @@ public class UnlockPadlock : Command
 
         padlockPos = padlock.transform.position;
         //Key key = itemManager.GetLastItem().GetComponent<Key>();
-        useKey = new UseKey(key, padlockPos, itemManager, gameManager, dur);
-        useKey.Execute(dur);
+        useItem = new UseItem(key, padlockPos, itemManager, gameManager);
+        useItem.Execute(dur);
 
         // remove padlock from the node
         //itemController.hasPadLock = false;
@@ -73,9 +73,9 @@ public class UnlockPadlock : Command
 
     public override bool Undo(float dur, bool skipPermanent = true)
     {
-        if (useKey != null)
+        if (useItem != null)
         {
-            useKey.Undo(dur, skipPermanent);
+            useItem.Undo(dur, skipPermanent);
         }
 
         if (padlock.isPermanent && skipPermanent)

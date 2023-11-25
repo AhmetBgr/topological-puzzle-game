@@ -66,7 +66,7 @@ public class ChangeCommand : Command
     {
         executionTime = gameManager.timeID;
 
-        gameManager.ChangeCommand(target.nextCommand, target.targetLM, target.targetIndegree, target.itemType);
+        gameManager.ChangeCommand(target.nextCommand, target.targetLM, target.targetIndegree, target.itemType, targetPermanent: target.targetPermanent);
         gameManager.paletteSwapper.ChangePalette(target.palette, dur);
 
         if (OnExecute != null){

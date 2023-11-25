@@ -224,8 +224,10 @@ public class Arrow : MonoBehaviour{
         }   */
     }
 
-    private void CheckIfSuitable(LayerMask targetLM, int targetIndegree, ItemType itemType, bool bypass){
-        if ( (((1<<gameObject.layer) & targetLM) != 0) || bypass){
+    private void CheckIfSuitable(LayerMask targetLM, int targetIndegree, ItemType itemType, int targetPermanent, bool bypass){
+        bool permanentCheck = targetPermanent <= -1 ? true : (isPermanent && targetPermanent == 1) | (!isPermanent && targetPermanent == 0);
+
+        if ( ( (((1<<gameObject.layer) & targetLM) != 0) && permanentCheck) || bypass){
             // Highlight
             arrowColorController.Highlight(arrowColorController.glowIntensityHigh, 1f);
             col.enabled = true;
@@ -445,6 +447,11 @@ public class Arrow : MonoBehaviour{
         }
         //transform.position = linePoints[0];
         OnChangedEvent();
+    }
+
+    public Vector3 FindCenter()
+    {
+        return (lr.GetPosition(0) + lr.GetPosition(1)) / 2;
     }
 
     private void DisableObject(){

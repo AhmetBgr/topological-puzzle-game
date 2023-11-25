@@ -27,10 +27,10 @@ public class SwapNodes : Command
         // Swap postions between two nodes
         //commandOwner.TransformIntoBasic();
         itemManager.itemContainer.RemoveItem(commandOwner, dur);
-        NodeSwapper nodeSwapper = commandOwner.GetComponent<NodeSwapper>();
+        Item nodeSwapper = commandOwner.GetComponent<Item>();
         nodeSwapper.randomSpriteColor.enabled = false;
         commandOwner.transform.DOMoveY(commandOwner.transform.position.y + 2f, dur);
-        commandOwner.GetComponent<NodeSwapper>().itemSR.DOFade(0f, dur * 3/5)
+        commandOwner.GetComponent<Item>().itemSR.DOFade(0f, dur * 3/5)
             .SetDelay(dur * 2/5)
             .OnComplete(() => { commandOwner.gameObject.SetActive(false); });
         SwapNodesFunc(selectedObjects, dur);
