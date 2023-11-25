@@ -62,18 +62,26 @@ public abstract class Item : MonoBehaviour
         DisableCollider();
 
         levelManager = FindObjectOfType<LevelManager>();
+        GameManager.OnCurCommandChange += CheckForHighlight;
+    }
+
+    protected void OnDestroy()
+    {
+        GameManager.OnCurCommandChange -= CheckForHighlight;
     }
 
     protected void OnEnable()
     {
-        LevelEditor.OnEnter += EnableCollider;
-        LevelEditor.OnExit += DisableCollider;
+        //LevelEditor.OnEnter += EnableCollider;
+        //.OnExit += DisableCollider;
+        //GameManager.OnCurCommandChange += CheckForHighlight;
     }
 
     protected void OnDisable()
     {
-        LevelEditor.OnEnter -= EnableCollider;
-        LevelEditor.OnExit -= DisableCollider;
+        //LevelEditor.OnEnter -= EnableCollider;
+        //LevelEditor.OnExit -= DisableCollider;
+        //GameManager.OnCurCommandChange -= CheckForHighlight;
     }
 
     protected void OnMouseEnter()
@@ -121,7 +129,17 @@ public abstract class Item : MonoBehaviour
         }
     }
 
-    
+    public virtual void CheckForHighlight(LayerMask targetLM, int targetIndegree, ItemType itemType, int targetPermanent, bool levelEditorBypass)
+    {
+        if (levelEditorBypass)
+        {
+            EnableCollider();
+        }
+        else
+        {
+            DisableCollider();
+        }
+    }
 
     public virtual void Use()
     {

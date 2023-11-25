@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 using TMPro;
 
@@ -13,6 +14,7 @@ public class DropdownHandler : MonoBehaviour
     private void Awake()
     {
         //LevelManager.OnPlayerLevelsLoaded += AddOptions;
+
         dropdown.onValueChanged.AddListener(delegate { InvokeOnValueChagened(); });
     }
 
@@ -31,9 +33,19 @@ public class DropdownHandler : MonoBehaviour
 
     }
 
-    public void UpdateCurrentValue(int value)
+    public void UpdateCurrentValue(int value, bool invokeOnValueChanged = true)
     {
+        if (!invokeOnValueChanged)
+        {
+            dropdown.onValueChanged.RemoveAllListeners();
+        }
+
         dropdown.value = value;
+
+        if (!invokeOnValueChanged)
+        {
+            dropdown.onValueChanged.AddListener(delegate { InvokeOnValueChagened(); });
+        }
     }
 
     private void InvokeOnValueChagened()

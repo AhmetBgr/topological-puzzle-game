@@ -12,7 +12,7 @@ public class LevelEditor : MonoBehaviour{
     public BasicPanel panel;
     public BasicPanel gameplayPanel;
     public GameObject curLevelInEditing;
-    public GameObject levelBeforeTesting;
+    public LevelProperty initialLevel;
     public DropdownHandler levelsDropdownHandler;
 
     public GameObject arrow;
@@ -88,7 +88,7 @@ public class LevelEditor : MonoBehaviour{
         LevelManager.OnLevelLoad += ResetCurLevelInEditing;
         AddNewItem.OnMouseEnter += OpenAddItemPanel;
         GameManager.OnLevelComplete += ExitTestingWithDelay;
-
+        levelsDropdownHandler.OnValueChanged += UpdateHighlights;
     }
     void OnDisable()
     {
@@ -499,7 +499,6 @@ public class LevelEditor : MonoBehaviour{
         if (panelSequance != null)
         {
             panelSequance.Kill();
-            //panelSequance.Complete();
         }
         
         panelSequance = DOTween.Sequence();
@@ -521,7 +520,7 @@ public class LevelEditor : MonoBehaviour{
         ResetCurLevelInEditing();
 
         levelsDropdownHandler.AddOptions(levelManager.GetCurLevelsNameList());
-        //levelsDropdownHandler.UpdateCurrentValue(LevelManager.curLevelIndex);
+        levelsDropdownHandler.UpdateCurrentValue(LevelManager.curLevelIndex, false);
         UpdateLevelPoolName();
     }   
 
@@ -531,36 +530,23 @@ public class LevelEditor : MonoBehaviour{
             ExitTesting();
             return;
         }
-        //Vector3 initialPos = bottomPanel.localPosition;
-        //Vector3 initialPos2 = topPanel.localPosition;
         if (panelSequance != null)
         {
-            //panelSequance.Complete();
             panelSequance.Kill();
         }
         panelSequance = DOTween.Sequence();
 
         panelSequance.Append(bottomPanel.DOLocalMoveY(initialPos.y - 100f, 0.5f));
-            /*.OnComplete(() =>
-            {
-                bottomPanel.localPosition = initialPos;
-                bottomPanel.gameObject.SetActive(false);
-            }));*/
 
         panelSequance.Append(topPanel.DOLocalMoveY(initialPos2.y + 100f, 0.5f)
             .SetDelay(-0.5f));
-            /*.OnComplete(() =>
-            {
-                topPanel.localPosition = initialPos2;
-                topPanel.gameObject.SetActive(false);
-            }));*/
         panelSequance.OnComplete(() =>
         {
             bottomPanel.localPosition = initialPos;
-            //bottomPanel.gameObject.SetActive(false);
+            bottomPanel.gameObject.SetActive(false);
 
             topPanel.localPosition = initialPos2;
-            //topPanel.gameObject.SetActive(false);
+            topPanel.gameObject.SetActive(false);
         });
 
         state = LeState.closed;
@@ -575,6 +561,7 @@ public class LevelEditor : MonoBehaviour{
     private void UpdateHighlights(int value)
     {
         gameManager.ChangeCommand(Commands.None, LayerMask.GetMask("Node", "Arrow"), targetIndegree: 0, levelEditorBypass: true);
+        gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, 0.02f);
     }
 
     private void ResetCurLevelInEditing()
@@ -599,8 +586,7 @@ public class LevelEditor : MonoBehaviour{
 
     public void EnterTesting()
     {
-        levelBeforeTesting = Instantiate(curLevelInEditing, Vector3.zero, Quaternion.identity);
-        levelBeforeTesting.gameObject.SetActive(false);
+        initialLevel = levelManager.CreateLevelProperty(LevelManager.curLevel.transform);
         
         CloseLevelEditor();
         gameplayPanel.Open();
@@ -614,12 +600,14 @@ public class LevelEditor : MonoBehaviour{
         if (GameState.gameState != GameState_EN.testingLevel) return;
 
         Destroy(LevelManager.curLevel);
-        LevelManager.curLevel = levelBeforeTesting;
+        string name = initialLevel.levelName;
+        levelManager.LoadLevelWithLevelProperty(initialLevel, name, levelManager.GenerateNewLevelHolder(name));
+        gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, 0.02f);
         OpenLevelEditor();
         gameplayPanel.Close();
         ResetCurLevelInEditing();
         LevelManager.curLevel.SetActive(true);
-        levelBeforeTesting = null;
+        initialLevel = null;
         GameState.ChangeGameState(GameState_EN.inLevelEditor);
 
         exitTestButton.gameObject.SetActive(false);

@@ -320,7 +320,7 @@ public class GameManager : MonoBehaviour{
         }       
     }
 
-    private IEnumerator ChangeCommandWithDelay(Commands command, LayerMask targetLayerMask, int targetIndegree = 0, float delay = 0){
+    public IEnumerator ChangeCommandWithDelay(Commands command, LayerMask targetLayerMask, int targetIndegree = 0, float delay = 0){
         yield return new WaitForSeconds(delay);
         ChangeCommand(command, targetLayerMask, targetIndegree);
     }
@@ -369,9 +369,12 @@ public class GameManager : MonoBehaviour{
         nonRewindCommands.Clear();
         //rewindCount = 0;
         skippedOldCommands.Clear();
+        UpdateChangesCounter();
+
+        if (GameState.gameState == GameState_EN.inLevelEditor) return;
+
         ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"));
         paletteSwapper.ChangePalette(defPalette, 0.02f);
-        UpdateChangesCounter();
     }
 
     public void AddToOldCommands(Command command)
