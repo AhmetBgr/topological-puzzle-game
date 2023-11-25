@@ -21,6 +21,10 @@ public class BlockedNode : Node
             indegree_text.gameObject.SetActive(true);
             blocked = false;
         }
+        else if (gameManager.curCommand == Commands.SwapNodes)
+        {
+            blocked = false;
+        }
         else{
             nodeSprite.sprite = defSprite;
             indegree_text.gameObject.SetActive(false);
@@ -31,6 +35,7 @@ public class BlockedNode : Node
     protected override void CheckIfSuitable(LayerMask targetLM, int targetIndegree, ItemType itemType, bool levelEditorBypass){
         UpdateBLockStatus();
         bool hasRequiredItem = itemType == ItemType.None | itemController.FindItemWithType(itemType) != null ? true : false;
+        bool hasEqualIndegree = targetIndegree == -1 ? true : targetIndegree == indegree;
 
         if ( (!blocked && (((1<<gameObject.layer) & targetLM) != 0) && hasRequiredItem) || levelEditorBypass){
             if(!levelEditorBypass){

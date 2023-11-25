@@ -21,7 +21,7 @@ public class TransformToBasicNode : Command
         this.gameManager = gameManager;
     }
 
-    public override void Execute()
+    public override void Execute(float dur)
     {
         executionTime = gameManager.timeID;
         node.TransformIntoBasic();
@@ -32,11 +32,11 @@ public class TransformToBasicNode : Command
         }
     }
 
-    public override bool Undo(bool skipPermanent = true)
+    public override bool Undo(float dur, bool skipPermanent = true)
     {
         if (node.isPermanent && skipPermanent)
         {
-            gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, 0.2f);
+            gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, dur);
             gameManager.ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"), 0);
             InvokeOnUndoSkipped(this);
             return true;
@@ -48,7 +48,7 @@ public class TransformToBasicNode : Command
                 gameManager.RemoveFromSkippedOldCommands(this);
             }
         }
-        gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, 0.2f);
+        gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, dur);
         gameManager.ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"), 0);
         node.TransformBackToDef();
 

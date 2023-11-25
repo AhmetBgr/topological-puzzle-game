@@ -30,12 +30,12 @@ public class UseKey : Command
         this.dur = dur;
     }
 
-    public override void Execute()
+    public override void Execute(float dur)
     {
         executionTime = gameManager.timeID;
 
         // = itemManager.GetLastItem().GetComponent<Key>();
-        itemManager.itemContainer.RemoveItem(key);
+        itemManager.itemContainer.RemoveItem(key, dur);
         key.PlayAnimSequence(key.GetUnlockSequence(padlockPos, dur));
 
         if (OnExecute != null)
@@ -44,7 +44,7 @@ public class UseKey : Command
         }
     }
 
-    public override bool Undo(bool skipPermanent = true)
+    public override bool Undo(float dur, bool skipPermanent = true)
     {
         if (key.isPermanent && skipPermanent)
         {
@@ -59,7 +59,7 @@ public class UseKey : Command
             }
         }
 
-        itemManager.itemContainer.AddItem(key, -1);
+        itemManager.itemContainer.AddItem(key, -1, dur);
 
         if (OnUndo != null)
         {

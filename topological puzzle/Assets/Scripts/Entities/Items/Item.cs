@@ -136,8 +136,8 @@ public abstract class Item : MonoBehaviour
         sequence.Play();
         sequence.OnComplete(() =>
         {
-            this.sequence.Kill();
-            this.sequence = null;
+            //this.sequence.Kill();
+            //this.sequence = null;
         });
     }
 

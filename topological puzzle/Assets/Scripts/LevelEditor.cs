@@ -1,17 +1,8 @@
-using System.Timers;
-using System.Threading;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using UnityEditor;
 using UnityEngine.UI;
 using DG.Tweening;
 using TMPro;
-
-using System;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 
 public enum LeState{
     placingNode, drawingArrow, closed, waiting, movingObject, addingItem
@@ -22,6 +13,7 @@ public class LevelEditor : MonoBehaviour{
     public BasicPanel gameplayPanel;
     public GameObject curLevelInEditing;
     public GameObject levelBeforeTesting;
+    public DropdownHandler levelsDropdownHandler;
 
     public GameObject arrow;
     public GameObject basicNode;
@@ -42,6 +34,7 @@ public class LevelEditor : MonoBehaviour{
     public TextMeshProUGUI levelNameText;
     public TextMeshProUGUI encodedLevelText;
     public TMP_InputField encodedLevelTextField;
+    public TextMeshProUGUI levelPoolNameTextField;
     public Button enterTestButton;
     public Button exitTestButton;
 
@@ -54,6 +47,7 @@ public class LevelEditor : MonoBehaviour{
     private Transform curObj; // change to selectedObj
     private GameObject lastPrefab;
     private Node curLockedNode;
+    private Sequence panelSequance;
     public Node addItemNode;
     public GameObject itemToAdd;
     private Button curSelButton;
@@ -64,6 +58,8 @@ public class LevelEditor : MonoBehaviour{
     MoveNode moveNode = null;
     Transform movingNode = null;
 
+    private Vector3 initialPos;
+    private Vector3 initialPos2;
     private int clickCount = 0;
     private float minDragTime = 0.1f;
     private float t = 0;
@@ -78,24 +74,28 @@ public class LevelEditor : MonoBehaviour{
     void Awake(){
         state = LeState.closed;
         gameManager = FindObjectOfType<GameManager>();
-        cursor = Cursor.instance;
+
         gameObject.SetActive(false);
         panel.OnOpen += OpenLevelEditor;
         panel.OnClose += CloseLevelEditor;
+        initialPos = bottomPanel.localPosition;
+        initialPos2 = topPanel.localPosition;
     }
 
     void OnEnable()
     {
+        cursor = Cursor.instance;
         LevelManager.OnLevelLoad += ResetCurLevelInEditing;
         AddNewItem.OnMouseEnter += OpenAddItemPanel;
         GameManager.OnLevelComplete += ExitTestingWithDelay;
-        
+
     }
     void OnDisable()
     {
         LevelManager.OnLevelLoad -= ResetCurLevelInEditing;
         AddNewItem.OnMouseEnter -= OpenAddItemPanel;
         GameManager.OnLevelComplete -= ExitTestingWithDelay;
+        levelsDropdownHandler.OnValueChanged -= UpdateHighlights;
         //panel.OnOpen -= OpenLevelEditor;
     }
 
@@ -487,16 +487,26 @@ public class LevelEditor : MonoBehaviour{
             OnEnter();
         }
 
-        GameObject curLevel = LevelManager.curLevel;
         bottomPanel.gameObject.SetActive(true);
-        Vector3 initialPos = bottomPanel.localPosition;
+        
         bottomPanel.localPosition -= Vector3.up * 100f;
-        bottomPanel.DOLocalMoveY(initialPos.y, 0.5f);
 
         topPanel.gameObject.SetActive(true);
-        Vector3 initialPos2 = topPanel.localPosition;
+        
         topPanel.localPosition += Vector3.up * 100f;
-        topPanel.DOLocalMoveY(initialPos2.y, 0.5f);
+
+        GameObject curLevel = LevelManager.curLevel;
+        if (panelSequance != null)
+        {
+            panelSequance.Kill();
+            //panelSequance.Complete();
+        }
+        
+        panelSequance = DOTween.Sequence();
+
+        panelSequance.Append(bottomPanel.DOLocalMoveY(initialPos.y, 0.5f));
+
+        panelSequance.Append(topPanel.DOLocalMoveY(initialPos2.y, 0.5f).SetDelay(-0.5f));
 
         curLevel.name = curLevel.name.Replace("(Clone)", "");
 
@@ -509,6 +519,10 @@ public class LevelEditor : MonoBehaviour{
         lastState = LeState.waiting;
         state = LeState.waiting;
         ResetCurLevelInEditing();
+
+        levelsDropdownHandler.AddOptions(levelManager.GetCurLevelsNameList());
+        levelsDropdownHandler.UpdateCurrentValue(LevelManager.curLevelIndex);
+        UpdateLevelPoolName();
     }   
 
     private void CloseLevelEditor(){
@@ -517,18 +531,38 @@ public class LevelEditor : MonoBehaviour{
             ExitTesting();
             return;
         }
+        //Vector3 initialPos = bottomPanel.localPosition;
+        //Vector3 initialPos2 = topPanel.localPosition;
+        if (panelSequance != null)
+        {
+            //panelSequance.Complete();
+            panelSequance.Kill();
+        }
+        panelSequance = DOTween.Sequence();
 
-        Vector3 initialPos = bottomPanel.localPosition;
-        bottomPanel.DOLocalMoveY(initialPos.y -  100f, 0.5f).OnComplete(() => {
+        panelSequance.Append(bottomPanel.DOLocalMoveY(initialPos.y - 100f, 0.5f));
+            /*.OnComplete(() =>
+            {
+                bottomPanel.localPosition = initialPos;
+                bottomPanel.gameObject.SetActive(false);
+            }));*/
+
+        panelSequance.Append(topPanel.DOLocalMoveY(initialPos2.y + 100f, 0.5f)
+            .SetDelay(-0.5f));
+            /*.OnComplete(() =>
+            {
+                topPanel.localPosition = initialPos2;
+                topPanel.gameObject.SetActive(false);
+            }));*/
+        panelSequance.OnComplete(() =>
+        {
             bottomPanel.localPosition = initialPos;
-            bottomPanel.gameObject.SetActive(false);
+            //bottomPanel.gameObject.SetActive(false);
+
+            topPanel.localPosition = initialPos2;
+            //topPanel.gameObject.SetActive(false);
         });
 
-        Vector3 initialPos2 = topPanel.localPosition;
-        topPanel.DOLocalMoveY(initialPos2.y + 100f, 0.5f).OnComplete(() => {
-            topPanel.localPosition = initialPos2;
-            topPanel.gameObject.SetActive(false);
-        });
         state = LeState.closed;
         gameManager.ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"));
         enterTestButton.gameObject.SetActive(false);
@@ -537,6 +571,12 @@ public class LevelEditor : MonoBehaviour{
             OnExit();
         }
     }
+
+    private void UpdateHighlights(int value)
+    {
+        gameManager.ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"));
+    }
+
     private void ResetCurLevelInEditing()
     {
         curLevelInEditing = LevelManager.curLevel;
@@ -639,6 +679,11 @@ public class LevelEditor : MonoBehaviour{
             GetLevelPanel.gameObject.SetActive(true);
             encodedLevelTextField.text = "PASTE YOUR LEVEL CODE HERE.";
         }
+    }
+
+    public void UpdateLevelPoolName()
+    {
+        levelPoolNameTextField.text = levelManager.curPool == LevelPool.Original ? "Original Levels" : "My Levels";
     }
 
     private void DesTroyInActiveChildren(Transform parent)

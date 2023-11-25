@@ -28,29 +28,27 @@ public class ChangeArrowDir : Command
     }
 
 
-    public override void Execute()
+    public override void Execute(float dur)
     {
         executionTime = gameManager.timeID;
 
         affectedObjects.Add(arrowObj);
 
         arrow = arrowObj.GetComponent<Arrow>();
-        arrow.ChangeDir();
+        //float dur = playAnim ? 0.5f : 0.1f;
+        arrow.ChangeDir(dur);
 
         if (OnExecute != null)
         {
             OnExecute(arrowObj);
         }
-
-
     }
 
-    public override bool Undo(bool skipPermanent = true)
+    public override bool Undo(float dur, bool skipPermanent = true)
     {
-
         if (!isCommandOwnerPermanent | !skipPermanent)
         {
-            gameManager.paletteSwapper.ChangePalette(gameManager.changeArrowDirPalette, 0.2f);
+            gameManager.paletteSwapper.ChangePalette(gameManager.changeArrowDirPalette, dur);
             gameManager.ChangeCommand(Commands.ChangeArrowDir, LayerMask.GetMask("Arrow"));
         }
         else
@@ -74,9 +72,10 @@ public class ChangeArrowDir : Command
             return true;
         }
 
-        arrow.gameObject.SetActive(true);
-        arrow.ChangeDir();
+        //float dur = playAnim ? 0.5f : 0.1f;
 
+        arrow.gameObject.SetActive(true);
+        arrow.ChangeDir(dur);
 
         if (OnUndo != null)
         {

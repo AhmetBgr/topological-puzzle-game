@@ -34,7 +34,7 @@ public class ItemContainer : MonoBehaviour
         containerPos = transform.parent.localPosition + transform.localPosition;
     }
 
-    public void AddItem(Item addedItem, int index, bool skipFix = false, bool setInstantAnim = false)
+    public void AddItem(Item addedItem, int index, float dur, bool skipFix = false, bool setInstantAnim = false)
     {
         if (items.Contains(addedItem)) return;
 
@@ -54,7 +54,7 @@ public class ItemContainer : MonoBehaviour
 
         if (skipFix) return;
 
-        FixItemPositions(setInstantAnim: setInstantAnim);
+        FixItemPositions(dur, setInstantAnim: setInstantAnim);
     }
 
     /*public void AddItems(List<Item> addedItems)
@@ -79,7 +79,7 @@ public class ItemContainer : MonoBehaviour
         FixItemPositions();
     }*/
 
-    public void RemoveItem(Item item, bool setInactive = false, bool skipFix = false)
+    public void RemoveItem(Item item, float dur, bool setInactive = false, bool skipFix = false)
     {
         items.Remove(item);
         item.transform.SetParent(LevelManager.curLevel.transform);
@@ -93,7 +93,7 @@ public class ItemContainer : MonoBehaviour
 
         if (skipFix) return;
 
-        FixItemPositions();
+        FixItemPositions(dur);
     }
 
     public void ClearAll()
@@ -117,7 +117,7 @@ public class ItemContainer : MonoBehaviour
         return items[items.Count - 1];
     }
 
-    public void FixItemPositions(bool setDelayBetweenFixes = false, bool setInstantAnim = false)
+    public void FixItemPositions(float dur, bool setDelayBetweenFixes = false, bool setInstantAnim = false)
     {
         Vector3 pivot3 = Vector3.right * ((int)pivot);
         Vector3 nextItemPos = (-(items.Count - 1) * gap) * ( (pivot3 + 1*Vector3.right) / 2);
@@ -144,7 +144,7 @@ public class ItemContainer : MonoBehaviour
                 continue;
             }
 
-            float dur = setInstantAnim ? 0f : 0.5f;
+            dur = setInstantAnim ? 0f : dur;
             setDelayBetweenFixes = setInstantAnim ? false : setDelayBetweenFixes;
             sequence = DOTween.Sequence();
             if (setDelayBetweenFixes)
@@ -171,7 +171,7 @@ public class ItemContainer : MonoBehaviour
                     .OnComplete(() => item.transform.SetParent(transform))
                     .SetDelay(-dur));
             }
-            sequence.OnComplete(() => sequence.Kill());
+            //sequence.OnComplete(() => sequence.Kill());
             item.PlayAnimSequence(sequence);
             nextItemPos += Vector3.right * gap;
         }

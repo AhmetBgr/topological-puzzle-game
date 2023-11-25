@@ -16,10 +16,11 @@ public class MainCanvasManager : MonoBehaviour
     void Start()
     {
 #if UNITY_EDITOR
+        currentPanel = mainMenuPanel;
         PanelTransition(gameplayPanel);
         return;
 #endif 
-
+        currentPanel = gameplayPanel;
         PanelTransition(mainMenuPanel);
     }
 

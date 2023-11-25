@@ -26,13 +26,13 @@ public class GetItem : Command
         this.gameManager = gameManager;
         this.skipFix = skipFix;
     }
-    public override void Execute()
+    public override void Execute(float dur)
     {
         executionTime = gameManager.timeID;
         
         index = itemController.itemContainer.GetItemIndex(item);
-        itemController.RemoveItem(item, skipFix: true);
-        itemManager.itemContainer.AddItem(item, -1, skipFix: true);
+        itemController.RemoveItem(item, dur, skipFix: true);
+        itemManager.itemContainer.AddItem(item, -1, dur, skipFix: true);
 
         //item.CheckIfUsable();
 
@@ -42,7 +42,7 @@ public class GetItem : Command
         }
     }
 
-    public override bool Undo(bool skipPermanent = true)
+    public override bool Undo(float dur, bool skipPermanent = true)
     {
 
         if (item.isPermanent && skipPermanent)
@@ -59,8 +59,8 @@ public class GetItem : Command
             }
         }
 
-        itemManager.itemContainer.RemoveItem(item, skipFix: skipFix);
-        itemController.itemContainer.AddItem(item, index, skipFix: skipFix);
+        itemManager.itemContainer.RemoveItem(item, dur, skipFix: skipFix);
+        itemController.itemContainer.AddItem(item, index, dur, skipFix: skipFix);
 
         if (OnUndo != null)
         {

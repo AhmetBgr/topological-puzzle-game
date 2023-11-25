@@ -95,17 +95,17 @@ public class Transporter : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
 
-        transportCommand.Execute();
+        transportCommand.Execute(gameManager.commandDur);
         command.affectedCommands.Add(transportCommand);
     }
 
     public void Transport(Transform itemT, ItemController startingItemCont, 
-        ItemController destItemCont, Vector3[] lrPoints, int destContainerIndex = 0)
+        ItemController destItemCont, Vector3[] lrPoints, float dur, int destContainerIndex = 0)
     {
 
         itemT.SetParent(LevelManager.curLevel.transform);
         Item item = itemT.GetComponent<Item>();
-        startingItemCont.RemoveItem(item);
+        startingItemCont.RemoveItem(item, dur/2);
 
 
         List<Vector3> pathlist = new List<Vector3>();
@@ -113,9 +113,9 @@ public class Transporter : MonoBehaviour
         pathlist.AddRange(lrPoints);
         Vector3[] path = pathlist.ToArray();
 
-        itemT.DOPath(path, speed).OnComplete(() => { 
-            destItemCont.itemContainer.AddItem(item, destContainerIndex);
-            destItemCont.itemContainer.FixItemPositions();
+        itemT.DOPath(path, dur/2).OnComplete(() => { 
+            destItemCont.itemContainer.AddItem(item, destContainerIndex, dur/2);
+            destItemCont.itemContainer.FixItemPositions(dur/2);
         });
     }
 

@@ -80,16 +80,20 @@ public static class Utility
         string path = Application.persistentDataPath + folderName;
 
         if (!Directory.Exists(path))
+        {
+            Debug.Log("path created : " + path);
             Directory.CreateDirectory(path);
+        }
 
-        FileStream file = File.Create(path + "/" + fileName + ".save");
+
+        FileStream file = File.Create(path + "/" + fileName);
         bf.Serialize(file, saveData);
         file.Close();
     }
 
     public static object BinaryDeserialization(string folderName, string fileName)
     {
-        string filePath = Application.persistentDataPath + folderName + fileName + ".save";
+        string filePath = Application.persistentDataPath + folderName + fileName;
 
         BinaryFormatter bf = new BinaryFormatter();
         FileStream file = File.Open(filePath, FileMode.Open);
@@ -136,7 +140,6 @@ public static class Utility
             Debug.LogWarning("File not found");
             return null;
         }
-
     }
 
     public static string EncodeBase64(string inputText)

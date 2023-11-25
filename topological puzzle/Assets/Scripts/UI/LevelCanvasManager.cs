@@ -35,11 +35,14 @@ public class LevelCanvasManager : MonoBehaviour
         Item.OnUsabilityChanged += UpdateUseItemButtonBCImage;
         LevelManager.OnLevelLoad += Reset;
         LevelEditor.OnExit += Reset;
-        LevelEditor.OnEnter += DisableUseItemButton;
-        LevelEditor.OnExit += EnableUseItemButton;
+        //LevelEditor.OnEnter += DisableUseItemButton;
+        //LevelEditor.OnExit += EnableUseItemButton;
         //LevelEditor.OnEnter += ToggleLevelChangeButtons;
         //LevelEditor.OnExit += ToggleLevelChangeButtons;
-
+        UpdateNextLevelButton();
+        UpdatePreviousLevelButton();
+        Reset();
+        UpdateLevelIndexText(LevelManager.curLevelIndex);
     }
     private void OnDisable()
     {
@@ -52,8 +55,8 @@ public class LevelCanvasManager : MonoBehaviour
         Item.OnUsabilityChanged -= UpdateUseItemButtonBCImage;
         LevelManager.OnLevelLoad -= Reset;
         LevelEditor.OnExit -= Reset;
-        LevelEditor.OnEnter -= DisableUseItemButton;
-        LevelEditor.OnExit -= EnableUseItemButton;
+        //LevelEditor.OnEnter -= DisableUseItemButton;
+        //LevelEditor.OnExit -= EnableUseItemButton;
         //LevelEditor.OnEnter -= ToggleLevelChangeButtons;
         //LevelEditor.OnExit -= ToggleLevelChangeButtons;
     }
@@ -69,7 +72,7 @@ public class LevelCanvasManager : MonoBehaviour
 
         if (inEditor)
         {
-            if (LevelManager.curLevelIndex == levelManager.levels.Length - 1)
+            if (LevelManager.curLevelIndex == levelManager.curLevelPool.Count - 1)
             {
                 nextLevelButton.gameObject.SetActive(false);
             }

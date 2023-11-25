@@ -8,6 +8,7 @@ public class BasicPanel : Panel
     public CanvasGroup canvasGroup;
     public float openDur = 0.04f;
     public float closeDur = 0.5f;
+    private Tween fadeTween;
 
     public override void Open()
     {
@@ -16,7 +17,12 @@ public class BasicPanel : Panel
 
         gameObject.SetActive(true);
         canvasGroup.alpha = 0;
-        canvasGroup.DOFade(1f, openDur / 2).SetDelay(openDur / 2);
+
+        if(fadeTween != null)
+        {
+            fadeTween.Kill();
+        }
+        fadeTween = canvasGroup.DOFade(1f, openDur / 2).SetDelay(openDur / 2);
 
         base.Open();
     }
@@ -24,8 +30,11 @@ public class BasicPanel : Panel
     public override void Close()
     {
         //PostProcessingManager.instance.ChangeDOF(dofAmountClosed, 0.04f);
-
-        canvasGroup.DOFade(0f, closeDur / 2).OnComplete(() =>
+        if (fadeTween != null)
+        {
+            fadeTween.Kill();
+        }
+        fadeTween = canvasGroup.DOFade(0f, closeDur / 2).OnComplete(() =>
         {
             gameObject.SetActive(false);
         });

@@ -32,16 +32,15 @@ public class UnlockPadlock : Command
         this.key = key;
     }
 
-    public override void Execute()
+    public override void Execute(float dur)
     {
         executionTime = gameManager.timeID;
        
         ItemController itemController = node.itemController;
 
-        float dur = 0.7f;
+        //float dur = 0.7f;
 
-        // This event will make undo button noninteractive during the unlock animation
-        GameState.OnAnimationStartEvent(1f);
+
 
         // move key to the padlock
         Item padlockItem = itemController.FindLastItemWithType(ItemType.Padlock);
@@ -53,7 +52,7 @@ public class UnlockPadlock : Command
         padlockPos = padlock.transform.position;
         //Key key = itemManager.GetLastItem().GetComponent<Key>();
         useKey = new UseKey(key, padlockPos, itemManager, gameManager, dur);
-        useKey.Execute();
+        useKey.Execute(dur);
 
         // remove padlock from the node
         //itemController.hasPadLock = false;
@@ -62,7 +61,7 @@ public class UnlockPadlock : Command
         {
             padlockIndex = itemController.itemContainer.GetItemIndex(padlock);
             padlock.PlayAnimSequence(padlock.GetUnlockSequance(dur));
-            itemController.RemoveItem(padlock);
+            itemController.RemoveItem(padlock, dur);
         }
 
 
@@ -72,11 +71,11 @@ public class UnlockPadlock : Command
         }
     }
 
-    public override bool Undo(bool skipPermanent = true)
+    public override bool Undo(float dur, bool skipPermanent = true)
     {
         if (useKey != null)
         {
-            useKey.Undo(skipPermanent);
+            useKey.Undo(dur, skipPermanent);
         }
 
         if (padlock.isPermanent && skipPermanent)
@@ -95,22 +94,22 @@ public class UnlockPadlock : Command
 
         padlock.gameObject.SetActive(true);
         ItemController itemController = node.itemController;
-        itemController.AddItem(padlock, padlockIndex);
+        itemController.AddItem(padlock, padlockIndex, dur);
         
-        float dur = 0.5f;
+        //float dur = 0.5f;
         Sequence seq = DOTween.Sequence();
         seq.Append(padlock.transform.DOScale(1f, dur));
         padlock.PlayAnimSequence(seq);
 
         if(key.isPermanent && skipPermanent)
         {
-            gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, 0.2f);
+            gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, dur);
             gameManager.ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"), 0);
             Debug.Log("hereeee");
         }
         else
         {
-            gameManager.paletteSwapper.ChangePalette(gameManager.unlockPadlockPalette, 0.2f);
+            gameManager.paletteSwapper.ChangePalette(gameManager.unlockPadlockPalette, dur);
             gameManager.ChangeCommand(Commands.UnlockPadlock, LayerMask.GetMask("Node"), targetIndegree: 0, itemType: ItemType.Padlock);
         }
 

@@ -32,14 +32,14 @@ public class TransportCommand : Command
     }
 
 
-    public override void Execute()
+    public override void Execute(float dur)
     {
         if (itemObj.GetComponent<Item>().isPermanent && isRewindCommand) return;
 
         executionTime = gameManager.timeID;
 
         affectedObjects.Add(itemObj);
-        transporter.Transport(itemObj.transform, startingItemCont, destItemCont, arrow.linePoints, -1);
+        transporter.Transport(itemObj.transform, startingItemCont, destItemCont, arrow.linePoints, dur, -1);
 
         if (OnExecute != null)
         {
@@ -47,7 +47,7 @@ public class TransportCommand : Command
         }
     }
 
-    public override bool Undo(bool skipPermanent = true)
+    public override bool Undo(float dur, bool skipPermanent = true)
     {
         if (affectedObjects[0].GetComponent<Item>().isPermanent  && skipPermanent)
         {
@@ -65,7 +65,7 @@ public class TransportCommand : Command
 
         Vector3[] reversedPoints = (Vector3[])arrow.linePoints.Clone();
         Array.Reverse(reversedPoints);
-        transporter.Transport(affectedObjects[0].transform, destItemCont, startingItemCont, reversedPoints, -1);
+        transporter.Transport(affectedObjects[0].transform, destItemCont, startingItemCont, reversedPoints, dur, -1);
 
         if (OnUndo != null)
         {

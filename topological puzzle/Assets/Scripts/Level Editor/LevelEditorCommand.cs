@@ -134,14 +134,14 @@ public class DeleteItem : LeCommand
         item = selectedItem.GetComponent<Item>();
         node = item.owner;
         index = node.itemController.itemContainer.GetItemIndex(item);
-        node.itemController.RemoveItem(item);
+        node.itemController.RemoveItem(item, 0.5f);
         item.gameObject.SetActive(false);
         return 0;
     }
     
     public override GameObject Undo()
     {
-        node.itemController.AddItem(item, index, setInstantAnim: true);
+        node.itemController.AddItem(item, index, 0f, setInstantAnim: true);
         item.gameObject.SetActive(true);
 
         return null;
@@ -274,7 +274,7 @@ public class AddItem : LeCommand
 
     public override GameObject Undo()
     {
-        node.itemController.RemoveItem(item);
+        node.itemController.RemoveItem(item, 0.1f);
         item.gameObject.SetActive(false);
         return null;
     }

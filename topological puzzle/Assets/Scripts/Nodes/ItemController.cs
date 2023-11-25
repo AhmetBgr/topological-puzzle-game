@@ -124,7 +124,7 @@ public class ItemController : MonoBehaviour
 
     }
 
-    public void GetObtainableItems(GameObject node, RemoveNode command)
+    public void GetObtainableItems(GameObject node, RemoveNode command, float dur)
     {
         if (node.gameObject != node) return;
 
@@ -138,7 +138,7 @@ public class ItemController : MonoBehaviour
             if (!item.isObtainable) continue;
 
             GetItem getItem = new GetItem(item, this, itemManager, gameManager, skipFix: true);
-            getItem.Execute();
+            getItem.Execute(gameManager.commandDur);
             command.affectedCommands.Add(getItem);
             getItems.Add(getItem);
         }
@@ -147,8 +147,8 @@ public class ItemController : MonoBehaviour
         {
             getItems[0].skipFix = false;
         }*/
-        itemManager.itemContainer.FixItemPositions(setDelayBetweenFixes: isMultiple);
-        itemContainer.FixItemPositions(setDelayBetweenFixes: isMultiple);
+        itemManager.itemContainer.FixItemPositions(dur, setDelayBetweenFixes: isMultiple);
+        itemContainer.FixItemPositions(dur, setDelayBetweenFixes: isMultiple);
     }
 
     public GameObject GenerateItem(GameObject prefab, int index = -1)
@@ -156,12 +156,12 @@ public class ItemController : MonoBehaviour
         Transform item = Instantiate(prefab, Vector3.zero, Quaternion.identity, parent: itemContainer.transform).transform;
         //item.SetParent(itemContainer.itemContainer);
         itemContainer.FindContainerPos();
-        AddItem(item.GetComponent<Item>(), index, setInstantAnim: true);
+        AddItem(item.GetComponent<Item>(), index, 0f, setInstantAnim: true);
 
         return item.gameObject;
     }
 
-    public void AddItem(Item item, int index, bool skipFix = false, bool setInstantAnim = false)
+    public void AddItem(Item item, int index, float dur, bool skipFix = false, bool setInstantAnim = false)
     {
         if (item.CompareTag("Padlock"))
         {
@@ -169,10 +169,10 @@ public class ItemController : MonoBehaviour
             padlocks.Add(item.GetComponent<Lock>());
         }
         item.owner = node;
-        itemContainer.AddItem(item, index, skipFix: skipFix, setInstantAnim: setInstantAnim);
+        itemContainer.AddItem(item, index, dur, skipFix: skipFix, setInstantAnim: setInstantAnim);
     }
 
-    public void RemoveItem(Item item, bool skipFix = false)
+    public void RemoveItem(Item item, float dur, bool skipFix = false)
     {
         if (item.CompareTag("Padlock"))
         {
@@ -180,7 +180,7 @@ public class ItemController : MonoBehaviour
             hasPadLock = padlocks.Count == 0 ? false : true;
         }
 
-        itemContainer.RemoveItem(item, skipFix: skipFix);
+        itemContainer.RemoveItem(item, dur, skipFix: skipFix);
         item.owner = null;
     }
 
@@ -197,7 +197,7 @@ public class ItemController : MonoBehaviour
             Item item = itemContainer.items[i];
             if (item.type == ItemType.AddNewItem)
             {
-                RemoveItem(item);
+                RemoveItem(item, 0f);
                 Destroy(item.gameObject);
             }
         }

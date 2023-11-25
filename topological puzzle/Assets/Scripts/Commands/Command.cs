@@ -10,8 +10,8 @@ public abstract class Command {
     public delegate void OnUndoSkippedDelegate(Command command);
     public static event OnUndoSkippedDelegate OnUndoSkipped;
     
-    public abstract void Execute();
-    public virtual bool Undo(bool skipPermanent = true)         // returns true if whole undo is skipped
+    public abstract void Execute(float dur);
+    public virtual bool Undo(float dur, bool skipPermanent = true)         // returns true if whole undo is skipped
     { 
         return false; 
     } 

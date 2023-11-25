@@ -12,7 +12,7 @@ public class SetArrowPermanent : Command
         this.gameManager = gameManager;
     }
 
-    public override void Execute()
+    public override void Execute(float dur)
     {
         executionTime = gameManager.timeID;
 
@@ -20,7 +20,7 @@ public class SetArrowPermanent : Command
 
     }
 
-    public override bool Undo(bool skipPermanent = true)
+    public override bool Undo(float dur, bool skipPermanent = true)
     {
         arrow.ChangePermanent(false);
         return false;

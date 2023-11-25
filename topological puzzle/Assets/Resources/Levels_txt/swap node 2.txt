@@ -1,0 +1,134 @@
+{
+    "levelName": "swap node 2",
+    "nodes": [
+        {
+            "posX": -2.000000238418579,
+            "posY": 1.9999998807907105,
+            "tag": "BasicNode",
+            "id": -66634,
+            "itemTags": [
+                "Key"
+            ]
+        },
+        {
+            "posX": 2.000000238418579,
+            "posY": 1.9999998807907105,
+            "tag": "BasicNode",
+            "id": -66736,
+            "itemTags": [
+                "Padlock"
+            ]
+        },
+        {
+            "posX": 0.0,
+            "posY": 0.0,
+            "tag": "HexagonNode",
+            "id": -66838,
+            "itemTags": []
+        },
+        {
+            "posX": 1.5000004768371583,
+            "posY": -0.9999999403953552,
+            "tag": "BasicNode",
+            "id": -66918,
+            "itemTags": [
+                "NodeSwapper"
+            ]
+        },
+        {
+            "posX": -1.5,
+            "posY": -0.9999999403953552,
+            "tag": "BasicNode",
+            "id": -67020,
+            "itemTags": [
+                "NodeSwapper"
+            ]
+        },
+        {
+            "posX": 0.0,
+            "posY": -2.5,
+            "tag": "StarNode",
+            "id": -67122,
+            "itemTags": []
+        }
+    ],
+    "arrows": [
+        {
+            "tag": "Arrow",
+            "id": -67194,
+            "startingNodeID": -66634,
+            "destinationNodeID": -66838,
+            "pointsX": [
+                -1.672243595123291,
+                -0.444061279296875
+            ],
+            "pointsY": [
+                1.6706595420837403,
+                0.44247734546661379
+            ],
+            "priority": 0
+        },
+        {
+            "tag": "Arrow",
+            "id": -67216,
+            "startingNodeID": -66838,
+            "destinationNodeID": -66736,
+            "pointsX": [
+                0.3277566730976105,
+                1.555938959121704
+            ],
+            "pointsY": [
+                0.3293403685092926,
+                1.5575225353240967
+            ],
+            "priority": 0
+        },
+        {
+            "tag": "Arrow",
+            "id": -67238,
+            "startingNodeID": -66736,
+            "destinationNodeID": -66634,
+            "pointsX": [
+                1.5326588153839112,
+                -1.375826358795166
+            ],
+            "pointsY": [
+                1.9999998807907105,
+                1.9999998807907105
+            ],
+            "priority": 0
+        },
+        {
+            "tag": "Arrow",
+            "id": -67260,
+            "startingNodeID": -66838,
+            "destinationNodeID": -67122,
+            "pointsX": [
+                -0.0015837550163269044,
+                -0.0015837550163269044
+            ],
+            "pointsY": [
+                -0.46575766801834109,
+                -1.8742425441741944
+            ],
+            "priority": 0
+        },
+        {
+            "tag": "Arrow",
+            "id": -67282,
+            "startingNodeID": -66918,
+            "destinationNodeID": -67020,
+            "pointsX": [
+                1.0326590538024903,
+                -0.8758262395858765
+            ],
+            "pointsY": [
+                -0.9999999403953552,
+                -0.9999999403953552
+            ],
+            "priority": 0
+        }
+    ],
+    "nodeCount": 6,
+    "arrowCount": 5
+}

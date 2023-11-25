@@ -36,6 +36,8 @@ public class GameManager : MonoBehaviour{
     private Node commandOwner;
     private bool isCommandOwnerPermanent = false;
 
+    public float commandDur = 0.5f;
+    public float undoDur = 0.1f;
     public int timeID = 0;
 
     private float time = 0f;
@@ -96,7 +98,10 @@ public class GameManager : MonoBehaviour{
             if( hit ){
 
                 selectedObjects.Add(hit.transform.gameObject);
-                if(curCommand == Commands.RemoveNode){
+
+                // This event will make undo button noninteractive during the animation
+                GameState.OnAnimationStartEvent(commandDur);
+                if (curCommand == Commands.RemoveNode){
                     
                     commandOwner = selectedObjects[0].GetComponent<Node>();
                     if (commandOwner.itemController.hasPadLock)
@@ -114,10 +119,10 @@ public class GameManager : MonoBehaviour{
 
                         ChangeCommand changeCommand = new ChangeCommand(this, commandOwner, previousTarget, target);
                         changeCommand.isPermanent = commandOwner.isPermanent;
-                        changeCommand.Execute();
+                        changeCommand.Execute(commandDur);
                         bool isCommandChanged = true;
                         TransformToBasicNode transformToBasicNode = new TransformToBasicNode(this, commandOwner);
-                        transformToBasicNode.Execute();
+                        transformToBasicNode.Execute(commandDur);
                         changeCommand.affectedCommands.Add(transformToBasicNode);
 
                         //bool isCommandChanged = changeCommand.ChangeCommandOnNodeRemove(hit.transform.gameObject, itemManager);
@@ -143,7 +148,7 @@ public class GameManager : MonoBehaviour{
 
                     timeID++;
                     Command command = new RemoveNode(this, itemManager, selectedObjects[0]);
-                    command.Execute();
+                    command.Execute(commandDur);
                     Node node = hit.transform.GetComponent<Node>();
                     if(node.indegree == 0 ){ //&& !node.isLocked
                         //oldCommands.Add(command);
@@ -161,7 +166,7 @@ public class GameManager : MonoBehaviour{
                     timeID++;
                     Command command = new ChangeArrowDir(this, selectedObjects[0], false);
                    
-                    command.Execute();
+                    command.Execute(commandDur);
 
                     AddToOldCommands(command);
                     //paletteSwapper.ChangePalette(defPalette);
@@ -182,7 +187,7 @@ public class GameManager : MonoBehaviour{
 
                         timeID++;
                         Command command = new SwapNodes(this, itemManager, itemManager.GetLastItem(), selectedObjects);
-                        command.Execute();
+                        command.Execute(commandDur);
                         //oldCommands.Add(command);
                         AddToOldCommands(command);
                         //rewindCount = 0;
@@ -205,7 +210,7 @@ public class GameManager : MonoBehaviour{
 
                     UnlockPadlock unlockPadlock = new UnlockPadlock(this, itemManager, commandOwner, key);
                     unlockPadlock.node = commandOwner;
-                    unlockPadlock.Execute();
+                    unlockPadlock.Execute(commandDur);
 
                     //oldCommands.Add(unlockPadlock);
                     AddToOldCommands(unlockPadlock);
@@ -397,7 +402,7 @@ public class GameManager : MonoBehaviour{
 
             Rewind rewind = new Rewind(this, nonRewindCommands[nonRewindCommands.Count - 1]);
 
-            rewind.Execute();
+            rewind.Execute(commandDur);
             nonRewindCommands.Remove(nonRewindCommands[nonRewindCommands.Count - 1]);
             if (!rewind.skipped)
             {
@@ -406,12 +411,12 @@ public class GameManager : MonoBehaviour{
         }
     }
 
-    public void OnlyUndoLast(bool skipPermanants = true){
+    public void OnlyUndoLast(){
         if(oldCommands.Count == 0)  return;
 
         timeID--;
         Command lastCommand =  oldCommands[ oldCommands.Count  - 1];
-        lastCommand.Undo(skipPermanants);
+        lastCommand.Undo(undoDur, skipPermanent : false);
         //ChangeCommand(lastCommand.nextCommand, lastCommand.targetLM, lastCommand.targetIndegree, itemType: lastCommand.itemType);
         oldCommands.Remove(lastCommand);
         nonRewindCommands.Remove(lastCommand);
@@ -424,7 +429,8 @@ public class GameManager : MonoBehaviour{
         if (oldCommands.Count <= 0 ) return; //&& rewindCommands.Count <= 0
 
         DeselectObjects();
-        OnlyUndoLast(false);
+        GameState.OnAnimationStartEvent(undoDur);
+        OnlyUndoLast();
         Debug.Log("skipped old commands count after undos : " + skippedOldCommands.Count);
     }
     
@@ -462,7 +468,7 @@ public class GameManager : MonoBehaviour{
 
             ChangeCommand changeCommand = new ChangeCommand(this, null, previousTarget, target);
             changeCommand.isPermanent = item.isPermanent;
-            changeCommand.Execute();
+            changeCommand.Execute(commandDur);
             //oldCommands.Add(changeCommand);
             //unlockPadlock.affectedCommands.Add(changeCommand);
             //ChangeCommand(Commands.UnlockPadlock, LayerMask.GetMask("Node"), 0, ItemType.Padlock);

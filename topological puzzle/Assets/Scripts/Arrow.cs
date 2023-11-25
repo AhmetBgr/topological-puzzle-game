@@ -53,16 +53,18 @@ public class Arrow : MonoBehaviour{
     }
 
     void OnEnable(){
-        Node.OnNodeRemove += ChangeDirIfLinkedToStar;
-        Node.OnNodeAdd += UndoChangeDirIfLinkedToStar;
+        //Node.OnNodeRemove += ChangeDirIfLinkedToStar;
+        RemoveNode.OnExecute += ChangeDirIfLinkedToStar;
+        //Node.OnNodeAdd += UndoChangeDirIfLinkedToStar;
 
         GameManager.OnCurCommandChange += CheckIfSuitable;
         LevelManager.OnLevelLoad += GetOnTheLevel;
     }
 
     void OnDisable(){
-        Node.OnNodeRemove -= ChangeDirIfLinkedToStar;
-        Node.OnNodeAdd -= UndoChangeDirIfLinkedToStar;
+        //Node.OnNodeRemove -= ChangeDirIfLinkedToStar;
+        RemoveNode.OnExecute -= ChangeDirIfLinkedToStar;
+        //Node.OnNodeAdd -= UndoChangeDirIfLinkedToStar;
 
         GameManager.OnCurCommandChange -= CheckIfSuitable;
         LevelManager.OnLevelLoad -= GetOnTheLevel;
@@ -88,15 +90,18 @@ public class Arrow : MonoBehaviour{
     }
 
     // Changes direction on any other node removed if the starting node of this arrow is a star node
-    private void ChangeDirIfLinkedToStar(GameObject removedNode)
+    private void ChangeDirIfLinkedToStar(GameObject node, RemoveNode command)
     {
-        if (removedNode == startingNode) return;
-        if(startingNode.CompareTag("HexagonNode") || destinationNode.CompareTag("HexagonNode")){
+        if (node == startingNode) return;
+        if (command.isRewindCommand) return;
+
+        if (startingNode.CompareTag("HexagonNode") || destinationNode.CompareTag("HexagonNode")){
             if (!(startingNode.CompareTag("HexagonNode") && destinationNode.CompareTag("HexagonNode")))
             {
                 ChangeArrowDir changeDirCommand = new ChangeArrowDir(gameManager, gameObject, false);
-                changeDirCommand.Execute();
-                changeDirCommands.Add(changeDirCommand);
+                changeDirCommand.Execute(gameManager.commandDur);
+                command.affectedCommands.Add(changeDirCommand);
+                //changeDirCommands.Add(changeDirCommand);
             } 
         }
     }
@@ -113,17 +118,17 @@ public class Arrow : MonoBehaviour{
             if (!(startingNode.CompareTag("HexagonNode") && destinationNode.CompareTag("HexagonNode")))
             {
                 ChangeArrowDir lastChangeDirCommand = changeDirCommands[changeDirCommands.Count - 1];
-                lastChangeDirCommand.Undo(skipPermanent);
+                lastChangeDirCommand.Undo(gameManager.undoDur, skipPermanent);
                 changeDirCommands.Remove(lastChangeDirCommand);
             } 
         }
     }
     
-    public void Remove(){ //GameObject node
+    public void Remove(float dur){ //GameObject node
         LevelManager.ChangeArrowCount(-1);
         destinationNode.GetComponent<Node>().RemoveFromArrowsToThisNodeList(gameObject);
         startingNode.GetComponent<Node>().RemoveFromArrowsFromThisNodeList(gameObject);
-        RemoveCor = DisappearAnim(0.6f, onCompleteCallBack: () =>
+        RemoveCor = DisappearAnim(dur, onCompleteCallBack: () =>
         {
             DisableObject();
         });
@@ -145,7 +150,7 @@ public class Arrow : MonoBehaviour{
         }*/
     }
 
-    public void Add(){//GameObject node
+    public void Add(float dur){//GameObject node
         
         /*if(node == startingNode && isPermanent){ 
             gameObject.SetActive(false);
@@ -156,7 +161,7 @@ public class Arrow : MonoBehaviour{
             StopCoroutine(RemoveCor);
         destinationNode.GetComponent<Node>().AddToArrowsToThisNodeList(gameObject);
         startingNode.GetComponent<Node>().AddToArrowsFromThisNodeList(gameObject);
-        StartCoroutine(AppearAnim(0.4f, 0.4f, () => {
+        StartCoroutine(AppearAnim(dur/2, dur/2, () => {
             LevelManager.ChangeArrowCount(+1);
         }));
         
@@ -206,13 +211,13 @@ public class Arrow : MonoBehaviour{
 
     public void ChangeDirOnUndo(GameObject arrow){
         if(isPermanent) return;
-        ChangeDir(); //arrow
+        ChangeDir(0.5f); //arrow
     }
 
     public void ChangeDirSubscriber(GameObject arrow){
         //if(isPermanent){return;}
 
-        ChangeDir(); //arrow
+        ChangeDir(0.5f); //arrow
 
        /* if(isMagical){
             ChangeDir(gameObject, 0.8f);
@@ -232,7 +237,7 @@ public class Arrow : MonoBehaviour{
         }   
     }
 
-    public void ChangeDir(float delay = 0f){ //GameObject arrow, 
+    public void ChangeDir(float dur, float delay = 0f){ //GameObject arrow, 
         //if(arrow != gameObject) return;
 
         col.enabled = false;
@@ -261,10 +266,10 @@ public class Arrow : MonoBehaviour{
         destinationNode = temp;
 
         BeforeChangeEvent();
-        
-        StartCoroutine(DisappearAnim(0.4f, delay, onCompleteCallBack : () => {
+        delay = dur == 0 ? 0 : delay;
+        StartCoroutine(DisappearAnim(dur/2, delay, onCompleteCallBack : () => {
             InvertPoints();
-            StartCoroutine(AppearAnim(0.4f));
+            StartCoroutine(AppearAnim(dur/2));
             OnChangedEvent();
             //col.enabled = true;
         }));
@@ -290,7 +295,8 @@ public class Arrow : MonoBehaviour{
 
 
             while (pos != startPosition) {
-                float t = (Time.time - startTime) / segmentDuration ;
+                 
+                float t = segmentDuration == 0 ? 1 : (Time.time - startTime) / segmentDuration ;
                 //Debug.Log("here3");
                 pos = Vector3.Lerp (endPosition, startPosition, t) ;
                 Vector3 pos2 = Vector3.zero;
@@ -324,9 +330,10 @@ public class Arrow : MonoBehaviour{
         head.transform.localScale = Vector3.zero;
         head.transform.position = linePoints[0];
         //transform.position = new Vector3(0f, -2000f, 0f);
-        float dur = delay == 0f ?  0.3f : delay;
+        delay = duration == 0 ? 0 : delay;
+        float dur = delay == 0f ? duration/2 : delay;
         //transform.DOMove(Vector3.zero, 0f).SetDelay(delay);
-        head.transform.DOScale(Vector3.one, dur).SetDelay(0.1f);
+        head.transform.DOScale(Vector3.one, dur).SetDelay(delay);
         
         lr.enabled = false;
 
@@ -358,7 +365,7 @@ public class Arrow : MonoBehaviour{
 
             while (pos != endPosition) {
 
-                float t = (Time.time - startTime) / segmentDuration ;
+                float t = segmentDuration == 0 ? 1 : (Time.time - startTime) / segmentDuration ;
                 pos = Vector3.Lerp (startPosition, endPosition, t) ;
 
                 // animate all other points except point at index i

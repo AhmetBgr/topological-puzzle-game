@@ -12,7 +12,7 @@ public class SetItemPermanent : Command
         this.gameManager = gameManager;
     }
 
-    public override void Execute()
+    public override void Execute(float dur)
     {
         executionTime = gameManager.timeID;
 
@@ -20,7 +20,7 @@ public class SetItemPermanent : Command
 
     }
 
-    public override bool Undo(bool skipPermanent = true)
+    public override bool Undo(float dur, bool skipPermanent = true)
     {
         item.ChangePermanent(false);
         return false;

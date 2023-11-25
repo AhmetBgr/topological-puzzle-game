@@ -31,7 +31,7 @@ public class ChangeCommand : Command
     
     public bool ChangeCommandOnNodeRemove(GameObject affectedObject, ItemManager itemManager){
         Node node = affectedObject.GetComponent<Node>();
-
+        float dur = 0.5f;
         if(affectedObject.CompareTag("SquareNode")) {
             if(LevelManager.arrowCount <= 0){ return false; }
 
@@ -39,7 +39,7 @@ public class ChangeCommand : Command
             if (commandOwner != null)
             {
                 transformToBasicNode = new TransformToBasicNode(gameManager, commandOwner);
-                transformToBasicNode.Execute();
+                transformToBasicNode.Execute(dur);
             }
 
             gameManager.ChangeCommand(Commands.ChangeArrowDir, LayerMask.GetMask("Arrow"));
@@ -52,7 +52,7 @@ public class ChangeCommand : Command
             if (commandOwner != null)
             {
                 transformToBasicNode = new TransformToBasicNode(gameManager, commandOwner);
-                transformToBasicNode.Execute();
+                transformToBasicNode.Execute(dur);
             }
 
             gameManager.ChangeCommand(Commands.SwapNodes, LayerMask.GetMask("Node"), levelEditorBypass: true);
@@ -62,19 +62,19 @@ public class ChangeCommand : Command
         return false;
     }
 
-    public override void Execute()
+    public override void Execute(float dur)
     {
         executionTime = gameManager.timeID;
 
         gameManager.ChangeCommand(target.nextCommand, target.targetLM, target.targetIndegree, target.itemType);
-        gameManager.paletteSwapper.ChangePalette(target.palette, 0.2f);
+        gameManager.paletteSwapper.ChangePalette(target.palette, dur);
 
         if (OnExecute != null){
             OnExecute();
         }
     }
 
-    public override bool Undo(bool skipPermanent = true)
+    public override bool Undo(float dur, bool skipPermanent = true)
     {
         if (isPermanent && skipPermanent)
         {
@@ -90,18 +90,19 @@ public class ChangeCommand : Command
             }
         }
 
+        //float delay = playAnim ? 1f : 0;
         gameManager.ChangeCommand(previousTarget.nextCommand, previousTarget.targetLM, 
             previousTarget.targetIndegree, previousTarget.itemType);
-        gameManager.paletteSwapper.ChangePalette(previousTarget.palette, 0.2f);
+        gameManager.paletteSwapper.ChangePalette(previousTarget.palette, dur);
 
         if (transformToBasicNode != null)
         {
-            transformToBasicNode.Undo();
+            transformToBasicNode.Undo(dur);
             transformToBasicNode = null;
         }
         for (int i = affectedCommands.Count -1; i >= 0; i--)
         {
-            affectedCommands[i].Undo(skipPermanent);
+            affectedCommands[i].Undo(dur, skipPermanent);
         }
      
         if(OnUndo != null){

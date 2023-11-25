@@ -20,18 +20,20 @@ public class SwapNodes : Command
         this.selectedObjects.AddRange(selectedObjects);
     }
 
-    public override void Execute()
+    public override void Execute(float dur)
     {
         executionTime = gameManager.timeID;
 
         // Swap postions between two nodes
         //commandOwner.TransformIntoBasic();
-        itemManager.itemContainer.RemoveItem(commandOwner);
+        itemManager.itemContainer.RemoveItem(commandOwner, dur);
         NodeSwapper nodeSwapper = commandOwner.GetComponent<NodeSwapper>();
         nodeSwapper.randomSpriteColor.enabled = false;
-        commandOwner.transform.DOMoveY(commandOwner.transform.position.y + 2f, 0.5f);
-        commandOwner.GetComponent<NodeSwapper>().itemSR.DOFade(0f, 0.3f).SetDelay(0.2f);
-        SwapNodesFunc(selectedObjects);
+        commandOwner.transform.DOMoveY(commandOwner.transform.position.y + 2f, dur);
+        commandOwner.GetComponent<NodeSwapper>().itemSR.DOFade(0f, dur * 3/5)
+            .SetDelay(dur * 2/5)
+            .OnComplete(() => { commandOwner.gameObject.SetActive(false); });
+        SwapNodesFunc(selectedObjects, dur);
 
         for (int i = 0; i < selectedObjects.Count; i++)
         {
@@ -39,17 +41,8 @@ public class SwapNodes : Command
         }
     }
 
-    public override bool Undo(bool skipPermanent = true)
+    public override bool Undo(float dur, bool skipPermanent = true)
     {
-        itemManager.itemContainer.AddItem(commandOwner, -1);
-        //commandOwner.transform.DOMoveY(commandOwner.transform.position.y + 2f, 0.5f);
-        NodeSwapper nodeSwapper = commandOwner.GetComponent<NodeSwapper>();
-        nodeSwapper.randomSpriteColor.enabled = false;
-        nodeSwapper.itemSR.DOFade(1f, 0.3f).OnComplete(() => {
-            if (nodeSwapper.isPermanent)
-                nodeSwapper.randomSpriteColor.enabled = true;
-        });
-
         //commandOwner.transform.DOScale(1f, 0.3f).SetEase(Ease.InOutCubic);
         // Swap postions between two nodes
         //commandOwner.TransformBackToDef();
@@ -59,7 +52,7 @@ public class SwapNodes : Command
 
         if ((commandOwner.isPermanent |  node1.isPermanent | node2.isPermanent) && skipPermanent)
         {
-            gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, 0.2f);
+            gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, dur);
             gameManager.ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"), 0);
             InvokeOnUndoSkipped(this);
             return true;
@@ -71,17 +64,29 @@ public class SwapNodes : Command
                 gameManager.RemoveFromSkippedOldCommands(this);
             }
         }
-        SwapNodesFunc(affectedObjects);
-        
-        gameManager.paletteSwapper.ChangePalette(gameManager.swapNodePalette, 0.2f);
-        gameManager.ChangeCommand(Commands.SwapNodes, LayerMask.GetMask("Node"), targetIndegree: -1);
 
+        NodeSwapper nodeSwapper = commandOwner.GetComponent<NodeSwapper>();
+        commandOwner.gameObject.SetActive(true);
+        itemManager.itemContainer.AddItem(commandOwner, -1, dur);
+        //commandOwner.transform.DOMoveY(commandOwner.transform.position.y + 2f, 0.5f);
+
+
+        nodeSwapper.randomSpriteColor.enabled = false;
+        nodeSwapper.itemSR.DOFade(1f, dur).OnComplete(() => {
+            if (nodeSwapper.isPermanent)
+                nodeSwapper.randomSpriteColor.enabled = true;
+        });
+
+        SwapNodesFunc(affectedObjects, dur);
+        
+        gameManager.paletteSwapper.ChangePalette(gameManager.swapNodePalette, dur);
+        gameManager.ChangeCommand(Commands.SwapNodes, LayerMask.GetMask("Node"), targetIndegree: -1);
 
         return false;
     }
 
 
-    void SwapNodesFunc(List<GameObject> selectedObjects)
+    void SwapNodesFunc(List<GameObject> selectedObjects, float dur)
     {
         Node node1 = selectedObjects[0].GetComponent<Node>();
         Node node2 = selectedObjects[1].GetComponent<Node>();
@@ -133,29 +138,29 @@ public class SwapNodes : Command
             arrow.destinationNode = node1.gameObject;
         }
 
-        float dur = 0.4f;
+        //float dur = 0.4f;
         Vector3 tempPos = node1.transform.localPosition;
 
         Sequence sequence1 = DOTween.Sequence();
-        sequence1.SetDelay(0.2f);
+        sequence1.SetDelay(dur * 0.5f/5f);
         sequence1.Append(
-            node1.transform.DOScale(0, dur).SetEase(Ease.InBack).OnComplete(() => {
+            node1.transform.DOScale(0, dur * 2.2f/5f).SetEase(Ease.InBack).OnComplete(() => {
                 node1.Deselect(0f);
                 node1.transform.localPosition = node2.transform.localPosition;
                 node1.itemController.itemContainer.FindContainerPos();
             })
         );
-        sequence1.Append(node1.transform.DOScale(1, dur).SetEase(Ease.OutBack));
+        sequence1.Append(node1.transform.DOScale(1, dur * 2.2f/5f).SetEase(Ease.OutBack));
 
         Sequence sequence2 = DOTween.Sequence();
-        sequence2.SetDelay(0.2f);
+        sequence2.SetDelay(dur * 0.6f/5f);
         sequence2.Append(
-            node2.transform.DOScale(0, dur).SetEase(Ease.InBack).OnComplete(() => {
+            node2.transform.DOScale(0, dur * 2.2f/5f).SetEase(Ease.InBack).OnComplete(() => {
                 node2.Deselect(0f);
                 node2.transform.localPosition = tempPos;
                 node2.itemController.itemContainer.FindContainerPos();
             })
         );
-        sequence2.Append(node2.transform.DOScale(1, dur).SetEase(Ease.OutBack));
+        sequence2.Append(node2.transform.DOScale(1, dur * 2.2f/5f).SetEase(Ease.OutBack));
     }
 }

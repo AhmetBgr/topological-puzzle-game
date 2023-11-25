@@ -27,7 +27,7 @@ public class Node : MonoBehaviour
     private Vector3 initalScale;
     //private Color initialColor;
     [HideInInspector] public Sprite defSprite;
-    private GameManager gameManager;
+    protected GameManager gameManager;
     //private Material material;
     public Collider2D col;
     private Tween disappearTween;
@@ -107,13 +107,15 @@ public class Node : MonoBehaviour
 
     private void OnMouseUp()
     {
+        if (GameState.gameState == GameState_EN.inMenu) return;
+
         if (itemController.hasPadLock && gameManager.curCommand == Commands.RemoveNode)
         {
             transform.DOShakePosition(0.5f, strength : 0.2f);
         }
     }
 
-    public void RemoveFromGraph( GameObject nodeToRemove ){
+    public void RemoveFromGraph( GameObject nodeToRemove, float dur, float delay = 0f){
         // Checks if selected node matches with current game object
         if(nodeToRemove != gameObject) return;
         
@@ -128,23 +130,19 @@ public class Node : MonoBehaviour
             if(OnNodeRemove != null){
                 OnNodeRemove(gameObject); 
             }
-            
-            float delay = 0f;
-            if (arrowsFromThisNode.Count > 0 || itemController.hasPadLock)
-                delay = 0.5f;
-
-            DisappearAnim(0.5f, delay, () => gameObject.SetActive(false));
+            //dur -= delay;
+            DisappearAnim(dur, delay, () => gameObject.SetActive(false));
         }
         else{
             // Shows negative feedback
-            transform.DOShakePosition(0.5f, 0.1f).OnComplete( () => 
+            transform.DOShakePosition(dur, 0.1f).OnComplete( () => 
             {
                 col.enabled = true; 
             });
         }
     }
 
-    public void AddToGraph(GameObject affectedNode, bool skipPermanent = true){
+    public void AddToGraph(GameObject affectedNode,float dur, bool skipPermanent = true){
         //if(isMagical) return;
 
         if(affectedNode == gameObject){
@@ -157,7 +155,7 @@ public class Node : MonoBehaviour
             if(OnNodeAdd != null){
                 OnNodeAdd(gameObject, skipPermanent); //gameObject
             }
-            AppearAnim(0.4f, OnComplete : () => {
+            AppearAnim(dur, OnComplete : () => {
                 LevelManager.ChangeNodeCount(+1);
             });
         }

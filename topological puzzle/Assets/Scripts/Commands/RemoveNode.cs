@@ -26,7 +26,7 @@ public class RemoveNode : Command
         this.obj = obj;
     }
 
-    public override void Execute()
+    public override void Execute(float dur)
     {
         executionTime = gameManager.timeID;
         affectedObjects.Add(obj);
@@ -36,14 +36,14 @@ public class RemoveNode : Command
         ItemController itemController = node.itemController;
 
 
-        itemController.GetObtainableItems(node.gameObject, this);
-        node.RemoveFromGraph(obj);
+        bool hasArrow = false;
 
         if(removeArrows.Count > 0)
         {
             for (int i = removeArrows.Count - 1; i >= 0; i--)
             {
-                removeArrows[i].Execute();
+                removeArrows[i].Execute(dur/2);
+                hasArrow = true;
             }
         }
         else
@@ -53,16 +53,21 @@ public class RemoveNode : Command
                 GameObject arrow = node.arrowsFromThisNode[i];
 
                 RemoveArrow removeArrow = new RemoveArrow(arrow.GetComponent<Arrow>(), gameManager);
-                removeArrow.Execute();
+                removeArrow.Execute(dur/2);
                 removeArrows.Add(removeArrow);
+                hasArrow = true;
             }
         }
 
+        itemController.GetObtainableItems(node.gameObject, this, dur);
+        //float dur = playAnim ? 0.5f : 0.1f;
+        float nodeRemoveDur = hasArrow ? dur / 2 : dur;
+        node.RemoveFromGraph(obj, nodeRemoveDur, delay: dur - nodeRemoveDur);
 
         for (int i = affectedCommands.Count - 1; i >= 0; i--)
         {
             affectedCommands[i].isRewindCommand = true;
-            affectedCommands[i].Execute();
+            affectedCommands[i].Execute(dur);
             affectedCommands[i].isRewindCommand = false;
         }
 
@@ -74,9 +79,9 @@ public class RemoveNode : Command
         }
     }
 
-    public override bool Undo(bool skipPermanent = true)
+    public override bool Undo(float dur, bool skipPermanent = true)
     {
-        gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, 0.2f);
+        gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, dur);
 
         Node node = affectedObjects[0].GetComponent<Node>();
         ItemController itemController = node.itemController;
@@ -98,23 +103,22 @@ public class RemoveNode : Command
         {
             item.SetActive(true);
         }
-
-        node.AddToGraph(affectedObjects[0], skipPermanent);
+        //float dur = playAnim ? 0.5f : 0.1f;
+        node.AddToGraph(affectedObjects[0], dur, skipPermanent);
         foreach (var removeArrow in removeArrows)
         {
-            removeArrow.Undo(skipPermanent);
+            removeArrow.Undo(dur, skipPermanent);
         }
         //removeArrows.Clear();
 
         for (int i = affectedCommands.Count - 1; i >= 0; i--)
         {
-            affectedCommands[i].Undo(skipPermanent);
+            affectedCommands[i].Undo(dur, skipPermanent);
         }
-        itemManager.itemContainer.FixItemPositions(setDelayBetweenFixes: true);
-        itemController.itemContainer.FixItemPositions(setDelayBetweenFixes: true);
+        itemManager.itemContainer.FixItemPositions(dur, setDelayBetweenFixes: true);
+        itemController.itemContainer.FixItemPositions(dur, setDelayBetweenFixes: true);
 
-
-        gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, 0.2f);
+        gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, dur);
         gameManager.ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"), 0);
 
         if (OnUndo != null)
