@@ -2109,7 +2109,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &134955530
 RectTransform:
   m_ObjectHideFlags: 0
@@ -22345,6 +22345,90 @@ RectTransform:
   m_AnchoredPosition: {x: -1.63, y: -36.51}
   m_SizeDelta: {x: 339.78, y: 293.95}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &922666563
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 922666565}
+  - component: {fileID: 922666564}
+  m_Layer: 0
+  m_Name: Grid
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!212 &922666564
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 922666563}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 0f84cc44ec8d5d74c8d9c5c4ede2eb9b, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 147155919
+  m_SortingLayer: -2
+  m_SortingOrder: -1
+  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 2
+  m_Size: {x: 20, y: 10}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
+--- !u!4 &922666565
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 922666563}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 17
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &927411801
 GameObject:
   m_ObjectHideFlags: 0
@@ -25259,7 +25343,12 @@ MonoBehaviour:
   panel: {fileID: 1093102613}
   gameplayPanel: {fileID: 932178249}
   curLevelInEditing: {fileID: 0}
-  levelBeforeTesting: {fileID: 0}
+  initialLevel:
+    levelName: 
+    nodes: []
+    arrows: []
+    nodeCount: 0
+    arrowCount: 0
   levelsDropdownHandler: {fileID: 1805724376}
   arrow: {fileID: 282529941782624232, guid: 2e036caab3ed378448a5e76e59c7b573, type: 3}
   basicNode: {fileID: 765830797248088564, guid: a353f47a4118ad944a99d7334dd1c593, type: 3}
@@ -29138,7 +29227,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1372831891
 RectTransform:
   m_ObjectHideFlags: 0
@@ -29146,14 +29235,14 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1372831890}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0.38268343, w: 0.92387956}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1954240330}
   m_RootOrder: -1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 45}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
@@ -29179,7 +29268,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 6074db34addf19147b61e266a0af076f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 8fac55fff4ce5fa40a7b2efefc0e617a, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -36478,7 +36567,12 @@ MonoBehaviour:
   panel: {fileID: 0}
   gameplayPanel: {fileID: 0}
   curLevelInEditing: {fileID: 0}
-  levelBeforeTesting: {fileID: 0}
+  initialLevel:
+    levelName: 
+    nodes: []
+    arrows: []
+    nodeCount: 0
+    arrowCount: 0
   levelsDropdownHandler: {fileID: 0}
   arrow: {fileID: 282529941782624232, guid: 2e036caab3ed378448a5e76e59c7b573, type: 3}
   basicNode: {fileID: 765830797248088564, guid: a353f47a4118ad944a99d7334dd1c593, type: 3}
@@ -37596,7 +37690,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cursor: {fileID: 1954240330}
   snapToGrid: 0
-  gridSize: 0.5
+  gridSize: 0.25
   pos: {x: 0, y: 0, z: 0}
   worldPos: {x: 0, y: 0, z: 0}
   mouseWorldPos: {x: 0, y: 0, z: 0}
