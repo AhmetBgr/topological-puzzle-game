@@ -36,8 +36,7 @@ public class TransformToBasicNode : Command
     {
         if (node.isPermanent && isRewinding)
         {
-            gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, dur);
-            gameManager.ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"), 0);
+            gameManager.ChangeCommand(Commands.RemoveNode);
             InvokeOnUndoSkipped(this);
             return true;
         }
@@ -48,8 +47,7 @@ public class TransformToBasicNode : Command
                 gameManager.RemoveFromSkippedOldCommands(this);
             }
         }
-        gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, dur);
-        gameManager.ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"), 0);
+        gameManager.ChangeCommand(Commands.RemoveNode);
         node.TransformBackToDef();
 
         if (OnUndo != null)

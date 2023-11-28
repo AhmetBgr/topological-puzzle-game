@@ -36,14 +36,11 @@ public class NodeSwapper : Item
 
     public override void Use()
     {
-        Target target = new Target(Commands.SwapNodes, LayerMask.GetMask("Node"), gameManager.swapNodePalette, targetIndegree: -1);
 
-        Target previousTarget = new Target(Commands.RemoveNode, LayerMask.GetMask("Node"), gameManager.defPalette);
-
-        ChangeCommand changeCommand = new ChangeCommand(gameManager, null, previousTarget, target);
+        ChangeCommand changeCommand = new ChangeCommand(gameManager, null, gameManager.curCommand, Commands.SwapNodes);
         changeCommand.isPermanent = isPermanent;
         changeCommand.Execute(gameManager.commandDur);
-        HighlightManager.instance.Search(HighlightManager.instance.onlyNodeSearch);
+        //HighlightManager.instance.Search(HighlightManager.instance.onlyNodeSearch);
         //gameManager.AddToOldCommands(changeCommand);
     }
 

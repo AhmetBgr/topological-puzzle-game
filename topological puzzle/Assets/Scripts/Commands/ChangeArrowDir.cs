@@ -11,8 +11,8 @@ public class ChangeArrowDir : Command
     private Arrow arrow;
     //private TransformToBasicNode transformToBasicNode;
     private GameManager gameManager;
-    private bool wasLocked = false;
     private bool isCommandOwnerPermanent = false;
+    private bool isSideCommand;
 
     public delegate void OnExecuteDelegate(GameObject arrow); //, GameObject commandOwner = null
     public static event OnExecuteDelegate OnExecute;
@@ -20,11 +20,12 @@ public class ChangeArrowDir : Command
     public delegate void OnUndoDelegate(GameObject arrow);
     public static event OnUndoDelegate OnUndo;
 
-    public ChangeArrowDir(GameManager gameManager, GameObject arrowObj, bool isCommandOwnerPermanent)
+    public ChangeArrowDir(GameManager gameManager, GameObject arrowObj, bool isCommandOwnerPermanent, bool isSideCommand = false)
     {
         this.arrowObj = arrowObj;
         this.gameManager = gameManager;
         this.isCommandOwnerPermanent = isCommandOwnerPermanent;
+        this.isSideCommand = isSideCommand;
     }
 
     public override void Execute(float dur, bool isRewinding = false)
@@ -34,9 +35,7 @@ public class ChangeArrowDir : Command
         affectedObjects.Add(arrowObj);
 
         arrow = arrowObj.GetComponent<Arrow>();
-        //float dur = playAnim ? 0.5f : 0.1f;
         arrow.ChangeDir(dur);
-        HighlightManager.instance.Search(HighlightManager.instance.removeNodeSearch);
 
         if (OnExecute != null)
         {
@@ -46,13 +45,10 @@ public class ChangeArrowDir : Command
 
     public override bool Undo(float dur, bool isRewinding = false)
     {
-        if (!isCommandOwnerPermanent | !isRewinding)
+        if ((!isCommandOwnerPermanent | !isRewinding) && !isSideCommand)
         {
-            gameManager.paletteSwapper.ChangePalette(gameManager.changeArrowDirPalette, dur);
-            gameManager.ChangeCommand(Commands.ChangeArrowDir, LayerMask.GetMask("Arrow"));
-            
+            gameManager.ChangeCommand(Commands.ChangeArrowDir);
         }
-        HighlightManager.instance.Search(HighlightManager.instance.onlyArrowSearch);
         /*if(!isCommandOwnerPermanent | skipPermanent)
         {
             foreach (var item in affectedCommands)

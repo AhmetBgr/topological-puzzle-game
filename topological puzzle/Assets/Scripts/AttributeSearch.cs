@@ -43,6 +43,7 @@ public class LayerSearch : AttributeSearch
     public override bool Check(Arrow arrow)
     {
         GameObject obj = arrow.gameObject;
+        Debug.Log("checking arrow layer match: target: " + layerMask.value);
         return ((1 << obj.layer) & layerMask) != 0;
     }
     public override bool Check(Item item)
@@ -159,7 +160,7 @@ public class IndegreeSearch : AttributeSearch
     }
     public override bool Check(Node node)
     {
-        indegree = indegree == -1 ? node.indegree : indegree;
+        //indegree = indegree == -1 ? node.indegree : indegree;
         //minIndegree = minIndegree == -1 ? node.indegree : minIndegree;
         //maxIndegree = maxIndegree == -1 ? node.indegree : maxIndegree;
         return node.indegree == indegree;

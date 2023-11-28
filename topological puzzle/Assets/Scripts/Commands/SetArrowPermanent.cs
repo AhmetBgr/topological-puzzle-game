@@ -25,8 +25,6 @@ public class SetArrowPermanent : Command
         useItem.Execute(dur);
 
         arrow.ChangePermanent(true);
-        HighlightManager.instance.Search(HighlightManager.instance.removeNodeSearch);
-
     }
 
     public override bool Undo(float dur, bool isRewinding = false)
@@ -53,15 +51,11 @@ public class SetArrowPermanent : Command
         HighlightManager highlightManager = HighlightManager.instance;
         if (item.isPermanent && isRewinding)
         {
-            gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, dur);
-            gameManager.ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"), 0);
-            highlightManager.Search(highlightManager.removeNodeSearch);
+            gameManager.ChangeCommand(Commands.RemoveNode);
         }
         else
         {
-            gameManager.paletteSwapper.ChangePalette(gameManager.brushPalette, dur);
-            gameManager.ChangeCommand(Commands.SetArrowPermanent, LayerMask.GetMask("Arrow"), targetPermanent: 0);
-            highlightManager.Search(highlightManager.setArrowPermanentSearch);
+            gameManager.ChangeCommand(Commands.SetArrowPermanent);
         }
         return false;
     }

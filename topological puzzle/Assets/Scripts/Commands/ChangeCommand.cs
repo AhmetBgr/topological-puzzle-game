@@ -13,20 +13,20 @@ public class ChangeCommand : Command
     public static event OnUndoDelegate OnUndo;
 
     private GameManager gameManager;
-    private Target previousTarget;
-    private Target target;
+    private Commands previousCommand;
+    private Commands command;
     private Node commandOwner;
     private TransformToBasicNode transformToBasicNode;
 
     public bool isPermanent = false;
     
-    public ChangeCommand(GameManager gameManager, Node commandOwner, Target previousTarget, Target target) 
+    public ChangeCommand(GameManager gameManager, Node commandOwner, Commands previousCommand, Commands command) 
     {
         this.gameManager = gameManager;
         this.commandOwner = commandOwner;
 
-        this.previousTarget = previousTarget;
-        this.target = target;
+        this.previousCommand = previousCommand;
+        this.command = command;
     }
     
     public bool ChangeCommandOnNodeRemove(GameObject affectedObject, ItemManager itemManager){
@@ -42,8 +42,7 @@ public class ChangeCommand : Command
                 transformToBasicNode.Execute(dur);
             }
 
-            gameManager.ChangeCommand(Commands.ChangeArrowDir, LayerMask.GetMask("Arrow"));
-            gameManager.paletteSwapper.ChangePalette(gameManager.changeArrowDirPalette, dur, 0.04f);
+            gameManager.ChangeCommand(Commands.ChangeArrowDir);
 
             return true;
         }
@@ -56,10 +55,9 @@ public class ChangeCommand : Command
                 transformToBasicNode.Execute(dur);
             }
 
-            gameManager.ChangeCommand(Commands.SwapNodes, LayerMask.GetMask("Node"), levelEditorBypass: true);
+            gameManager.ChangeCommand(Commands.SwapNodes);
             return true;
         }
-        gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, dur, 0.04f);
         return false;
     }
 
@@ -67,9 +65,8 @@ public class ChangeCommand : Command
     {
         executionTime = gameManager.timeID;
 
-        gameManager.ChangeCommand(target.nextCommand, target.targetLM, target.targetIndegree, target.itemType, targetPermanent: target.targetPermanent);
-        gameManager.paletteSwapper.ChangePalette(target.palette, dur, 0.04f);
-        //HighlightManager.instance.Search(HighlightManager.instance.onlyArrowSearch);
+        gameManager.ChangeCommand(command);
+
         if (OnExecute != null){
             OnExecute();
         }
@@ -90,10 +87,7 @@ public class ChangeCommand : Command
             }
         }
 
-        gameManager.ChangeCommand(previousTarget.nextCommand, previousTarget.targetLM, 
-            previousTarget.targetIndegree, previousTarget.itemType);
-        gameManager.paletteSwapper.ChangePalette(previousTarget.palette, dur);
-        HighlightManager.instance.Search(HighlightManager.instance.removeNodeSearch);
+        gameManager.ChangeCommand(previousCommand);
         if (transformToBasicNode != null)
         {
             transformToBasicNode.Undo(dur);

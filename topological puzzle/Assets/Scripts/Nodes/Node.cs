@@ -312,25 +312,23 @@ public class Node : MonoBehaviour
         nodeSprite.sprite = basicSprite;
         gameObject.tag = "BasicNode";
         
-        
-        
-        if (TryGetComponent(out RandomSpriteColor randomSpriteColor))
+        /*if (TryGetComponent(out RandomSpriteColor randomSpriteColor))
         {
             randomSpriteColor.sr.color = Color.white;
             randomSpriteColor.enabled = false;
             isPermanent = false;
             
-        }
+        }*/
     }
     public void TransformBackToDef(){
         nodeSprite.sprite = defSprite;
         gameObject.tag = defTag;
         
-        if (TryGetComponent(out RandomSpriteColor randomSpriteColor))
+        /*if (TryGetComponent(out RandomSpriteColor randomSpriteColor))
         {
             isPermanent = true;
             randomSpriteColor.enabled = true;
-        }
+        }*/
     }
 
     private void UpdateIndegree(int indegree){

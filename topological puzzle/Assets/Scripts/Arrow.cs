@@ -24,9 +24,17 @@ public class Arrow : MonoBehaviour{
 
     private IEnumerator widthAnim;
     private IEnumerator RemoveCor;
+    private IEnumerator highlightCor;
+    private Tween headScaleTween;
     public Vector3[] linePoints;
     private int pointsCount;
     private float defWidth = 0.05f;
+
+    private float time = 0;
+    private float t = 0;
+    private float dur = 1f;
+    float width = 0.15f;
+    private bool isSelectable = false;
 
     public delegate void BeforeChangeDelegate();
     public event BeforeChangeDelegate BeforeChange;
@@ -73,24 +81,52 @@ public class Arrow : MonoBehaviour{
         LevelManager.OnLevelLoad -= GetOnTheLevel;
     }
     void OnMouseEnter(){
-        if(widthAnim != null){
-            StopCoroutine(widthAnim);
-        }
+        isSelectable = false;
 
-        head.DOScale(Vector3.one * 1.6f, 0.2f);
-        widthAnim = ChangeWidth(defWidth + 0.1f, 0.2f);
-        
+        //KillWidthCor();
+
+        KillHighlightCor();
+        StopAllCoroutines();
+
+        widthAnim = ChangeWidth(defWidth + 0.1f, 0.1f);
         StartCoroutine(widthAnim);
+
+        highlightCor = arrowColorController.Highlight(arrowColorController.glowIntensityHigh, 0.1f);
     }
 
     void OnMouseExit(){
-        if(widthAnim != null){
-            StopCoroutine(widthAnim);
-        }
-        head.DOScale(Vector3.one, 0.2f);
-        widthAnim = ChangeWidth(defWidth, 0.2f);
-        StartCoroutine(ChangeWidth(defWidth, 0.2f));
+        isSelectable = true;
+
+        KillWidthCor();
+
+        KillHighlightCor();
+
+        //head.DOScale(Vector3.one, 0.2f);
+        widthAnim = ChangeWidth(defWidth, 0.1f);
+        StartCoroutine(ChangeWidth(defWidth, 0.1f));
     }
+
+    private void Update()
+    {
+        if (!isSelectable) return;
+
+        t += Time.deltaTime;
+        if (t >= dur)
+        {
+            t = 0;
+            width = lr.startWidth > defWidth ? defWidth : defWidth + 0.1f;
+            dur = UnityEngine.Random.Range(0.5f, 2f);
+            float glowIntensity = arrowColorController.curGlowIntensity == arrowColorController.glowIntensityHigh ?
+                arrowColorController.glowIntensityMedium : arrowColorController.glowIntensityHigh;
+            widthAnim = ChangeWidth(width, dur);
+            StartCoroutine(widthAnim);
+            highlightCor =  arrowColorController.Highlight(glowIntensity, dur);
+            //Debug.Log("should change width change coroutine, dur : " + dur + ", width: "+ width);
+            //Debug.Log("starts width: " + lr.startWidth);
+        }
+    }
+
+    
 
     // Changes direction on any other node removed if the starting node of this arrow is a star node
     private void ChangeDirIfLinkedToStar(GameObject node, RemoveNode command)
@@ -101,7 +137,7 @@ public class Arrow : MonoBehaviour{
         if (startingNode.CompareTag("HexagonNode") || destinationNode.CompareTag("HexagonNode")){
             if (!(startingNode.CompareTag("HexagonNode") && destinationNode.CompareTag("HexagonNode")))
             {
-                ChangeArrowDir changeDirCommand = new ChangeArrowDir(gameManager, gameObject, false);
+                ChangeArrowDir changeDirCommand = new ChangeArrowDir(gameManager, gameObject, false, true);
                 changeDirCommand.Execute(gameManager.commandDur);
                 command.affectedCommands.Add(changeDirCommand);
                 //changeDirCommands.Add(changeDirCommand);
@@ -109,7 +145,7 @@ public class Arrow : MonoBehaviour{
         }
     }
     
-    private void UndoChangeDirIfLinkedToStar(GameObject removedNode, bool skipPermanent)
+    /*private void UndoChangeDirIfLinkedToStar(GameObject removedNode, bool skipPermanent)
     {
         if (changeDirCommands.Count == 0) return;
         if (removedNode == startingNode)
@@ -125,7 +161,7 @@ public class Arrow : MonoBehaviour{
                 changeDirCommands.Remove(lastChangeDirCommand);
             } 
         }
-    }
+    }*/
     
     public void Remove(float dur){ //GameObject node
         LevelManager.ChangeArrowCount(-1);
@@ -222,36 +258,27 @@ public class Arrow : MonoBehaviour{
 
         ChangeDir(0.5f); //arrow
 
-       /* if(isMagical){
-            ChangeDir(gameObject, 0.8f);
-        }   */
     }
     public void Check(SearchTarget searchTarget)
     {
         if (searchTarget.CheckAll(this))
         {
-            arrowColorController.Highlight(arrowColorController.glowIntensityHigh, 1f);
+            //arrowColorController.Highlight(arrowColorController.glowIntensityHigh, 1f);
             col.enabled = true;
+            isSelectable = true;
+            dur = UnityEngine.Random.Range(0.2f, 2f);
+            t = 0;
         }
         else
         {
-            arrowColorController.Highlight(arrowColorController.glowIntensityMedium, 1f);
-            col.enabled = false;
-        }
-    }
-    private void CheckIfSuitable(LayerMask targetLM, int targetIndegree, ItemType itemType, int targetPermanent, bool bypass){
-        bool permanentCheck = targetPermanent <= -1 ? true : (isPermanent && targetPermanent == 1) | (!isPermanent && targetPermanent == 0);
+            isSelectable = false;
+            KillWidthCor();
+            KillHighlightCor();
 
-        if ( ( (((1<<gameObject.layer) & targetLM) != 0) && permanentCheck) || bypass){
-            // Highlight
-            arrowColorController.Highlight(arrowColorController.glowIntensityHigh, 1f);
-            col.enabled = true;
-        }
-        else{
-            // Not selectable
             arrowColorController.Highlight(arrowColorController.glowIntensityMedium, 1f);
+            StartCoroutine(ChangeWidth(defWidth, 1f));
             col.enabled = false;
-        }   
+        }
     }
 
     public void ChangeDir(float dur, float delay = 0f){ //GameObject arrow, 
@@ -291,7 +318,6 @@ public class Arrow : MonoBehaviour{
             //col.enabled = true;
         }));
     }
-
 
     private IEnumerator DisappearAnim(float duration, float delay = 0f, Action onCompleteCallBack = null){
         yield return new WaitForSeconds(delay);
@@ -391,8 +417,6 @@ public class Arrow : MonoBehaviour{
                     
                 }
                 head.position = pos; //lr.GetPosition(pointsCount -1)
-                
-
                 yield return null ;
             }
         }
@@ -402,12 +426,21 @@ public class Arrow : MonoBehaviour{
 
     private IEnumerator ChangeWidth(float targetWidth, float duration, float delay = 0f, Action OnComplete = null){
         //animatingWidth = true;
+        Vector3 endScale = targetWidth > defWidth ? Vector3.one * 1.5f : Vector3.one;
+        if(headScaleTween != null)
+        {
+            headScaleTween.Kill();
+        }
+
+        headScaleTween = head.DOScale(endScale , duration).SetDelay(delay);
+
         yield return new WaitForSeconds(delay);
 
         float initialTime = Time.time;
         float initialWidth = lr.startWidth;
-
-        while(lr.startWidth != targetWidth){
+        float time = 0;
+        while(time <= duration){
+            time += Time.deltaTime;
             float t = (Time.time - initialTime) / duration;
             float width = Mathf.Lerp(initialWidth, targetWidth, t);
             lr.startWidth = width;
@@ -555,6 +588,23 @@ public class Arrow : MonoBehaviour{
         }
 
         OnChangedEvent();
+    }
+
+    private void KillWidthCor()
+    {
+        if (widthAnim != null)
+        {
+            StopCoroutine(widthAnim);
+            widthAnim = null;
+        }
+    }
+    private void KillHighlightCor()
+    {
+        if (highlightCor != null)
+        {
+            arrowColorController.StopAllCoroutines();
+            highlightCor = null;
+        }
     }
     private void BeforeChangeEvent()
     {

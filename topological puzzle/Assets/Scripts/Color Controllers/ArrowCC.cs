@@ -21,7 +21,7 @@ public class ArrowCC : ColorController
     //[HideInInspector] public float glowIntensityLow = -3f;
     [HideInInspector] public float glowIntensityMedium;
     [HideInInspector] public float glowIntensityHigh;
-
+    [HideInInspector] public float curGlowIntensity;
     private void Awake()
     {
         if (defMaterial != null)
@@ -32,7 +32,7 @@ public class ArrowCC : ColorController
         material = lr.material;
         headMaterial = arrowHead.material;
         glowIntensityMedium = 0f;
-        glowIntensityHigh = 2.5f;
+        glowIntensityHigh = 4f;
 
         defPalette = FindObjectOfType<GameManager>().defPalette;
     }
@@ -81,23 +81,25 @@ public class ArrowCC : ColorController
 
     }
 
-    public void Highlight(float glowIntensity, float duration, float delay = 0f, Action OnComplete = null)
+    public IEnumerator Highlight(float glowIntensity, float duration, float delay = 0f, Action OnComplete = null)
     {
-        
-        StartCoroutine(_Highlight(glowIntensity, duration, delay, OnComplete));
+        IEnumerator highlight = _Highlight(glowIntensity, duration, delay, OnComplete);
+        StartCoroutine(highlight);
+        return highlight;
     }
     
     protected IEnumerator _Highlight(float glowIntensity, float duration, float delay = 0f, Action OnComplete = null)
     {
         yield return new WaitForSeconds(delay);
-
+        curGlowIntensity = glowIntensity;
         float initialTime = Time.time;
         Color curColor = material.GetColor("_Color");
 
         float factor = Mathf.Pow(2, glowIntensity);
         Color targetColor = new Color(1f*factor, 1f*factor, 1f*factor, 1f);
-
-        while(curColor != targetColor){
+        float time = 0;
+        while(time <= duration){
+            time += Time.deltaTime;
             float t = (Time.time - initialTime) / duration;
             Color color = Color.Lerp(curColor, targetColor, t);
             material.SetColor("_Color", color);

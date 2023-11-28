@@ -61,7 +61,7 @@ public class GameManager : MonoBehaviour{
     public int oldCommandCount = 0;
 
     void Start(){
-        ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"));
+        ChangeCommand(Commands.RemoveNode);
         highlightManager = HighlightManager.instance;
     }
 
@@ -112,18 +112,14 @@ public class GameManager : MonoBehaviour{
                     if (selectedObjects[0].CompareTag("SquareNode"))
                     {
                         isCommandOwnerPermanent = commandOwner.isPermanent;
-                        Target target = new Target(Commands.ChangeArrowDir, LayerMask.GetMask("Arrow"), changeArrowDirPalette);
 
-                        Target previousTarget = new Target(Commands.RemoveNode, LayerMask.GetMask("Node"), defPalette);
-
-                        ChangeCommand changeCommand = new ChangeCommand(this, commandOwner, previousTarget, target);
+                        ChangeCommand changeCommand = new ChangeCommand(this, commandOwner, curCommand, Commands.ChangeArrowDir);
                         changeCommand.isPermanent = commandOwner.isPermanent;
                         changeCommand.Execute(commandDur);
                         bool isCommandChanged = true;
                         TransformToBasicNode transformToBasicNode = new TransformToBasicNode(this, commandOwner);
                         transformToBasicNode.Execute(commandDur);
                         changeCommand.affectedCommands.Add(transformToBasicNode);
-                        HighlightManager.instance.Search(HighlightManager.instance.onlyArrowSearch);
                         //bool isCommandChanged = changeCommand.ChangeCommandOnNodeRemove(hit.transform.gameObject, itemManager);
 
                         if (isCommandChanged)
@@ -159,9 +155,7 @@ public class GameManager : MonoBehaviour{
                     command.Execute(commandDur);
 
                     AddToOldCommands(command);
-                    //paletteSwapper.ChangePalette(defPalette);
-                    ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"));
-                    paletteSwapper.ChangePalette(defPalette, 0.5f);
+                    ChangeCommand(Commands.RemoveNode);
                     selectedObjects.Clear();
                 }
                 else if(curCommand == Commands.SwapNodes){
@@ -185,16 +179,15 @@ public class GameManager : MonoBehaviour{
                         //rewindCount = 0;
                         //ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"));
                         
-                        StartCoroutine(ChangeCommandWithDelay(Commands.RemoveNode, LayerMask.GetMask("Node"), delay: 0.1f));
-                        paletteSwapper.ChangePalette(defPalette, 0.5f);
+                        StartCoroutine(ChangeCommandWithDelay(Commands.RemoveNode, 0.1f));
                         selectedObjects.Clear();
                     }
                     else if(selectedObjects.Count == 1)
                     {
                         Node node = selectedObjects[0].GetComponent<Node>();
+                        SearchTarget searchTarget = new SearchTarget(new List<AttributeSearch> { new NodeAdjecentNodeSearch(node) });
+                        HighlightManager.instance.Search(searchTarget);
                         node.Select(0.2f);
-
-                        highlightManager.Search(new SearchTarget(new List<AttributeSearch> { new NodeAdjecentNodeSearch(node) }));
                     }
                 }
                 else if (curCommand == Commands.UnlockPadlock)
@@ -209,8 +202,7 @@ public class GameManager : MonoBehaviour{
 
                     AddToOldCommands(unlockPadlock);
 
-                    ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"));
-                    paletteSwapper.ChangePalette(defPalette, 0.5f);
+                    ChangeCommand(Commands.RemoveNode);
                     selectedObjects.Clear();
                 }
                 else if (curCommand == Commands.SetArrowPermanent)
@@ -223,8 +215,7 @@ public class GameManager : MonoBehaviour{
 
                     AddToOldCommands(setArrowPermanent);
 
-                    ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"));
-                    paletteSwapper.ChangePalette(defPalette, 0.5f);
+                    ChangeCommand(Commands.RemoveNode);
                     selectedObjects.Clear();
                 }
                 //timeID++;
@@ -281,11 +272,42 @@ public class GameManager : MonoBehaviour{
         UpdateChangesCounter();
     }
 
-    public void ChangeCommand(Commands command, LayerMask targetLayerMask, int targetIndegree = 0,
-        ItemType itemType = ItemType.None, int targetPermanent= -1, bool levelEditorBypass = false
-    ){
+    public void ChangeCommand(Commands command){
         curCommand = command;
-        ChangeTargetLayer(targetLayerMask);
+        HighlightManager highlightManager = HighlightManager.instance;
+        
+        if (command == Commands.RemoveNode)
+        {
+            highlightManager.Search(highlightManager.removeNodeSearch);
+            paletteSwapper.ChangePalette(defPalette, 0.5f);
+            targetLM = LayerMask.GetMask("Node");
+        }
+        else if (command == Commands.SetArrowPermanent)
+        {
+            highlightManager.Search(highlightManager.setArrowPermanentSearch);
+            paletteSwapper.ChangePalette(brushPalette, 0.5f);
+            targetLM = LayerMask.GetMask("Arrow");
+        }
+        else if (command == Commands.SwapNodes)
+        {
+            highlightManager.Search(highlightManager.onlyNodeSearch);
+            paletteSwapper.ChangePalette(swapNodePalette, 0.5f);
+            targetLM = LayerMask.GetMask("Node");
+        }
+        else if (command == Commands.UnlockPadlock)
+        {
+            highlightManager.Search(highlightManager.unlockPadlockSearch);
+            paletteSwapper.ChangePalette(unlockPadlockPalette, 0.5f);
+            targetLM = LayerMask.GetMask("Node");
+        }
+        else if (command == Commands.ChangeArrowDir)
+        {
+            highlightManager.Search(highlightManager.onlyArrowSearch);
+            paletteSwapper.ChangePalette(changeArrowDirPalette, 0.5f);
+            targetLM = LayerMask.GetMask("Arrow");
+        }
+
+
         if (command == Commands.ChangeArrowDir)
         {
             //paletteSwapper.ChangePalette(changeArrowDirPalette);
@@ -299,50 +321,44 @@ public class GameManager : MonoBehaviour{
         }
         else
         {
-            //paletteSwapper.ChangePalette(defPalette);
             InfoIndicator.HideInfoText();
         }
     }
 
-    public IEnumerator ChangeCommandWithDelay(Commands command, LayerMask targetLayerMask, int targetIndegree = 0, float delay = 0){
+    public IEnumerator ChangeCommandWithDelay(Commands command, float delay){
         yield return new WaitForSeconds(delay);
-        ChangeCommand(command, targetLayerMask, targetIndegree);
+        ChangeCommand(command);
     }
     
     private bool ChangeCommandOnNodeRemove(GameObject affectedObject){
         //LayerMask targetLayerMask = LayerMask.GetMask("Node");
         //int targetIndegree = 0;
         if(affectedObject.CompareTag("BasicNode") || affectedObject.CompareTag("HexagonNode")){
-            ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"));
+            ChangeCommand(Commands.RemoveNode);
             return false;
         }
 
         if(affectedObject.CompareTag("SquareNode"))
         {
             if(LevelManager.arrowCount <= 0){
-                ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"));
+                ChangeCommand(Commands.RemoveNode);
                 return false;
             }
 
-            ChangeCommand(Commands.ChangeArrowDir, LayerMask.GetMask("Arrow"));
+            ChangeCommand(Commands.ChangeArrowDir);
             return true;
         }
 
         if(affectedObject.CompareTag("Arrow")){
-            ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"));
+            ChangeCommand(Commands.RemoveNode);
             return false;
         }
 
         if(affectedObject.CompareTag("SwapNode")){
-            ChangeCommand(Commands.SwapNodes, LayerMask.GetMask("Node"), levelEditorBypass: true);
+            ChangeCommand(Commands.SwapNodes);
             return true;
         }
         return false;
-
-        /*ChangeTargetLayer(targetLayerMask);
-        if(OnCurCommandChange != null){
-            OnCurCommandChange(targetLayerMask, targetIndegree, false);
-        }*/
     }
 
     private void ResetData(){
@@ -357,9 +373,7 @@ public class GameManager : MonoBehaviour{
 
         if (GameState.gameState == GameState_EN.inLevelEditor) return;
 
-        ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"));
-        paletteSwapper.ChangePalette(defPalette, 0.02f);
-        highlightManager.Search(highlightManager.removeNodeSearch);
+        ChangeCommand(Commands.RemoveNode);
     }
 
     public void AddToOldCommands(Command command, bool addToNonRewindCommands = true)
@@ -435,7 +449,7 @@ public class GameManager : MonoBehaviour{
         if (oldCommands.Count <= 0 ) return; //&& rewindCommands.Count <= 0
 
         DeselectObjects();
-        GameState.OnAnimationStartEvent(undoDur);
+        GameState.OnAnimationStartEvent(undoDur + 0.3f);
         OnlyUndoLast();
         Debug.Log("skipped old commands count after undos : " + skippedOldCommands.Count);
     }
@@ -454,12 +468,12 @@ public class GameManager : MonoBehaviour{
             yield return new WaitForSeconds(0.1f);
         }
 
-        ChangeCommand(Commands.None, LayerMask.GetMask("Node", "Arrow"), 0, levelEditorBypass : true);
+        ChangeCommand(Commands.None);
     }
 
     public void UseLastItem()
     {
-        Item item = itemManager.itemContainer.GetLastItem();
+        /*Item item = itemManager.itemContainer.GetLastItem();
         if (item == null) return;
 
         if (item.CompareTag("Key"))
@@ -468,18 +482,14 @@ public class GameManager : MonoBehaviour{
             Key key = item.GetComponent<Key>();
             //unlockPadlock = new UnlockPadlock(this, itemManager, commandOwner, key); //, Commands.UnlockPadlock, LayerMask.GetMask("Node")
 
-            Target target = new Target(Commands.UnlockPadlock, LayerMask.GetMask("Node"), unlockPadlockPalette, ItemType.Padlock);
-
-            Target previousTarget = new Target(Commands.RemoveNode, LayerMask.GetMask("Node"), defPalette);
-
-            ChangeCommand changeCommand = new ChangeCommand(this, null, previousTarget, target);
+            ChangeCommand changeCommand = new ChangeCommand(this, null, curCommand, Commands.UnlockPadlock);
             changeCommand.isPermanent = item.isPermanent;
             changeCommand.Execute(commandDur);
             //oldCommands.Add(changeCommand);
             //unlockPadlock.affectedCommands.Add(changeCommand);
             //ChangeCommand(Commands.UnlockPadlock, LayerMask.GetMask("Node"), 0, ItemType.Padlock);
             //paletteSwapper.ChangePalette(unlockPadlockPalette, 0.2f);
-        }
+        }*/
     }
 
     private void GetNodes()
@@ -538,26 +548,6 @@ public class GameManager : MonoBehaviour{
         rewindSequence.Kill();
         rewindImageParent.alpha = 1;
         rewindFinished = true;
-    }
-}
-public struct Target
-{
-    public Commands nextCommand;
-    public LayerMask targetLM;
-    public ItemType itemType;
-    public int targetIndegree;
-    public int targetPermanent; // -1 is any, 0 is non-permanet, 1 is permanent
-    public Palette palette;
-
-    public Target(Commands nextCommand, LayerMask targetLM, Palette palette,
-        ItemType itemType = ItemType.None, int targetIndegree = 0, int targetPermanent = -1)
-    {
-        this.nextCommand = nextCommand;
-        this.targetLM = targetLM;
-        this.targetIndegree = targetIndegree;
-        this.itemType = itemType;
-        this.palette = palette;
-        this.targetPermanent = targetPermanent;
     }
 }
 

@@ -60,7 +60,6 @@ public class UnlockPadlock : Command
             itemController.RemoveItem(padlock, dur);
         }
 
-        HighlightManager.instance.Search(HighlightManager.instance.removeNodeSearch);
         if (OnExecute != null)
         {
             OnExecute();
@@ -100,15 +99,11 @@ public class UnlockPadlock : Command
         HighlightManager highlightManager = HighlightManager.instance;
         if(key.isPermanent && isRewinding)
         {
-            gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, dur);
-            gameManager.ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"), 0);
-            highlightManager.Search(highlightManager.removeNodeSearch);
+            gameManager.ChangeCommand(Commands.RemoveNode);
         }
         else
         {
-            gameManager.paletteSwapper.ChangePalette(gameManager.unlockPadlockPalette, dur);
-            gameManager.ChangeCommand(Commands.UnlockPadlock, LayerMask.GetMask("Node"), targetIndegree: 0, itemType: ItemType.Padlock);
-            highlightManager.Search(highlightManager.unlockPadlockSearch);
+            gameManager.ChangeCommand(Commands.UnlockPadlock);
         }
 
         if (OnUndo != null)

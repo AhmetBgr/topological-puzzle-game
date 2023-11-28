@@ -30,8 +30,6 @@ public class TransportCommand : Command
         this.arrow = arrow;
         this.itemObj = itemObj;
     }
-
-
     public override void Execute(float dur, bool isRewinding = false)
     {
         if (itemObj.GetComponent<Item>().isPermanent && isRewinding) return;

@@ -514,7 +514,7 @@ public class LevelEditor : MonoBehaviour{
 
         enterTestButton.gameObject.SetActive(true);
 
-        HighlightManager.instance.Search(HighlightManager.instance.anySearch);
+        //HighlightManager.instance.Search(HighlightManager.instance.anySearch);
         lastState = LeState.waiting;
         state = LeState.waiting;
         ResetCurLevelInEditing();
@@ -550,7 +550,7 @@ public class LevelEditor : MonoBehaviour{
         });
 
         state = LeState.closed;
-        gameManager.ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"));
+        gameManager.ChangeCommand(Commands.RemoveNode);
         enterTestButton.gameObject.SetActive(false);
 
         if (OnExit != null){

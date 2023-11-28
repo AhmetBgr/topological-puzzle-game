@@ -9,14 +9,10 @@ public class Key : Obtainable
 {
     public override void Use()
     {
-        Target target = new Target(Commands.UnlockPadlock, LayerMask.GetMask("Node"), gameManager.unlockPadlockPalette, ItemType.Padlock);
-
-        Target previousTarget = new Target(Commands.RemoveNode, LayerMask.GetMask("Node"), gameManager.defPalette);
-
-        ChangeCommand changeCommand = new ChangeCommand(gameManager, null, previousTarget, target);
+        ChangeCommand changeCommand = new ChangeCommand(gameManager, null, gameManager.curCommand, Commands.UnlockPadlock);
         changeCommand.isPermanent = isPermanent;
         changeCommand.Execute(gameManager.commandDur);
-        HighlightManager.instance.Search(HighlightManager.instance.unlockPadlockSearch);
+        //HighlightManager.instance.Search(HighlightManager.instance.unlockPadlockSearch);
         //gameManager.AddToOldCommands(changeCommand);
     }
 

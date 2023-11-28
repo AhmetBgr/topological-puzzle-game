@@ -73,9 +73,7 @@ public class RemoveNode : Command
         float nodeRemoveDur = hasArrow ? dur / 2 : dur;
         node.RemoveFromGraph(obj, nodeRemoveDur, delay: dur - nodeRemoveDur);
 
-        bool isUsable = itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
-        if(!isUsable)
-            HighlightManager.instance.Search(HighlightManager.instance.removeNodeSearch);
+        itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
 
         if (isRewinding) return;
 
@@ -88,7 +86,7 @@ public class RemoveNode : Command
     public override bool Undo(float dur, bool isRewinding = false)
     {
         this.isRewinding = isRewinding;
-        gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, dur);
+        //gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, dur);
 
         Node node = affectedObjects[0].GetComponent<Node>();
         ItemController itemController = node.itemController;
@@ -129,9 +127,9 @@ public class RemoveNode : Command
         itemManager.itemContainer.FixItemPositions(dur, setDelayBetweenFixes: true);
         itemController.itemContainer.FixItemPositions(dur, setDelayBetweenFixes: true);
 
-        gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, dur);
-        gameManager.ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"), 0);
-        HighlightManager.instance.Search(HighlightManager.instance.removeNodeSearch);
+        //gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, dur);
+        gameManager.ChangeCommand(Commands.RemoveNode);
+        //HighlightManager.instance.Search(HighlightManager.instance.removeNodeSearch);
 
         if (OnUndo != null)
         {

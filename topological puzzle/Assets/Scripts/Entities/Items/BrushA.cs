@@ -26,14 +26,10 @@ public class BrushA : Item
 
     public override void Use()
     {
-        Target target = new Target(Commands.SetArrowPermanent, LayerMask.GetMask("Arrow"), gameManager.brushPalette, targetPermanent: 0);
-
-        Target previousTarget = new Target(Commands.RemoveNode, LayerMask.GetMask("Node"), gameManager.defPalette);
-
-        ChangeCommand changeCommand = new ChangeCommand(gameManager, null, previousTarget, target);
+        ChangeCommand changeCommand = new ChangeCommand(gameManager, null, gameManager.curCommand, Commands.SetArrowPermanent);
         changeCommand.isPermanent = isPermanent;
         changeCommand.Execute(gameManager.commandDur);
-        HighlightManager.instance.Search(HighlightManager.instance.setArrowPermanentSearch);
+        //HighlightManager.instance.Search(HighlightManager.instance.setArrowPermanentSearch);
 
     }
 
