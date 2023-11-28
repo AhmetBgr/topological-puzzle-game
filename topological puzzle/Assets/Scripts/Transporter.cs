@@ -54,7 +54,7 @@ public class Transporter : MonoBehaviour
         Node node = arrow.startingNode.GetComponent<Node>();
 
         //if (node.gameObject != removedNode) return;
-        if (command.isRewindCommand) return;
+        if (command.isRewinding) return;
 
         foreach (var arrow in node.arrowsFromThisNode)
         {

@@ -37,12 +37,9 @@ public class ArrowCC : ColorController
         defPalette = FindObjectOfType<GameManager>().defPalette;
     }
     
-
     protected override void ChangeColorsOnPaletteSwap(Palette palette, float duration)
     {
-        
         StartCoroutine((ChangeArrowColor(palette.arrowColor, palette.arrowColor, duration)));
-
     }
     public void ChangeToDefaultColors()
     {

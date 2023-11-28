@@ -15,7 +15,7 @@ public class ItemContainer : MonoBehaviour
 
     public float gap = 0.3f;
 
-    public delegate void OnContainerChangedDelegate(List<Item> items);
+    public delegate bool OnContainerChangedDelegate(List<Item> items);
     public event OnContainerChangedDelegate OnContainerChanged;
 
     void Start()

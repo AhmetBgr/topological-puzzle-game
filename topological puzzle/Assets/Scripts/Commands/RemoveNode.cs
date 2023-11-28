@@ -19,6 +19,8 @@ public class RemoveNode : Command
 
     private List<GameObject> affectedObjects = new List<GameObject>();
 
+    public bool isRewinding = false;
+
     public RemoveNode(GameManager gameManager, ItemManager itemManager, GameObject obj)
     {
         this.itemManager = itemManager;
@@ -26,8 +28,9 @@ public class RemoveNode : Command
         this.obj = obj;
     }
 
-    public override void Execute(float dur)
+    public override void Execute(float dur, bool isRewinding = false)
     {
+        this.isRewinding = isRewinding;
         executionTime = gameManager.timeID;
         affectedObjects.Add(obj);
 
@@ -42,7 +45,7 @@ public class RemoveNode : Command
         {
             for (int i = removeArrows.Count - 1; i >= 0; i--)
             {
-                removeArrows[i].Execute(dur/2);
+                removeArrows[i].Execute(dur/2, isRewinding);
                 hasArrow = true;
             }
         }
@@ -53,25 +56,28 @@ public class RemoveNode : Command
                 GameObject arrow = node.arrowsFromThisNode[i];
 
                 RemoveArrow removeArrow = new RemoveArrow(arrow.GetComponent<Arrow>(), gameManager);
-                removeArrow.Execute(dur/2);
+                removeArrow.Execute(dur/2, isRewinding);
                 removeArrows.Add(removeArrow);
                 hasArrow = true;
             }
         }
+        if(!isRewinding)
+            itemController.GetObtainableItems(node.gameObject, this, dur);
 
-        itemController.GetObtainableItems(node.gameObject, this, dur);
+        for (int i = affectedCommands.Count - 1; i >= 0; i--)
+        {
+            affectedCommands[i].Execute(dur, isRewinding);
+        }
+
         //float dur = playAnim ? 0.5f : 0.1f;
         float nodeRemoveDur = hasArrow ? dur / 2 : dur;
         node.RemoveFromGraph(obj, nodeRemoveDur, delay: dur - nodeRemoveDur);
 
-        for (int i = affectedCommands.Count - 1; i >= 0; i--)
-        {
-            affectedCommands[i].isRewindCommand = true;
-            affectedCommands[i].Execute(dur);
-            affectedCommands[i].isRewindCommand = false;
-        }
+        bool isUsable = itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
+        if(!isUsable)
+            HighlightManager.instance.Search(HighlightManager.instance.removeNodeSearch);
 
-        itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
+        if (isRewinding) return;
 
         if (OnExecute != null)
         {
@@ -79,14 +85,15 @@ public class RemoveNode : Command
         }
     }
 
-    public override bool Undo(float dur, bool skipPermanent = true)
+    public override bool Undo(float dur, bool isRewinding = false)
     {
+        this.isRewinding = isRewinding;
         gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, dur);
 
         Node node = affectedObjects[0].GetComponent<Node>();
         ItemController itemController = node.itemController;
 
-        if (node.isPermanent && skipPermanent)
+        if (node.isPermanent && isRewinding)
         {
             InvokeOnUndoSkipped(this);
             return true;
@@ -103,23 +110,28 @@ public class RemoveNode : Command
         {
             item.SetActive(true);
         }
-        //float dur = playAnim ? 0.5f : 0.1f;
-        node.AddToGraph(affectedObjects[0], dur, skipPermanent);
-        foreach (var removeArrow in removeArrows)
+        node.AddToGraph(affectedObjects[0], dur, isRewinding);
+        for(int i = removeArrows.Count -1; i>= 0; i--)
         {
-            removeArrow.Undo(dur, skipPermanent);
+            removeArrows[i].Undo(dur, isRewinding);
+            if (!isRewinding)
+                removeArrows.RemoveAt(i);
         }
         //removeArrows.Clear();
 
         for (int i = affectedCommands.Count - 1; i >= 0; i--)
         {
-            affectedCommands[i].Undo(dur, skipPermanent);
+            affectedCommands[i].Undo(dur, isRewinding);
+
+            if (!isRewinding)
+                affectedCommands.RemoveAt(i);
         }
         itemManager.itemContainer.FixItemPositions(dur, setDelayBetweenFixes: true);
         itemController.itemContainer.FixItemPositions(dur, setDelayBetweenFixes: true);
 
         gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, dur);
         gameManager.ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"), 0);
+        HighlightManager.instance.Search(HighlightManager.instance.removeNodeSearch);
 
         if (OnUndo != null)
         {

@@ -1,21 +1,30 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class BlockedNode : Node
 {
     //public Sprite basicNodeSprite;
     //private Sprite defSprite;
     private bool blocked = true;
+    private static int blockedNodeCount = 0;
     /*protected override void Awake(){
         base.Awake();
         defSprite = nodeSprite.sprite;
     }*/
 
+    protected override void Awake()
+    {
+        base.Awake();
+        blockedNodeCount++;
+    }
+
     private void UpdateBLockStatus(){
         // Update locked status if node has lock
         int nodeCount = LevelManager.GetNodeCount();
-        if (nodeCount <= 1)
+        
+        if (nodeCount - blockedNodeCount <= 0)
         { // Unlock the node if only it is left 
             nodeSprite.sprite = basicSprite;
             indegree_text.gameObject.SetActive(true);
@@ -32,31 +41,15 @@ public class BlockedNode : Node
         }
     }
 
-    protected override void CheckIfSuitable(LayerMask targetLM, int targetIndegree, ItemType itemType, int targetPermanent, bool levelEditorBypass){
+    protected override void UpdateHighlight(SearchTarget searchTarget)
+    {
         UpdateBLockStatus();
-        bool hasRequiredItem = itemType == ItemType.None | itemController.FindItemWithType(itemType) != null ? true : false;
-        bool hasEqualIndegree = targetIndegree == -1 ? true : targetIndegree == indegree;
-        bool permanentCheck = targetPermanent == -1 ? true : (isPermanent && targetPermanent == 1) | (!isPermanent && targetPermanent == 0);
-
-        if ( (!blocked && (((1<<gameObject.layer) & targetLM) != 0) && hasRequiredItem && permanentCheck) || levelEditorBypass){
-            if(!levelEditorBypass){
-                //StartCoroutine(Highlight(glowIntensity1, 1f));
-                nodeColorController.Highlight(nodeColorController.glowIntensityMedium, 1f);
-                col.enabled = true;
-                //lockImage.SetActive(false);
-            }
-            else{
-                //StartCoroutine(Highlight(glowIntensity1, 1f));
-                nodeColorController.Highlight(nodeColorController.glowIntensityMedium, 1f);
-                col.enabled = true;  
-            }
-
-            //lockImage = null;
+        if (blocked && GameState.gameState == GameState_EN.playing)
+        {
+            SetNotSelectable();
+            return;
         }
-        else{
-            // Not selectable
-            nodeColorController.Highlight(nodeColorController.glowIntensityVeryLow, 1f);
-            col.enabled = false;
-        }   
+
+        base.UpdateHighlight(searchTarget);
     }
 }

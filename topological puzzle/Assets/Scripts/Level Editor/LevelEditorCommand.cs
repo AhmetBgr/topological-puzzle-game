@@ -41,7 +41,6 @@ public class DrawArrow : LeCommand{
     public override int Execute(GameObject selectedObject){
         lr = selectedObject.GetComponent<LineRenderer>();
         
-        
         if(clickCount == 0){
             lr.GetComponent<Arrow>().startingNode = hit.transform.gameObject;
             //hit.transform.GetComponent<Node>().arrowsFromThisNode.Add(selectedObject);

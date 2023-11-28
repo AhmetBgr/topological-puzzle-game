@@ -131,7 +131,16 @@ public class ItemController : MonoBehaviour
         GameManager gameManager = FindObjectOfType<GameManager>();
         ItemManager itemManager = FindObjectOfType<ItemManager>();
         List<GetItem> getItems = new List<GetItem>();
+        /*for (int i = 0; i < itemContainer.items.Count; i++)
+        {
+            Item item = itemContainer.items[i];
+            if (!item.isObtainable) continue;
 
+            GetItem getItem = new GetItem(item, this, itemManager, gameManager, skipFix: true);
+            getItem.Execute(gameManager.commandDur);
+            command.affectedCommands.Add(getItem);
+            getItems.Add(getItem);
+        }*/
         for (int i = itemContainer.items.Count - 1; i >=  0; i--)
         {
             Item item = itemContainer.items[i];

@@ -12,15 +12,14 @@ public class SetNodePermanent : Command
         this.gameManager = gameManager;
     }
 
-    public override void Execute(float dur)
+    public override void Execute(float dur, bool isRewinding = false)
     {
         executionTime = gameManager.timeID;
 
         node.ChangePermanent(true);
-
     }
 
-    public override bool Undo(float dur, bool skipPermanent = true)
+    public override bool Undo(float dur, bool isRewinding = false)
     {
         node.ChangePermanent(false);
         return false;

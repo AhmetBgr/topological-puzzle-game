@@ -9,7 +9,8 @@ public class GetItem : Command
     private GameManager gameManager;
     private Item item;
 
-    private int index;
+    private int nodeIndex;
+    private int mainIndex;
     public bool skipFix;
 
     public delegate void OnExecuteDelegate();
@@ -26,15 +27,20 @@ public class GetItem : Command
         this.gameManager = gameManager;
         this.skipFix = skipFix;
     }
-    public override void Execute(float dur)
+    public override void Execute(float dur, bool isRewinding = false)
     {
+
+        if (item.owner == null) return;
+        Debug.Log("shoul get item");
         executionTime = gameManager.timeID;
         
         if (!item.gameObject.activeSelf) return;
+        int addIndex = isRewinding ? mainIndex : -1;
+        nodeIndex = isRewinding ? nodeIndex : itemController.itemContainer.GetItemIndex(item);
 
-        index = itemController.itemContainer.GetItemIndex(item);
+
         itemController.RemoveItem(item, dur, skipFix: true);
-        itemManager.itemContainer.AddItem(item, -1, dur, skipFix: true);
+        itemManager.itemContainer.AddItem(item, addIndex, dur, skipFix: !isRewinding);
 
         //item.CheckIfUsable();
 
@@ -44,10 +50,10 @@ public class GetItem : Command
         }
     }
 
-    public override bool Undo(float dur, bool skipPermanent = true)
+    public override bool Undo(float dur, bool isRewinding = false)
     {
 
-        if (item.isPermanent && skipPermanent)
+        if (item.isPermanent && isRewinding)
         {
             skipFix = false;
             InvokeOnUndoSkipped(this);
@@ -60,9 +66,9 @@ public class GetItem : Command
                 gameManager.RemoveFromSkippedOldCommands(this);
             }
         }
-
+        mainIndex = itemManager.itemContainer.GetItemIndex(item);
         itemManager.itemContainer.RemoveItem(item, dur, skipFix: skipFix);
-        itemController.itemContainer.AddItem(item, index, dur, skipFix: skipFix);
+        itemController.AddItem(item, nodeIndex, dur, skipFix: skipFix);
 
         if (OnUndo != null)
         {

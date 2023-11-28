@@ -11,16 +11,18 @@ public class SwapNodes : Command
     private List<GameObject> selectedObjects = new List<GameObject>();
     private List<GameObject> affectedObjects = new List<GameObject>();
     private Item commandOwner;
+    private SearchTarget swapNodeSearch;
 
-    public SwapNodes(GameManager gameManager, ItemManager itemManager, Item commandOwner, List<GameObject> selectedObjects)
+    public SwapNodes(GameManager gameManager, ItemManager itemManager, Item commandOwner, List<GameObject> selectedObjects, SearchTarget swapNodeSearch)
     {
         this.commandOwner = commandOwner;
         this.gameManager = gameManager;
         this.itemManager = itemManager;
         this.selectedObjects.AddRange(selectedObjects);
+        this.swapNodeSearch = swapNodeSearch;
     }
 
-    public override void Execute(float dur)
+    public override void Execute(float dur, bool isRewinding = false)
     {
         executionTime = gameManager.timeID;
 
@@ -39,9 +41,11 @@ public class SwapNodes : Command
         {
             affectedObjects.Add(selectedObjects[i]);
         }
+
+        HighlightManager.instance.Search(HighlightManager.instance.removeNodeSearch);
     }
 
-    public override bool Undo(float dur, bool skipPermanent = true)
+    public override bool Undo(float dur, bool isRewinding = false)
     {
         //commandOwner.transform.DOScale(1f, 0.3f).SetEase(Ease.InOutCubic);
         // Swap postions between two nodes
@@ -49,11 +53,12 @@ public class SwapNodes : Command
 
         Node node1 = selectedObjects[0].GetComponent<Node>();
         Node node2 = selectedObjects[1].GetComponent<Node>();
-
-        if ((commandOwner.isPermanent |  node1.isPermanent | node2.isPermanent) && skipPermanent)
+        HighlightManager highlightManager = HighlightManager.instance;
+        if ((commandOwner.isPermanent |  node1.isPermanent | node2.isPermanent) && isRewinding)
         {
             gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, dur);
             gameManager.ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"), 0);
+            highlightManager.Search(highlightManager.removeNodeSearch);
             InvokeOnUndoSkipped(this);
             return true;
         }
@@ -81,6 +86,7 @@ public class SwapNodes : Command
         
         gameManager.paletteSwapper.ChangePalette(gameManager.swapNodePalette, dur);
         gameManager.ChangeCommand(Commands.SwapNodes, LayerMask.GetMask("Node"), targetIndegree: -1);
+        highlightManager.Search(highlightManager.onlyNodeSearch);
 
         return false;
     }

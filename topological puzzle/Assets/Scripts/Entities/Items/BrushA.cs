@@ -33,6 +33,7 @@ public class BrushA : Item
         ChangeCommand changeCommand = new ChangeCommand(gameManager, null, previousTarget, target);
         changeCommand.isPermanent = isPermanent;
         changeCommand.Execute(gameManager.commandDur);
+        HighlightManager.instance.Search(HighlightManager.instance.setArrowPermanentSearch);
 
     }
 

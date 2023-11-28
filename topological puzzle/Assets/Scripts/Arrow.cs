@@ -50,6 +50,7 @@ public class Arrow : MonoBehaviour{
     private void Start()
     {
         OnChangedEvent();
+       
     }
 
     void OnEnable(){
@@ -57,7 +58,8 @@ public class Arrow : MonoBehaviour{
         RemoveNode.OnExecute += ChangeDirIfLinkedToStar;
         //Node.OnNodeAdd += UndoChangeDirIfLinkedToStar;
 
-        GameManager.OnCurCommandChange += CheckIfSuitable;
+        //GameManager.OnCurCommandChange += CheckIfSuitable;
+        HighlightManager.OnSearch += Check;
         LevelManager.OnLevelLoad += GetOnTheLevel;
     }
 
@@ -66,7 +68,8 @@ public class Arrow : MonoBehaviour{
         RemoveNode.OnExecute -= ChangeDirIfLinkedToStar;
         //Node.OnNodeAdd -= UndoChangeDirIfLinkedToStar;
 
-        GameManager.OnCurCommandChange -= CheckIfSuitable;
+        //GameManager.OnCurCommandChange -= CheckIfSuitable;
+        HighlightManager.OnSearch -= Check;
         LevelManager.OnLevelLoad -= GetOnTheLevel;
     }
     void OnMouseEnter(){
@@ -93,7 +96,7 @@ public class Arrow : MonoBehaviour{
     private void ChangeDirIfLinkedToStar(GameObject node, RemoveNode command)
     {
         if (node == startingNode) return;
-        if (command.isRewindCommand) return;
+        if (command.isRewinding) return;
 
         if (startingNode.CompareTag("HexagonNode") || destinationNode.CompareTag("HexagonNode")){
             if (!(startingNode.CompareTag("HexagonNode") && destinationNode.CompareTag("HexagonNode")))
@@ -223,7 +226,19 @@ public class Arrow : MonoBehaviour{
             ChangeDir(gameObject, 0.8f);
         }   */
     }
-
+    public void Check(SearchTarget searchTarget)
+    {
+        if (searchTarget.CheckAll(this))
+        {
+            arrowColorController.Highlight(arrowColorController.glowIntensityHigh, 1f);
+            col.enabled = true;
+        }
+        else
+        {
+            arrowColorController.Highlight(arrowColorController.glowIntensityMedium, 1f);
+            col.enabled = false;
+        }
+    }
     private void CheckIfSuitable(LayerMask targetLM, int targetIndegree, ItemType itemType, int targetPermanent, bool bypass){
         bool permanentCheck = targetPermanent <= -1 ? true : (isPermanent && targetPermanent == 1) | (!isPermanent && targetPermanent == 0);
 

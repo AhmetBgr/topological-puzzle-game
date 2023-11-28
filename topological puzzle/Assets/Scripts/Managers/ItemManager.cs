@@ -22,25 +22,17 @@ public class ItemManager : MonoBehaviour
         itemContainer.OnContainerChanged -= CheckAndUseLastItem;
     }
 
-    public void CheckAndUseLastItem(List<Item> items)
+    public bool CheckAndUseLastItem(List<Item> items)
     {
         if (items.Count == 0) {
             levelCanvasManager.UpdateUseItemButtonBCImage(false);
-            return;
+            return false;
         }
 
         Item item = items[items.Count - 1];
         Debug.Log("should check for usability: item");
         item.CheckAndUse();
-        /*if (item.CompareTag("Key"))
-        {
-            item.CheckAndUse();
-        }
-        else if (item.CompareTag("NodeSwapper"))
-        {
-            item.GetComponent<NodeSwapper>().CheckAndUse();
-        }*/
-
+        return item.isUsable;
     }
 
     private void ResetContainer()

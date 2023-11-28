@@ -21,7 +21,7 @@ public class TransformToBasicNode : Command
         this.gameManager = gameManager;
     }
 
-    public override void Execute(float dur)
+    public override void Execute(float dur, bool isRewinding = false)
     {
         executionTime = gameManager.timeID;
         node.TransformIntoBasic();
@@ -32,9 +32,9 @@ public class TransformToBasicNode : Command
         }
     }
 
-    public override bool Undo(float dur, bool skipPermanent = true)
+    public override bool Undo(float dur, bool isRewinding = false)
     {
-        if (node.isPermanent && skipPermanent)
+        if (node.isPermanent && isRewinding)
         {
             gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, dur);
             gameManager.ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"), 0);

@@ -26,6 +26,7 @@ public abstract class Item : MonoBehaviour
 
     public static int suitableObjCount = 0;
 
+    public bool isUsable;
     public bool isObtainable;
     public bool isTransportable;
     public bool isPermanent;
@@ -62,12 +63,14 @@ public abstract class Item : MonoBehaviour
         DisableCollider();
 
         levelManager = FindObjectOfType<LevelManager>();
-        GameManager.OnCurCommandChange += CheckForHighlight;
+        //GameManager.OnCurCommandChange += CheckForHighlight;
+        HighlightManager.OnSearch += Check;
     }
 
     protected void OnDestroy()
     {
-        GameManager.OnCurCommandChange -= CheckForHighlight;
+        //GameManager.OnCurCommandChange -= CheckForHighlight;
+        HighlightManager.OnSearch -= Check;
     }
 
     protected void OnEnable()
@@ -109,7 +112,7 @@ public abstract class Item : MonoBehaviour
         {
             OnUsabilityCheck();
         }
-        bool isUsable = false;
+        isUsable = false;
         if (suitableObjCount > 0)
         {
             isUsable = true;
@@ -126,6 +129,18 @@ public abstract class Item : MonoBehaviour
         if (OnUsabilityChanged != null)
         {
             OnUsabilityChanged(isUsable);
+        }
+    }
+
+    public void Check(SearchTarget searchTarget)
+    {
+        if (searchTarget.CheckAll(this))
+        {
+            EnableCollider();
+        }
+        else
+        {
+            DisableCollider();
         }
     }
 

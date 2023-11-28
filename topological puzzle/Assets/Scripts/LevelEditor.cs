@@ -514,7 +514,7 @@ public class LevelEditor : MonoBehaviour{
 
         enterTestButton.gameObject.SetActive(true);
 
-        gameManager.ChangeCommand(Commands.None, LayerMask.GetMask("Node", "Arrow"), targetIndegree: 0, levelEditorBypass: true);
+        HighlightManager.instance.Search(HighlightManager.instance.anySearch);
         lastState = LeState.waiting;
         state = LeState.waiting;
         ResetCurLevelInEditing();
@@ -560,7 +560,7 @@ public class LevelEditor : MonoBehaviour{
 
     private void UpdateHighlights(int value)
     {
-        gameManager.ChangeCommand(Commands.None, LayerMask.GetMask("Node", "Arrow"), targetIndegree: 0, levelEditorBypass: true);
+        HighlightManager.instance.Search(HighlightManager.instance.anySearch);
         gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, 0.02f);
     }
 

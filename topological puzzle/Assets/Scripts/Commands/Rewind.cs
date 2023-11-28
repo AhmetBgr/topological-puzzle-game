@@ -12,10 +12,9 @@ public class Rewind : Command
     {
         this.gameManager = gameManager;
         this.command = command;
-        this.isRewindCommand = true;
     }
 
-    public override void Execute(float dur)
+    public override void Execute(float dur, bool isRewinding = false)
     {
         if (GameManager.oldCommands.Count == 0) return;
 
@@ -26,7 +25,7 @@ public class Rewind : Command
         gameManager.paletteSwapper.ChangePalette(gameManager.rewindPalette, dur);
     }
 
-    public override bool Undo(float dur, bool skipPermanent = true)
+    public override bool Undo(float dur, bool isRewinding = false)
     {
         if (skipped)
         {
@@ -34,11 +33,7 @@ public class Rewind : Command
         }
 
         gameManager.timeID++;
-        command.isRewindCommand = true;
-        command.Execute(dur);
-        command.isRewindCommand = false;
-        //float delay = playAnim ? 0.6f : 0;
-        gameManager.paletteSwapper.ChangePalette(gameManager.rewindPalette, dur); // 0.6f
+        command.Execute(dur, true);
         //GameManager.oldCommands.Add(lastCommand);
         return false;
 

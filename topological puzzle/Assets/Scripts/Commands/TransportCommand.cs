@@ -32,9 +32,9 @@ public class TransportCommand : Command
     }
 
 
-    public override void Execute(float dur)
+    public override void Execute(float dur, bool isRewinding = false)
     {
-        if (itemObj.GetComponent<Item>().isPermanent && isRewindCommand) return;
+        if (itemObj.GetComponent<Item>().isPermanent && isRewinding) return;
 
         executionTime = gameManager.timeID;
 
@@ -47,9 +47,9 @@ public class TransportCommand : Command
         }
     }
 
-    public override bool Undo(float dur, bool skipPermanent = true)
+    public override bool Undo(float dur, bool isRewinding = false)
     {
-        if (affectedObjects[0].GetComponent<Item>().isPermanent  && skipPermanent)
+        if (affectedObjects[0].GetComponent<Item>().isPermanent  && isRewinding)
         {
             InvokeOnUndoSkipped(this);
             //skipped = true;

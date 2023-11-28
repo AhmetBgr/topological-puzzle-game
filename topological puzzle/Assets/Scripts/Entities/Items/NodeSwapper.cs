@@ -43,7 +43,7 @@ public class NodeSwapper : Item
         ChangeCommand changeCommand = new ChangeCommand(gameManager, null, previousTarget, target);
         changeCommand.isPermanent = isPermanent;
         changeCommand.Execute(gameManager.commandDur);
-
+        HighlightManager.instance.Search(HighlightManager.instance.onlyNodeSearch);
         //gameManager.AddToOldCommands(changeCommand);
     }
 

@@ -32,15 +32,11 @@ public class UnlockPadlock : Command
         this.key = key;
     }
 
-    public override void Execute(float dur)
+    public override void Execute(float dur, bool isRewinding = false)
     {
         executionTime = gameManager.timeID;
        
         ItemController itemController = node.itemController;
-
-        //float dur = 0.7f;
-
-
 
         // move key to the padlock
         Item padlockItem = itemController.FindLastItemWithType(ItemType.Padlock);
@@ -64,21 +60,21 @@ public class UnlockPadlock : Command
             itemController.RemoveItem(padlock, dur);
         }
 
-
+        HighlightManager.instance.Search(HighlightManager.instance.removeNodeSearch);
         if (OnExecute != null)
         {
             OnExecute();
         }
     }
 
-    public override bool Undo(float dur, bool skipPermanent = true)
+    public override bool Undo(float dur, bool isRewinding = false)
     {
         if (useItem != null)
         {
-            useItem.Undo(dur, skipPermanent);
+            useItem.Undo(dur, isRewinding);
         }
 
-        if (padlock.isPermanent && skipPermanent)
+        if (padlock.isPermanent && isRewinding)
         {
             InvokeOnUndoSkipped(this);
             Debug.Log("unlock undo skipped");
@@ -101,16 +97,18 @@ public class UnlockPadlock : Command
         seq.Append(padlock.transform.DOScale(1f, dur));
         padlock.PlayAnimSequence(seq);
 
-        if(key.isPermanent && skipPermanent)
+        HighlightManager highlightManager = HighlightManager.instance;
+        if(key.isPermanent && isRewinding)
         {
             gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, dur);
             gameManager.ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"), 0);
-            Debug.Log("hereeee");
+            highlightManager.Search(highlightManager.removeNodeSearch);
         }
         else
         {
             gameManager.paletteSwapper.ChangePalette(gameManager.unlockPadlockPalette, dur);
             gameManager.ChangeCommand(Commands.UnlockPadlock, LayerMask.GetMask("Node"), targetIndegree: 0, itemType: ItemType.Padlock);
+            highlightManager.Search(highlightManager.unlockPadlockSearch);
         }
 
         if (OnUndo != null)

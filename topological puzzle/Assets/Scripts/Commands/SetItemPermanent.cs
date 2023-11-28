@@ -12,15 +12,14 @@ public class SetItemPermanent : Command
         this.gameManager = gameManager;
     }
 
-    public override void Execute(float dur)
+    public override void Execute(float dur, bool isRewinding = false)
     {
         executionTime = gameManager.timeID;
 
         item.ChangePermanent(true);
-
     }
 
-    public override bool Undo(float dur, bool skipPermanent = true)
+    public override bool Undo(float dur, bool isRewinding = false)
     {
         item.ChangePermanent(false);
         return false;

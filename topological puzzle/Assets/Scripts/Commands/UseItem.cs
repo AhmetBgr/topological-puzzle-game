@@ -25,7 +25,7 @@ public class UseItem : Command
         this.gameManager = gameManager;
     }
 
-    public override void Execute(float dur)
+    public override void Execute(float dur, bool isRewinding = false)
     {
         executionTime = gameManager.timeID;
 
@@ -40,9 +40,9 @@ public class UseItem : Command
         }
     }
 
-    public override bool Undo(float dur, bool skipPermanent = true)
+    public override bool Undo(float dur, bool isRewinding = false)
     {
-        if (item.isPermanent && skipPermanent)
+        if (item.isPermanent && isRewinding)
         {
             InvokeOnUndoSkipped(this);
             return true;

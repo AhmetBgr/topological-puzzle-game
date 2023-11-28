@@ -21,13 +21,12 @@ public class RemoveArrow : Command
         this.gameManager = gameManager;
     }
 
-    public override void Execute(float dur)
+    public override void Execute(float dur, bool isRewinding = false)
     {
         executionTime = gameManager.timeID;
 
         if (!arrow.gameObject.activeSelf) return;
 
-        //float dur = playAnim ? 0.5f : 0.1f;
         arrow.Remove(dur);
 
         if (OnExecute != null)
@@ -36,9 +35,9 @@ public class RemoveArrow : Command
         }
     }
 
-    public override bool Undo(float dur, bool skipPermanent = true)
+    public override bool Undo(float dur, bool isRewinding = false)
     {
-        if (arrow.isPermanent && skipPermanent)
+        if (arrow.isPermanent && isRewinding)
         {
             arrow.gameObject.SetActive(false);
             InvokeOnUndoSkipped(this);
@@ -51,7 +50,6 @@ public class RemoveArrow : Command
                 gameManager.RemoveFromSkippedOldCommands(this);
             }
         }
-        //float dur = playAnim ? 0.5f : 0.1f;
         arrow.gameObject.SetActive(true);
         arrow.Add(dur);
         

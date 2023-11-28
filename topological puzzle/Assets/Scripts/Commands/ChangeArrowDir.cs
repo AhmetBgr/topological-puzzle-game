@@ -27,8 +27,7 @@ public class ChangeArrowDir : Command
         this.isCommandOwnerPermanent = isCommandOwnerPermanent;
     }
 
-
-    public override void Execute(float dur)
+    public override void Execute(float dur, bool isRewinding = false)
     {
         executionTime = gameManager.timeID;
 
@@ -37,6 +36,7 @@ public class ChangeArrowDir : Command
         arrow = arrowObj.GetComponent<Arrow>();
         //float dur = playAnim ? 0.5f : 0.1f;
         arrow.ChangeDir(dur);
+        HighlightManager.instance.Search(HighlightManager.instance.removeNodeSearch);
 
         if (OnExecute != null)
         {
@@ -44,20 +44,15 @@ public class ChangeArrowDir : Command
         }
     }
 
-    public override bool Undo(float dur, bool skipPermanent = true)
+    public override bool Undo(float dur, bool isRewinding = false)
     {
-        if (!isCommandOwnerPermanent | !skipPermanent)
+        if (!isCommandOwnerPermanent | !isRewinding)
         {
             gameManager.paletteSwapper.ChangePalette(gameManager.changeArrowDirPalette, dur);
             gameManager.ChangeCommand(Commands.ChangeArrowDir, LayerMask.GetMask("Arrow"));
+            
         }
-        else
-        {
-            if (gameManager.skippedOldCommands.Contains(this))
-            {
-                gameManager.RemoveFromSkippedOldCommands(this);
-            }
-        }
+        HighlightManager.instance.Search(HighlightManager.instance.onlyArrowSearch);
         /*if(!isCommandOwnerPermanent | skipPermanent)
         {
             foreach (var item in affectedCommands)
@@ -66,13 +61,18 @@ public class ChangeArrowDir : Command
             }
         }*/
 
-        if (arrow.isPermanent && skipPermanent)
+        if (arrow.isPermanent && isRewinding)
         {
             InvokeOnUndoSkipped(this);
             return true;
         }
-
-        //float dur = playAnim ? 0.5f : 0.1f;
+        else
+        {
+            if (gameManager.skippedOldCommands.Contains(this))
+            {
+                gameManager.RemoveFromSkippedOldCommands(this);
+            }
+        }
 
         arrow.gameObject.SetActive(true);
         arrow.ChangeDir(dur);

@@ -87,12 +87,10 @@ public class LevelManager : MonoBehaviour{
         // Get progression data
         GetAndSetProgressionData();
 
-
         //LoadLevel(curLevelIndex);
         LoadLevelWithIndex(curLevelIndex); // "multiple square test"
 
         defChangeLevelIndexDur = changeLevelIndexDur;
-
     }
 
     void OnEnable(){
@@ -334,6 +332,7 @@ public class LevelManager : MonoBehaviour{
         int childCount = levelTransform.childCount;
 
         int nodeCount = 0;
+       
         for (int i = 0; i < childCount; i++){
             GameObject child = levelTransform.GetChild(i).gameObject;
             if(child.activeInHierarchy && ((1<<child.layer) & LayerMask.GetMask("Node")) != 0){
@@ -398,7 +397,7 @@ public class LevelManager : MonoBehaviour{
         // Serialize level property
 
         string fullPath;
-        fullPath = Application.persistentDataPath + myLevelsPath + levelProperty.levelName + ".txt";
+        fullPath = Application.persistentDataPath + myLevelsPath + "/" + levelProperty.levelName + ".txt";
         #if UNITY_EDITOR
             if (saveAsBackup)
             {

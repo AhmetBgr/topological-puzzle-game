@@ -16,7 +16,7 @@ public class Key : Obtainable
         ChangeCommand changeCommand = new ChangeCommand(gameManager, null, previousTarget, target);
         changeCommand.isPermanent = isPermanent;
         changeCommand.Execute(gameManager.commandDur);
-
+        HighlightManager.instance.Search(HighlightManager.instance.unlockPadlockSearch);
         //gameManager.AddToOldCommands(changeCommand);
     }
 

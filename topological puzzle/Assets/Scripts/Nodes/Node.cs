@@ -31,6 +31,7 @@ public class Node : MonoBehaviour
     //private Material material;
     public Collider2D col;
     private Tween disappearTween;
+    protected Tween nodeTween;
     private Color nonPermanentColor;
 
     private string defTag;
@@ -66,21 +67,23 @@ public class Node : MonoBehaviour
     void OnEnable(){
         //RemoveNode.OnExecute += RemoveFromGraph;
         //RemoveNode.OnUndo += AddToGraph;
-        GameManager.OnCurCommandChange += CheckIfSuitable;
+        //GameManager.OnCurCommandChange += CheckIfSuitable;
         GameManager.OnGetNodes += AddNodeToPool;
         LevelManager.OnLevelLoad += GetOnTheLevel;
         Item.OnUsabilityCheck += CheckIfSuitableForKey;
         NodeSwapper.OnSwapperUsabilityCheck += CheckIfSuitableForNodeSwapper;
+        HighlightManager.OnSearch += UpdateHighlight;
     }
 
     void OnDisable(){
         //RemoveNode.OnExecute -= RemoveFromGraph;
         //RemoveNode.OnUndo -= AddToGraph;
-        GameManager.OnCurCommandChange -= CheckIfSuitable;
+        //GameManager.OnCurCommandChange -= CheckIfSuitable;
         GameManager.OnGetNodes -= AddNodeToPool;
         LevelManager.OnLevelLoad -= GetOnTheLevel;
         Item.OnUsabilityCheck -= CheckIfSuitableForKey;
         NodeSwapper.OnSwapperUsabilityCheck -= CheckIfSuitableForNodeSwapper;
+        HighlightManager.OnSearch -= UpdateHighlight;
     }
 
     void OnMouseEnter(){
@@ -111,7 +114,16 @@ public class Node : MonoBehaviour
 
         if (itemController.hasPadLock && gameManager.curCommand == Commands.RemoveNode)
         {
-            transform.DOShakePosition(0.5f, strength : 0.2f);
+            Tween temp = nodeTween;
+            if(nodeTween != null)
+            {
+                nodeTween.Pause();
+                transform.localScale = Vector3.one;
+            }
+            transform.DOShakePosition(0.5f, strength : 0.2f).OnComplete(() => { 
+                nodeTween = temp;
+                nodeTween.Play();
+            });
         }
     }
 
@@ -168,35 +180,43 @@ public class Node : MonoBehaviour
         AppearAnim(duration, 0f, easeType : Ease.Linear);
     }
 
-
-
-    protected virtual void CheckIfSuitable(LayerMask targetLM, int targetIndegree, ItemType itemType, int targetPermanent, bool levelEditorBypass){
-
-        //UpdateLockStatus();
-        bool hasRequiredItem = itemType == ItemType.None | itemController.FindItemWithType(itemType) != null ? true : false;
-        bool hasEqualIndegree = targetIndegree == -1 ? true : targetIndegree == indegree;
-        bool permanentCheck = targetPermanent == -1 ? true : (isPermanent && targetPermanent == 1) | (!isPermanent && targetPermanent == 0);
-
-        if ( ( (((1<<gameObject.layer) & targetLM) != 0)  && hasEqualIndegree  && hasRequiredItem && permanentCheck) || levelEditorBypass){
+    protected virtual void UpdateHighlight(SearchTarget searchTarget)
+    {
+        if (searchTarget.CheckAll(this))
+        {
             nodeColorController.Highlight(nodeColorController.glowIntensityMedium, 1f);
             col.enabled = true;
 
-            /*if ( !itemController.hasPadLock || (itemController.hasPadLock && ItemManager.keyCount > 0 ) || levelEditorBypass)
+            if (nodeTween != null)
             {
-                nodeColorController.Highlight(nodeColorController.glowIntensityMedium, 1f);
-                col.enabled = true;
+                nodeTween.Kill();
+                transform.localScale = Vector3.one;
             }
-            else
-            {
-                nodeColorController.Highlight(nodeColorController.glowIntensityVeryLow, 1f);
-                col.enabled = false;
-            }*/
+            
+            if (GameState.gameState != GameState_EN.playing) return;
+
+            nodeTween = transform.DOPunchScale(Vector3.one*0.1f, UnityEngine.Random.Range(1f, 1.5f), vibrato: 1)
+                .SetDelay(gameManager.commandDur + 0.02f).SetLoops(-1);
         }
-        else{
-            // Not selectable
-            nodeColorController.Highlight(nodeColorController.glowIntensityVeryLow, 1f);
-            col.enabled = false;
-        }   
+        else
+        {
+            SetNotSelectable();
+        }
+    }
+
+    protected void SetNotSelectable()
+    {
+        nodeColorController.Highlight(nodeColorController.glowIntensityVeryLow, 1f);
+        col.enabled = false;
+        if (nodeTween != null)
+        {
+            nodeTween.Kill();
+            if (isSelected)
+            {
+                Select(0.1f);
+            }
+            transform.localScale = Vector3.one;
+        }
     }
 
     protected virtual void CheckIfSuitableForKey()
