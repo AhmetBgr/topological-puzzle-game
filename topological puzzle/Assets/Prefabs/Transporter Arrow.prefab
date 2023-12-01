@@ -374,12 +374,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startingNode: {fileID: 0}
   destinationNode: {fileID: 0}
+  arrowPointPrefab: {fileID: 3408794715669694208, guid: 604cf333bde57884b9c451a1c86e3878, type: 3}
   arrowColorController: {fileID: 2906467770978984395}
   randomLRColor: {fileID: 3029745935353946619}
   randomSprite: {fileID: 1937073300682839724}
   isPermanent: 1
   lr: {fileID: 0}
+  col: {fileID: 0}
   linePoints: []
+  arrowPoints: []
 --- !u!114 &-4542943842018105911
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -415,6 +418,7 @@ MonoBehaviour:
   defHeadMaterial: {fileID: 2100000, guid: 29e20bb0e8f533d4da2d2eeb5982cf97, type: 2}
   glowIntensityMedium: 2
   glowIntensityHigh: 7
+  curGlowIntensity: 0
 --- !u!114 &3029745935353946619
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -25,95 +25,74 @@ public class PlaceNode : LeCommand{
 }
 public class DrawArrow : LeCommand{
     private LineRenderer lr;
-    private RaycastHit2D hit;
-    private int clickCount;
     private float gapForArrowHead;
+    private Arrow arrow;
+    private Node startingNode, destinationNode;
     
-
-    // Constructer
-    public DrawArrow(RaycastHit2D hit, int clickCount, float gap = 0.16f){
+    public DrawArrow(Arrow arrow, Node startingNode, Node destinationNode, float gap = 0.16f){
         gapForArrowHead = gap;
-        this.clickCount = clickCount;
-        this.hit = hit;
+        this.startingNode = startingNode;
+        this.destinationNode = destinationNode;
+        this.arrow = arrow;
     }
 
     // returns click count (0 = completed drawing)
     public override int Execute(GameObject selectedObject){
-        lr = selectedObject.GetComponent<LineRenderer>();
         
-        if(clickCount == 0){
-            lr.GetComponent<Arrow>().startingNode = hit.transform.gameObject;
-            //hit.transform.GetComponent<Node>().arrowsFromThisNode.Add(selectedObject);
-            hit.transform.GetComponent<Node>().AddToArrowsFromThisNodeList(selectedObject);
-            lr.useWorldSpace = true;
-            lr.positionCount = 1;
-            lr.SetPosition(0, hit.transform.position);
-            lr.startWidth = 0.03f;
-            clickCount++;
-            return clickCount;
-        }
-        else{
-            if( hit ){
-                lr.positionCount += 1;
-                int posCount = lr.positionCount;
-                
-                // Closest point on the node's collider to the last line position in world space
-                Vector3 pos = hit.collider.ClosestPoint( lr.GetPosition(lr.positionCount - 2) );
-                
-                // Leave gap for arrow head to fit in between last line pos and the node
-                Vector3 dir = pos - lr.GetPosition(posCount - 2);
-                float length = dir.magnitude - gapForArrowHead;
-                pos = dir.normalized*length + lr.GetPosition(posCount - 2);
+        lr = arrow.lr;
+        startingNode.col.enabled = true;
+        destinationNode.col.enabled = true;
 
-                // world space to local space
-                selectedObject.transform.InverseTransformPoint(pos);
+        arrow.startingNode = startingNode.gameObject;
+        arrow.destinationNode = destinationNode.gameObject;
+        startingNode.AddToArrowsFromThisNodeList(arrow.gameObject);
+        destinationNode.AddToArrowsToThisNodeList(arrow.gameObject);
+        lr.useWorldSpace = true;
+        lr.positionCount = 2;
 
-                pos = new Vector3(pos.x , pos.y , 0f);
-                
-                lr.SetPosition(lr.positionCount - 1, pos);
+        // Carries first point' position to outside of first node instead of center of it.
+        Vector3 fixedFirstPointPos = startingNode.col.ClosestPoint(destinationNode.transform.position);
+        Debug.Log("startingNode node pos : " + startingNode.transform.position);
+        Debug.Log("destination node pos : " + destinationNode.transform.position);
+
+        Debug.Log("start pos : " + fixedFirstPointPos);
+        lr.SetPosition(0, fixedFirstPointPos);
+
+        lr.startWidth = 0.03f;
+
+        // Closest point on the node's collider to the last line position in world space
+        Vector3 pos = destinationNode.col.ClosestPoint(lr.GetPosition(0));
+
+        // Leave gap for arrow head to fit in between last line pos and the node
+        Vector3 dir = pos - lr.GetPosition(0);
+        float length = dir.magnitude - gapForArrowHead;
+        pos = dir.normalized * length + lr.GetPosition(0);
+
+        // world space to local space
+        //selectedObject.transform.InverseTransformPoint(pos);
+
+        pos = new Vector3(pos.x, pos.y, 0f);
+
+        lr.SetPosition(1, pos);
 
 
-                Arrow arrow =  lr.GetComponent<Arrow>();
-                arrow.FixHeadPos();
 
-                // Carries first point' position to outside of first node instead of center of it.
-                Vector3 fixedFirstPointPos = arrow.startingNode.GetComponent<Collider2D>().ClosestPoint(lr.GetPosition(1));
-                lr.SetPosition(0, fixedFirstPointPos);
+        arrow.FixHeadPos();
+        arrow.SavePoints();
 
-                //hit.transform.GetComponent<Node>().arrowsToThisNode.Add(selectedObject);
-                hit.transform.GetComponent<Node>().AddToArrowsToThisNodeList(selectedObject);
-                arrow.destinationNode = hit.transform.gameObject;
-                arrow.SavePoints();
-
-                // Create polygon collider
-                selectedObject.GetComponent<Collider2D>().enabled = true;
-                arrow.FixCollider();
-
-                return 0;
-            }
-            else{
-                lr.positionCount += 1;
-                Vector3 pos = Camera.main.ScreenToWorldPoint(Cursor.instance.pos);
-                //pos = curObj.transform.InverseTransformPoint(pos);
-                pos = new Vector3(pos.x, pos.y, 0f);
-                lr.SetPosition(lr.positionCount -1, pos);
-                clickCount ++;
-                return clickCount;
-            }   
-        }
+        // Create polygon collider
+        arrow.col.enabled = true;
+        arrow.FixCollider();
+        startingNode.col.enabled = false;
+        destinationNode.col.enabled = false;
+        return 0;
     }
 
     public override GameObject Undo(){
-        lr.positionCount -= 1;
-        lr.transform.GetChild(0).localPosition = new Vector3(0f, 0f, 2f);
+        startingNode.RemoveFromArrowsFromThisNodeList(arrow.gameObject);
+        destinationNode.RemoveFromArrowsToThisNodeList(arrow.gameObject);
 
-        if(lr.positionCount <= 1){ // return object to destroy
-            Arrow arrow = lr.GetComponent<Arrow>();
-            arrow.destinationNode.GetComponent<Node>().RemoveFromArrowsToThisNodeList(lr.gameObject);
-            arrow.startingNode.GetComponent<Node>().RemoveFromArrowsFromThisNodeList(lr.gameObject);
-            return lr.gameObject;
-        }    
-        return null;
+        return arrow.gameObject;
     }
 }
 public class DeleteItem : LeCommand
@@ -481,3 +460,98 @@ public class ToggleNodePermanent : LeCommand
     }
 }
 
+public class AddArrowPoint : LeCommand
+{
+    Arrow arrow;
+    //ArrowPoint arrowPoint;
+    int index;
+    public AddArrowPoint(Arrow arrow)
+    {
+        this.arrow = arrow;
+        index = LevelEditor.arrowPointPreviewIndex;
+    }
+
+    public override int Execute(GameObject selectedObject)
+    {
+        Vector3 pos = LevelEditor.arrowPointPreview.position;
+        arrow.CreateArrowPoint(pos, index);
+        arrow.InsertLinePoint(pos, index);
+        return 0;
+    }
+
+    public override GameObject Undo()
+    {
+        arrow.RemoveArrowPoint(arrow.FindArrowPoint(Vector3.zero, index), true);
+        arrow.RemoveLinePointAt(index);
+        return null;
+    }
+}
+
+public class MoveArrowPoint : LeCommand
+{
+    public Arrow arrow;
+    Vector3 initialPos;
+    int index;
+    public MoveArrowPoint(Arrow arrow, int index)
+    {
+        this.arrow = arrow;
+        this.index = index;
+        this.initialPos = arrow.lr.GetPosition(index);
+    }
+
+    public void Move(Vector3 pos)
+    {
+        //arrow.lr.SetPosition(index, pos);
+        arrow.MoveLinePoint(index, pos);
+        if (index == arrow.lr.positionCount - 2)
+            arrow.FixHeadPos();
+    }
+
+    public override int Execute(GameObject selectedObject)
+    {
+        return 0;
+    }
+
+    public override GameObject Undo()
+    {
+        //arrow.lr.SetPosition(index, initialPos);
+        arrow.MoveLinePoint(index, initialPos);
+        arrow.FindArrowPoint(initialPos, index).transform.position = initialPos;
+
+        if (index == arrow.lr.positionCount - 2)
+            arrow.FixHeadPos();
+        return null;
+    }
+}
+
+public class DeleteArrowPoint : LeCommand
+{
+    private ArrowPoint arrowPoint;
+    private Arrow arrow;
+    private Vector3 pos;
+
+    public DeleteArrowPoint(ArrowPoint arrowPoint)
+    {
+        this.arrowPoint = arrowPoint;
+        arrow = arrowPoint.arrow;
+        pos = arrowPoint.transform.position;
+    }
+
+    public override int Execute(GameObject selectedArrowPoint)
+    {
+        arrow.RemoveArrowPoint(arrowPoint);
+        arrow.RemoveLinePointAt(arrowPoint.index);
+        arrowPoint.gameObject.SetActive(false);
+        arrow.col.enabled = true;
+        return 0;
+    }
+
+    public override GameObject Undo()
+    {
+        arrowPoint.gameObject.SetActive(true);
+        arrow.arrowPoints.Add(arrowPoint); 
+        arrow.InsertLinePoint(pos, arrowPoint.index);
+        arrow.col.enabled = true;
+        return null;
+    }
+}

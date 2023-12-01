@@ -110,9 +110,9 @@ public class Node : MonoBehaviour
 
     private void OnMouseUp()
     {
-        if (GameState.gameState == GameState_EN.inMenu) return;
+        if (GameState.gameState != GameState_EN.playing) return;
 
-        if (itemController.hasPadLock && gameManager.curCommand == Commands.RemoveNode)
+        if (itemController.hasPadLock && gameManager.curCommand == Commands.RemoveNode )
         {
             Tween temp = nodeTween;
             if(nodeTween != null)

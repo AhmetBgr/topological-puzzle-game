@@ -4,11 +4,12 @@ using UnityEngine;
 using System;
 using DG.Tweening;
 
-public class Arrow : MonoBehaviour{
+public class Arrow : MonoBehaviour {
 
     public GameObject startingNode;
     public GameObject destinationNode;
     //public Material defultMaterial;
+    public GameObject arrowPointPrefab;
     public ArrowCC arrowColorController;
     public RandomLRColor randomLRColor;
     public RandomSpriteColor randomSprite;
@@ -17,7 +18,7 @@ public class Arrow : MonoBehaviour{
     private GameManager gameManager;
     public LineRenderer lr;
     private Transform head;
-    private EdgeCollider2D col;
+    [HideInInspector] public EdgeCollider2D col;
 
     private List<ChangeArrowDir> changeDirCommands = new List<ChangeArrowDir>();
     //private Material material;
@@ -27,6 +28,9 @@ public class Arrow : MonoBehaviour{
     private IEnumerator highlightCor;
     private Tween headScaleTween;
     public Vector3[] linePoints;
+    public List<ArrowPoint> arrowPoints = new List<ArrowPoint>();
+    //public Transform arrowPointPreview;
+    //public int arrowPointPreviewIndex;
     private int pointsCount;
     private float defWidth = 0.05f;
 
@@ -58,7 +62,14 @@ public class Arrow : MonoBehaviour{
     private void Start()
     {
         OnChangedEvent();
-       
+
+        // Create arrow points
+        for (int i = 1; i < lr.positionCount - 1; i++)
+        {
+            Vector3 pos = lr.GetPosition(i);
+            ArrowPoint arrowPoint = CreateArrowPoint(pos, i);
+            arrowPoint.gameObject.SetActive(false);
+        }
     }
 
     void OnEnable(){
@@ -69,6 +80,8 @@ public class Arrow : MonoBehaviour{
         //GameManager.OnCurCommandChange += CheckIfSuitable;
         HighlightManager.OnSearch += Check;
         LevelManager.OnLevelLoad += GetOnTheLevel;
+        LevelEditor.OnEnter += EnableArrowPoints;
+        LevelEditor.OnExit += DisableArrowPoints;
     }
 
     void OnDisable(){
@@ -79,6 +92,8 @@ public class Arrow : MonoBehaviour{
         //GameManager.OnCurCommandChange -= CheckIfSuitable;
         HighlightManager.OnSearch -= Check;
         LevelManager.OnLevelLoad -= GetOnTheLevel;
+        LevelEditor.OnEnter -= EnableArrowPoints;
+        LevelEditor.OnExit -= DisableArrowPoints;
     }
     void OnMouseEnter(){
         isSelectable = false;
@@ -92,6 +107,57 @@ public class Arrow : MonoBehaviour{
         StartCoroutine(widthAnim);
 
         highlightCor = arrowColorController.Highlight(arrowColorController.glowIntensityHigh, 0.1f);
+
+        if (GameState.gameState != GameState_EN.inLevelEditor) return;
+        LevelEditor.arrowPointPreview.gameObject.SetActive(true);
+    }
+
+    private void OnMouseOver()
+    {
+        if (GameState.gameState != GameState_EN.inLevelEditor) return;
+
+        int posCount = lr.positionCount;
+        if (posCount < 2) return;
+
+        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+        //Transform arrowPointPreview = LevelEditor.arrowPointPreview;
+        //int arrowPointPrei
+        int lastIndex = posCount - 1;
+
+        Vector3 closestSegment = Vector3.zero;
+        Vector3 projection = Vector3.zero;
+        float closestDistance = 1000f;
+        LevelEditor.arrowPointPreviewIndex = lastIndex;
+
+        for (int i = lr.positionCount - 1; i > 0; i--)
+        {
+            Vector3 segment = lr.GetPosition(i) - lr.GetPosition(i-1);
+            Vector3 projection2 = Vector3.Project(mouseWorldPos - lr.GetPosition(i-1), segment);
+
+            float distance = (mouseWorldPos - lr.GetPosition(i - 1) - projection2).magnitude;
+
+            if (distance < closestDistance && projection2.normalized == segment.normalized)
+            {
+                closestDistance = distance;
+                closestSegment = segment;
+                LevelEditor.arrowPointPreviewIndex = i;
+                projection = projection2;
+            }
+        }
+
+        if((projection.magnitude < 0.1f | (closestSegment - projection).magnitude < 0.1f) 
+            && LevelEditor.arrowPointPreviewIndex != 0 && LevelEditor.arrowPointPreviewIndex != lastIndex)
+        {
+            col.enabled = false;
+            return;
+        }
+
+        if (projection.magnitude >= closestSegment.magnitude | projection.normalized != closestSegment.normalized ) return;
+
+        Vector2 pos = projection + lr.GetPosition(LevelEditor.arrowPointPreviewIndex - 1);
+
+        LevelEditor.arrowPointPreview.position = pos;
     }
 
     void OnMouseExit(){
@@ -104,6 +170,9 @@ public class Arrow : MonoBehaviour{
         //head.DOScale(Vector3.one, 0.2f);
         widthAnim = ChangeWidth(defWidth, 0.1f);
         StartCoroutine(ChangeWidth(defWidth, 0.1f));
+
+        if (GameState.gameState != GameState_EN.inLevelEditor) return;
+        LevelEditor.arrowPointPreview.gameObject.SetActive(false);
     }
 
     private void Update()
@@ -497,6 +566,7 @@ public class Arrow : MonoBehaviour{
         OnChangedEvent();
     }
 
+
     public Vector3 FindCenter()
     {
         return (lr.GetPosition(0) + lr.GetPosition(1)) / 2;
@@ -573,6 +643,98 @@ public class Arrow : MonoBehaviour{
         }
         points.Add((Vector2)lr.GetPosition(lr.positionCount - 1));
         col.points = points.ToArray();
+    }
+
+    public ArrowPoint CreateArrowPoint(Vector3 pos, int index)
+    {
+        ArrowPoint arrowPoint = Instantiate(arrowPointPrefab, pos, Quaternion.identity).GetComponent<ArrowPoint>();
+        arrowPoint.transform.SetParent(LevelManager.curLevel.transform);
+        arrowPoint.arrow = this;
+        arrowPoint.index = index;
+        arrowPoints.Add(arrowPoint);
+        return arrowPoint;
+    }
+    public void RemoveArrowPoint(ArrowPoint arrowPoint, bool destroyAfterRemoving = false)
+    {
+        arrowPoints.Remove(arrowPoint);
+
+        if(destroyAfterRemoving)
+            Destroy(arrowPoint.gameObject);
+    }
+
+    public void UpdateArrowPointPosition(Transform arrowPoint, Vector3 pos)
+    {
+        arrowPoint.position = pos;
+    }
+
+    public void UpdateAllArrowPoints()
+    {
+        for (int i = 0; i < arrowPoints.Count; i++)
+        {
+            arrowPoints[i].index = i + 1;
+            arrowPoints[i].transform.position = lr.GetPosition(i + 1);
+        }
+    }
+
+    private void EnableArrowPoints()
+    {
+        foreach (var item in arrowPoints)
+        {
+            item.gameObject.SetActive(true);
+        }
+    }
+    private void DisableArrowPoints()
+    {
+        foreach (var item in arrowPoints)
+        {
+            item.gameObject.SetActive(false);
+        }
+    }
+    public ArrowPoint FindArrowPoint(Vector3 pos, int index)
+    {
+        foreach (var item in arrowPoints)
+        {
+            if (index == item.index)
+            {
+                return item;
+            }
+        }
+        return CreateArrowPoint(pos, index);
+    }
+
+    public void InsertLinePoint(Vector3 pos, int index)
+    {
+        lr.positionCount++;
+        Vector3[] positions = new Vector3[lr.positionCount];
+        lr.GetPositions(positions);
+        lr.SetPosition(index, pos);
+        UpdateArrowPointPosition(FindArrowPoint(pos, index).transform, pos);
+        for (int i = index+1; i < lr.positionCount; i++)
+        {
+            lr.SetPosition(i, positions[i-1]);
+
+        }
+        FixCollider();
+        SavePoints();
+        UpdateAllArrowPoints();
+
+    }
+    public void RemoveLinePointAt(int index)
+    {
+        if (index > lr.positionCount - 1) return;
+
+        Vector3[] positions = new Vector3[lr.positionCount];
+        lr.GetPositions(positions);
+        var pointsList = new List<Vector3>(positions);
+        pointsList.RemoveAt(index);
+        positions = pointsList.ToArray();
+        lr.positionCount--;
+        lr.SetPositions(positions);
+        FixCollider();
+        SavePoints();
+        UpdateAllArrowPoints();
+        if (index == lr.positionCount - 2)
+            FixHeadPos();
     }
 
     // Moves single line point in word pos

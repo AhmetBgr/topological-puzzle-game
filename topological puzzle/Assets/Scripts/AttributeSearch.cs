@@ -43,7 +43,6 @@ public class LayerSearch : AttributeSearch
     public override bool Check(Arrow arrow)
     {
         GameObject obj = arrow.gameObject;
-        Debug.Log("checking arrow layer match: target: " + layerMask.value);
         return ((1 << obj.layer) & layerMask) != 0;
     }
     public override bool Check(Item item)
@@ -176,6 +175,21 @@ public class ExcludeObjectsSearch : AttributeSearch
     }
     public override bool Check(GameObject obj)
     {
+        return !objectsToExclude.Contains(obj);
+    }
+    public override bool Check(Node node)
+    {
+        GameObject obj = node.gameObject;
+        return !objectsToExclude.Contains(obj);
+    }
+    public override bool Check(Arrow arrow)
+    {
+        GameObject obj = arrow.gameObject;
+        return !objectsToExclude.Contains(obj);
+    }
+    public override bool Check(Item item)
+    {
+        GameObject obj = item.gameObject;
         return !objectsToExclude.Contains(obj);
     }
 }

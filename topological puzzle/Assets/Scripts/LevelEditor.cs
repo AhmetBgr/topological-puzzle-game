@@ -5,7 +5,7 @@ using DG.Tweening;
 using TMPro;
 
 public enum LeState{
-    placingNode, drawingArrow, closed, waiting, movingObject, addingItem
+    placingNode, drawingArrow, closed, waiting, movingNode, addingItem, movingArrowPoint
 }
 public class LevelEditor : MonoBehaviour{
     public LevelManager levelManager;
@@ -37,6 +37,9 @@ public class LevelEditor : MonoBehaviour{
     public TextMeshProUGUI levelPoolNameTextField;
     public Button enterTestButton;
     public Button exitTestButton;
+    public Transform _arrowPointPreview;
+    public static Transform arrowPointPreview;
+    public static int arrowPointPreviewIndex;
 
     private Cursor cursor;
 
@@ -44,6 +47,7 @@ public class LevelEditor : MonoBehaviour{
 
     public float gapForArrowHead = 0.22f;
 
+    private List<GameObject> selectedObjects = new List<GameObject>();
     private Transform curObj; // change to selectedObj
     private GameObject lastPrefab;
     private Node curLockedNode;
@@ -56,7 +60,8 @@ public class LevelEditor : MonoBehaviour{
     private LeState lastState;
     private GameManager gameManager;
     MoveNode moveNode = null;
-    Transform movingNode = null;
+    MoveArrowPoint moveArrowPoint = null;
+    Transform objToMove = null;
 
     private Vector3 initialPos;
     private Vector3 initialPos2;
@@ -80,6 +85,7 @@ public class LevelEditor : MonoBehaviour{
         panel.OnClose += CloseLevelEditor;
         initialPos = bottomPanel.localPosition;
         initialPos2 = topPanel.localPosition;
+        arrowPointPreview = _arrowPointPreview;
     }
 
     void OnEnable()
@@ -134,6 +140,12 @@ public class LevelEditor : MonoBehaviour{
                     deleteArrow.Execute(selectedObject);
                     oldCommands.Add(deleteArrow);
                 }
+                else if (((1 << selectedObject.layer) & LayerMask.GetMask("ArrowPoint")) != 0)
+                {
+                    DeleteArrowPoint deleteArrowPoint = new DeleteArrowPoint(selectedObject.GetComponent<ArrowPoint>());
+                    deleteArrowPoint.Execute(selectedObject);
+                    oldCommands.Add(deleteArrowPoint);
+                }
             }
         }
         
@@ -143,11 +155,23 @@ public class LevelEditor : MonoBehaviour{
             if (!isButtonDown)
             {
                 Vector2 ray = cursor.worldPos;
-                RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero, LayerMask.GetMask("Node"));
-                if (hit){ // Holding starting over a node
-                    movingNode = hit.transform;
-                    isButtonDown = true;
+                RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero, LayerMask.GetMask("Node", "Arrow", "ArrowPoint"));
+                if (hit){ 
+
+                    GameObject selectedObject = hit.transform.gameObject;
+                    if (((1 << selectedObject.layer) & LayerMask.GetMask("Arrow")) != 0)
+                    {
+                        AddArrowPoint addArrowPoint = new AddArrowPoint(selectedObject.GetComponent<Arrow>());
+                        addArrowPoint.Execute(selectedObject);
+                        oldCommands.Add(addArrowPoint);
+                    }
+                    else
+                    {
+                        objToMove = hit.transform;
+                        isButtonDown = true;
+                    }
                 }
+
             }
             else // Increases hold time
             {
@@ -159,12 +183,22 @@ public class LevelEditor : MonoBehaviour{
                 t = 0;
             }
             if (t >= minDragTime) { // Enough hold time for dragging, So changes level editor state to moving object
-                if (((1 << movingNode.gameObject.layer) & LayerMask.GetMask("Node")) == 0) return;
+                if (((1 << objToMove.gameObject.layer) & LayerMask.GetMask("Node")) != 0)
+                {
+                    moveNode = new MoveNode(objToMove, curLevelInEditing.transform);
+                    oldCommands.Add(moveNode);
+                    lastState = state;
+                    state = LeState.movingNode;
+                }
+                else if (((1 << objToMove.gameObject.layer) & LayerMask.GetMask("ArrowPoint")) != 0)
+                {
+                    ArrowPoint arrowPoint = objToMove.GetComponent<ArrowPoint>();
+                    moveArrowPoint = new MoveArrowPoint(arrowPoint.arrow, arrowPoint.index);
+                    oldCommands.Add(moveArrowPoint);
+                    lastState = state;
+                    state = LeState.movingArrowPoint;
+                }
 
-                moveNode = new MoveNode(movingNode, curLevelInEditing.transform);
-                oldCommands.Add(moveNode);
-                lastState = state;
-                state = LeState.movingObject;
                 t = 0;
                 isButtonDown = false;
             }
@@ -204,30 +238,39 @@ public class LevelEditor : MonoBehaviour{
         }
         else if(state == LeState.drawingArrow ){
             Vector2 ray = Camera.main.ScreenToWorldPoint(cursor.pos);
-            if (clickCount > 0)
-                curObj.GetChild(0).position = ray;
+
             if( Input.GetMouseButtonDown(0) ){
                 
-                RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero, LayerMask.GetMask("Node")); // ray in node layer
-                if( (clickCount == 0 && hit )  || clickCount > 0){
-                    LeCommand command = new DrawArrow(hit, clickCount, gapForArrowHead);
-                    curObj.gameObject.SetActive(true);
-                    clickCount = command.Execute(curObj.gameObject);
-                    //if(clickCount != 1)
-                        //oldCommands.Add(command);
-                    if(clickCount == 0){ // finished drawing arrow
-                        oldCommands.Add(command);
-                        curObj = null;
-                        InstantiateObject(arrow);
+                RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero, LayerMask.GetMask("Node"));
+                if (hit)
+                {
+                    selectedObjects.Add(hit.transform.gameObject);
+
+                    if(selectedObjects.Count == 2)
+                    {
+                        Arrow arrow = Instantiate(lastPrefab, Vector3.zero, Quaternion.identity).GetComponent<Arrow>();
+                        arrow.transform.SetParent(LevelManager.curLevel.transform);
+                        DrawArrow drawArrow = new DrawArrow(arrow, 
+                            selectedObjects[0].GetComponent<Node>(), 
+                            selectedObjects[1].GetComponent<Node>()
+                        );
+                        drawArrow.Execute(null);
+                        oldCommands.Add(drawArrow);
+                        HighlightManager.instance.Search(HighlightManager.instance.onlyNodeSearch);
+                        selectedObjects.Clear();
+;                   }
+                    else if(selectedObjects.Count == 1)
+                    {
+                        SearchTarget searchTarget = new SearchTarget(new List<AttributeSearch> { 
+                                new LayerSearch(LayerMask.GetMask("Node")),
+                                new ExcludeObjectsSearch(new List<GameObject>{selectedObjects[0]}) 
+                        });
+                        HighlightManager.instance.Search(searchTarget);
                     }
-                    
-                }
-                else{
-                    clickCount = 0;
                 }
             }
         }
-        else if(state == LeState.movingObject && moveNode != null)
+        else if(state == LeState.movingNode && moveNode != null)
         {
             Vector2 targetPos = cursor.worldPos;
             moveNode.Move( new Vector3(targetPos.x, targetPos.y, 0) );
@@ -244,6 +287,19 @@ public class LevelEditor : MonoBehaviour{
                     arrowComponents.arrow.SavePoints();
                     arrowComponents.arrow.FixCollider();
                 }
+                state = lastState;
+            }
+            return;
+        }
+        else if (state == LeState.movingArrowPoint && moveArrowPoint != null)
+        {
+            Vector2 targetPos = cursor.worldPos;
+            objToMove.position = targetPos;
+            moveArrowPoint.Move(new Vector3(targetPos.x, targetPos.y, 0));
+            if (Input.GetMouseButtonUp(0))
+            {
+                moveArrowPoint.arrow.FixCollider();
+                moveArrowPoint.arrow.FixHeadPos();
                 state = lastState;
             }
             return;
@@ -279,6 +335,7 @@ public class LevelEditor : MonoBehaviour{
             }
         }
 
+        // Cancel current action
         if(Input.GetMouseButtonDown(1) && state != LeState.waiting && GameState.gameState == GameState_EN.inLevelEditor)
         {
             if (state == LeState.addingItem)
@@ -295,6 +352,8 @@ public class LevelEditor : MonoBehaviour{
 
             state = LeState.waiting;
             lastState = state;
+            HighlightManager.instance.Search(HighlightManager.instance.anySearch);
+            selectedObjects.Clear();
         }
     }
 
@@ -325,24 +384,25 @@ public class LevelEditor : MonoBehaviour{
         if(curObj != null && curObj.tag == prefab.tag){
             return;
         }
+        Transform obj = null;
+        HighlightManager highlightManager = HighlightManager.instance;
+        if (state == LeState.drawingArrow)
+        {
+            highlightManager.Search(highlightManager.onlyNodeSearch);
+        }
+        else if (state == LeState.placingNode)
+        {
+            obj = Instantiate(prefab, Vector3.zero, Quaternion.identity).transform;
+            obj.SetParent(curLevelInEditing.transform);
+            obj.GetComponent<Collider2D>().enabled = false;
 
-        Transform obj = Instantiate(prefab, Vector3.zero, Quaternion.identity).transform;
-        obj.SetParent(curLevelInEditing.transform);
-        obj.GetComponent<Collider2D>().enabled = false;
+            highlightManager.Search(highlightManager.noneSearch);
+        }
 
-        //obj.localPosition = hit.transform.localPosition;
         curObj = obj;
         lastPrefab = prefab;
-        //curObj.gameObject.SetActive(false);
         this.state = state;
-        /*if(obj.CompareTag("Arrow")){
-            state = LeState.drawingArrow;
-        }
-        else if(obj.CompareTag("BasicNode")){
-            state = LeState.placingNode;
-        }*/
         lastState = state;
-        
     }
 
 
@@ -355,16 +415,7 @@ public class LevelEditor : MonoBehaviour{
         Transform obj = Instantiate(prefab, Vector3.zero, Quaternion.identity).transform;
         obj.SetParent(curLevelInEditing.transform);
         obj.GetComponent<Collider2D>().enabled = false;
-        //obj.localPosition = hit.transform.localPosition;
         curObj = obj;
-        /*if(obj.CompareTag("Arrow")){
-            state = LeState.drawingArrow;
-        }
-        else if(obj.CompareTag("BasicNode")){
-            state = LeState.placingNode;
-        }
-        lastState = state;
-        curObj.gameObject.SetActive(false);*/
     }
 
     public void Undo(){
@@ -377,7 +428,6 @@ public class LevelEditor : MonoBehaviour{
 
             if(destroyObject != null ){
                 Destroy(destroyObject);
-                
             }
         }
     }
@@ -514,7 +564,7 @@ public class LevelEditor : MonoBehaviour{
 
         enterTestButton.gameObject.SetActive(true);
 
-        //HighlightManager.instance.Search(HighlightManager.instance.anySearch);
+        HighlightManager.instance.Search(HighlightManager.instance.anySearch);
         lastState = LeState.waiting;
         state = LeState.waiting;
         ResetCurLevelInEditing();
