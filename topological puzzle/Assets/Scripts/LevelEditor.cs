@@ -38,6 +38,10 @@ public class LevelEditor : MonoBehaviour{
     public Button enterTestButton;
     public Button exitTestButton;
     public Transform _arrowPointPreview;
+    public Button toggleGridButton;
+    public RectTransform gridControllers;
+    public TextMeshProUGUI gridSizeTextField;
+    public Grid grid;
     public static Transform arrowPointPreview;
     public static int arrowPointPreviewIndex;
 
@@ -95,6 +99,8 @@ public class LevelEditor : MonoBehaviour{
         AddNewItem.OnMouseEnter += OpenAddItemPanel;
         GameManager.OnLevelComplete += ExitTestingWithDelay;
         levelsDropdownHandler.OnValueChanged += UpdateHighlights;
+        Grid.OnGridToggle += ToggleGrid;
+        Grid.OnGridSizeChanged += UpdateGridSizeTextField;
     }
     void OnDisable()
     {
@@ -102,6 +108,8 @@ public class LevelEditor : MonoBehaviour{
         AddNewItem.OnMouseEnter -= OpenAddItemPanel;
         GameManager.OnLevelComplete -= ExitTestingWithDelay;
         levelsDropdownHandler.OnValueChanged -= UpdateHighlights;
+        Grid.OnGridSizeChanged -= UpdateGridSizeTextField;
+        Grid.OnGridToggle -= ToggleGrid;
         //panel.OnOpen -= OpenLevelEditor;
     }
 
@@ -154,7 +162,7 @@ public class LevelEditor : MonoBehaviour{
         {
             if (!isButtonDown)
             {
-                Vector2 ray = cursor.worldPos;
+                Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero, LayerMask.GetMask("Node", "Arrow", "ArrowPoint"));
                 if (hit){ 
 
@@ -357,6 +365,13 @@ public class LevelEditor : MonoBehaviour{
         }
     }
 
+    public void ToggleGrid(bool isActive)
+    {
+        cursor.snapToGrid = isActive;
+        Color color = isActive ? Color.blue : Color.magenta;
+        toggleGridButton.image.color = color;
+        gridControllers.gameObject.SetActive(isActive);
+    }
     public void AddItem(GameObject itemPrefab, Node node)
     {
         if (addItemNode)
@@ -488,6 +503,11 @@ public class LevelEditor : MonoBehaviour{
         encodedLevelText.text = Utility.EncodeBase64WithBytes(bytesToEncode);
     }
 
+    private void UpdateGridSizeTextField(float value, float minGridSize)
+    {
+        gridSizeTextField.text = (value / minGridSize).ToString(); 
+    }
+
     public void CopyLevelCode()
     {
         GUIUtility.systemCopyBuffer = encodedLevelText.text;
@@ -572,6 +592,7 @@ public class LevelEditor : MonoBehaviour{
         levelsDropdownHandler.AddOptions(levelManager.GetCurLevelsNameList());
         levelsDropdownHandler.UpdateCurrentValue(LevelManager.curLevelIndex, false);
         UpdateLevelPoolName();
+        cursor.gameObject.SetActive(true);
     }   
 
     private void CloseLevelEditor(){
@@ -602,6 +623,7 @@ public class LevelEditor : MonoBehaviour{
         state = LeState.closed;
         gameManager.ChangeCommand(Commands.RemoveNode);
         enterTestButton.gameObject.SetActive(false);
+        cursor.gameObject.SetActive(false);
 
         if (OnExit != null){
             OnExit();

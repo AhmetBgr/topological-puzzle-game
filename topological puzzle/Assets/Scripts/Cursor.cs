@@ -2,17 +2,21 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class Cursor : MonoBehaviour
 {
     private Camera cam;
     public Transform cursor;
+    public Image cursorIcon;
     public bool snapToGrid = false;
     public float gridSize = 1f;
     //public bool onlyUpdateOnHover = false;
     public Vector3 pos;
     public Vector3 worldPos;
     public Vector3 mouseWorldPos;
+    int UILayer;
 
     public bool isHiden = false;
     public static Cursor instance = null;
@@ -33,7 +37,12 @@ public class Cursor : MonoBehaviour
         DontDestroyOnLoad(this.gameObject);
 
     }
-    private void LateUpdate()
+    private void Start()
+    {
+        this.UILayer = LayerMask.NameToLayer("UI");
+        gameObject.SetActive(false);
+    }
+    /*private void LateUpdate()
     {
 
         if (( Input.GetMouseButtonUp(1)| Input.GetKeyUp(KeyCode.LeftAlt)) && snapToGrid)
@@ -44,10 +53,24 @@ public class Cursor : MonoBehaviour
         {
             snapToGrid = true;
         }
-    }
+    }*/
 
     void Update()
     {
+        bool isHoveringUI = IsPointerOverUIElement();
+        if (isHoveringUI && !isHiden)
+        {
+            HideCursor();
+            return;
+        }
+        else if (!isHoveringUI && isHiden)
+        {
+            ShowCursor();
+            return;
+        }
+
+        if (isHiden) return;
+
         if (snapToGrid)
         {
             Vector3 mousePos = Input.mousePosition;
@@ -68,18 +91,16 @@ public class Cursor : MonoBehaviour
 
     public void HideCursor()
     {
-        SpriteRenderer spriteRenderer = cursor.GetComponent<SpriteRenderer>();
-        spriteRenderer.enabled = false;
-        snapToGrid = false;
+        cursorIcon.enabled = false;
         isHiden = true;
+        UnityEngine.Cursor.visible = true;
     }
 
     public void ShowCursor()
     {
-        SpriteRenderer spriteRenderer = cursor.GetComponent<SpriteRenderer>();
-        spriteRenderer.enabled = true;
-        snapToGrid = true;
+        cursorIcon.enabled = true;
         isHiden = false;
+        UnityEngine.Cursor.visible = false;
     }
 
     float HalfRound(float value)
@@ -103,6 +124,37 @@ public class Cursor : MonoBehaviour
         return value * gridSize;
 
     }
+
+    //Returns 'true' if we touched or hovering on Unity UI element.
+    public bool IsPointerOverUIElement()
+    {
+        return IsPointerOverUIElement(GetEventSystemRaycastResults());
+    }
+
+
+    //Returns 'true' if we touched or hovering on Unity UI element.
+    private bool IsPointerOverUIElement(List<RaycastResult> eventSystemRaysastResults)
+    {
+        for (int index = 0; index < eventSystemRaysastResults.Count; index++)
+        {
+            RaycastResult curRaysastResult = eventSystemRaysastResults[index];
+            if (curRaysastResult.gameObject.layer == UILayer)
+                return true;
+        }
+        return false;
+    }
+
+
+    //Gets all event system raycast results of current mouse or touch position.
+    static List<RaycastResult> GetEventSystemRaycastResults()
+    {
+        PointerEventData eventData = new PointerEventData(EventSystem.current);
+        eventData.position = Input.mousePosition;
+        List<RaycastResult> raysastResults = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, raysastResults);
+        return raysastResults;
+    }
+
 
     private void OnApplicationFocus(bool focus)
     {
