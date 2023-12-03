@@ -9236,6 +9236,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1361513883}
+        m_TargetAssemblyTypeName: MainCanvasManager, Assembly-CSharp
+        m_MethodName: UpdateMyLevelsButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &244046334
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19314,7 +19326,7 @@ MonoBehaviour:
     m_HighlightedColor: {r: 1, g: 0.21568629, b: 0.5882353, a: 1}
     m_PressedColor: {r: 0, g: 0.9803922, b: 0.6745098, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_DisabledColor: {r: 0.3882353, g: 0.3882353, b: 0.3882353, a: 0.34901962}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -22500,7 +22512,7 @@ MonoBehaviour:
   mainItemContainer: {fileID: 1966680719}
   red: {r: 0.3764706, g: 0, b: 0.09411765, a: 1}
   green: {r: 0, g: 0.3764706, b: 0.1764706, a: 1}
-  inEditor: 1
+  inEditor: 0
 --- !u!225 &932178248
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -25442,6 +25454,7 @@ MonoBehaviour:
   permanentNodeSwapperPrefab: {fileID: 5304421237793316639, guid: 8f0f1d62635b2a548a916bd1da3ee69c, type: 3}
   topPanel: {fileID: 1846570953}
   bottomPanel: {fileID: 1509710084}
+  rightPanel: {fileID: 1798860544}
   sharePanel: {fileID: 1156826732}
   GetLevelPanel: {fileID: 2012552618}
   addItemPanel: {fileID: 762772136}
@@ -25456,7 +25469,7 @@ MonoBehaviour:
   toggleGridButton: {fileID: 32894664}
   gridControllers: {fileID: 522106673}
   gridSizeTextField: {fileID: 855199187}
-  grid: {fileID: 0}
+  grid: {fileID: 1191401687}
   state: 2
   gapForArrowHead: 0.22
   addItemNode: {fileID: 0}
@@ -26742,6 +26755,7 @@ MonoBehaviour:
   minGridSize: 0.125
   maxGridSize: 1.125
   gridSize: 0.125
+  isActive: 0
 --- !u!4 &1191401688
 Transform:
   m_ObjectHideFlags: 0
@@ -28924,9 +28938,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ee793be60cad06449578d1115863a92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  levelManager: {fileID: 195511187}
   mainMenuPanel: {fileID: 1554776108}
   gameplayPanel: {fileID: 932178249}
   levelEditorPanel: {fileID: 1093102613}
+  myLevelsButton: {fileID: 693196482}
   currentPanel: {fileID: 0}
   previousPanel: {fileID: 0}
 --- !u!1 &1363842466
@@ -36929,7 +36945,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 3, y: -353}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!4 &1966680718 stripped
@@ -37161,6 +37177,7 @@ MonoBehaviour:
   permanentNodeSwapperPrefab: {fileID: 5304421237793316639, guid: 8f0f1d62635b2a548a916bd1da3ee69c, type: 3}
   topPanel: {fileID: 351744126}
   bottomPanel: {fileID: 877431019}
+  rightPanel: {fileID: 0}
   sharePanel: {fileID: 1993237849}
   GetLevelPanel: {fileID: 1428082856}
   addItemPanel: {fileID: 0}

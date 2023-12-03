@@ -27,6 +27,7 @@ public class LevelEditor : MonoBehaviour{
 
     public RectTransform topPanel;
     public RectTransform bottomPanel;
+    public RectTransform rightPanel;
     public RectTransform sharePanel;
     public RectTransform GetLevelPanel;
     public RectTransform addItemPanel;
@@ -69,10 +70,12 @@ public class LevelEditor : MonoBehaviour{
 
     private Vector3 initialPos;
     private Vector3 initialPos2;
+    private Vector3 rightPInitialPos;
     private int clickCount = 0;
     private float minDragTime = 0.1f;
     private float t = 0;
     private bool isButtonDown = false;
+    private bool wasGridActive = false;
 
     public delegate void OnExitDelegate();
     public static OnExitDelegate OnExit;
@@ -89,6 +92,7 @@ public class LevelEditor : MonoBehaviour{
         panel.OnClose += CloseLevelEditor;
         initialPos = bottomPanel.localPosition;
         initialPos2 = topPanel.localPosition;
+        rightPInitialPos = rightPanel.localPosition;
         arrowPointPreview = _arrowPointPreview;
     }
 
@@ -147,6 +151,7 @@ public class LevelEditor : MonoBehaviour{
                     DeleteArrow deleteArrow = new DeleteArrow();
                     deleteArrow.Execute(selectedObject);
                     oldCommands.Add(deleteArrow);
+                    arrowPointPreview.gameObject.SetActive(false);
                 }
                 else if (((1 << selectedObject.layer) & LayerMask.GetMask("ArrowPoint")) != 0)
                 {
@@ -552,18 +557,19 @@ public class LevelEditor : MonoBehaviour{
 
     private void OpenLevelEditor(){
         gameObject.SetActive(true);
-
-        if(OnEnter != null){
+        cursor.Enable();
+        if (OnEnter != null){
             OnEnter();
         }
 
         bottomPanel.gameObject.SetActive(true);
-        
         bottomPanel.localPosition -= Vector3.up * 100f;
 
         topPanel.gameObject.SetActive(true);
-        
         topPanel.localPosition += Vector3.up * 100f;
+
+        rightPanel.gameObject.SetActive(true);
+        rightPanel.localPosition += Vector3.right * 100f;
 
         GameObject curLevel = LevelManager.curLevel;
         if (panelSequance != null)
@@ -574,8 +580,8 @@ public class LevelEditor : MonoBehaviour{
         panelSequance = DOTween.Sequence();
 
         panelSequance.Append(bottomPanel.DOLocalMoveY(initialPos.y, 0.5f));
-
         panelSequance.Append(topPanel.DOLocalMoveY(initialPos2.y, 0.5f).SetDelay(-0.5f));
+        panelSequance.Append(rightPanel.DOLocalMoveX(rightPInitialPos.x, 0.5f).SetDelay(-0.5f));
 
         curLevel.name = curLevel.name.Replace("(Clone)", "");
 
@@ -592,7 +598,7 @@ public class LevelEditor : MonoBehaviour{
         levelsDropdownHandler.AddOptions(levelManager.GetCurLevelsNameList());
         levelsDropdownHandler.UpdateCurrentValue(LevelManager.curLevelIndex, false);
         UpdateLevelPoolName();
-        cursor.gameObject.SetActive(true);
+
     }   
 
     private void CloseLevelEditor(){
@@ -608,8 +614,9 @@ public class LevelEditor : MonoBehaviour{
         panelSequance = DOTween.Sequence();
 
         panelSequance.Append(bottomPanel.DOLocalMoveY(initialPos.y - 100f, 0.5f));
-
         panelSequance.Append(topPanel.DOLocalMoveY(initialPos2.y + 100f, 0.5f)
+            .SetDelay(-0.5f));
+        panelSequance.Append(rightPanel.DOLocalMoveX(rightPInitialPos.x + 100f, 0.5f)
             .SetDelay(-0.5f));
         panelSequance.OnComplete(() =>
         {
@@ -618,12 +625,15 @@ public class LevelEditor : MonoBehaviour{
 
             topPanel.localPosition = initialPos2;
             topPanel.gameObject.SetActive(false);
+
+            rightPanel.localPosition = rightPInitialPos;
+            rightPanel.gameObject.SetActive(false);
         });
 
         state = LeState.closed;
         gameManager.ChangeCommand(Commands.RemoveNode);
         enterTestButton.gameObject.SetActive(false);
-        cursor.gameObject.SetActive(false);
+        cursor.Disable();
 
         if (OnExit != null){
             OnExit();
@@ -665,6 +675,12 @@ public class LevelEditor : MonoBehaviour{
         GameState.ChangeGameState(GameState_EN.testingLevel);
 
         exitTestButton.gameObject.SetActive(true);
+        wasGridActive = grid.isActive;
+
+        if (grid.isActive)
+        {
+            grid.ToggleGrid(false);
+        }
     }
 
     public void ExitTesting()
@@ -683,6 +699,7 @@ public class LevelEditor : MonoBehaviour{
         GameState.ChangeGameState(GameState_EN.inLevelEditor);
 
         exitTestButton.gameObject.SetActive(false);
+        grid.ToggleGrid(wasGridActive);
     }
 
     private void ExitTestingWithDelay(float delay)

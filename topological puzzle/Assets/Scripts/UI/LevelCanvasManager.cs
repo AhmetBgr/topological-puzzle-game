@@ -20,7 +20,7 @@ public class LevelCanvasManager : MonoBehaviour
     public Color red;
     public Color green;
 
-    public bool inEditor = true;
+    public bool inEditor;
 
     private Sequence useItemButtonBCImageSeq;
 
@@ -60,6 +60,10 @@ public class LevelCanvasManager : MonoBehaviour
         //LevelEditor.OnEnter -= ToggleLevelChangeButtons;
         //LevelEditor.OnExit -= ToggleLevelChangeButtons;
     }
+
+    private void Start()
+    {
+    }
     private void UpdateLevelIndexText(int curLevelIndex)
     {
         int level = curLevelIndex +1;
@@ -69,31 +73,22 @@ public class LevelCanvasManager : MonoBehaviour
 
     private void UpdateNextLevelButton()
     {
-
-        if (inEditor)
+        if(levelManager.curPool == LevelPool.Player && LevelManager.curLevelIndex >= levelManager.playerLevels.Count - 1)
         {
-            if (LevelManager.curLevelIndex == levelManager.curLevelPool.Count - 1)
-            {
-                nextLevelButton.gameObject.SetActive(false);
-            }
-            else
-            {
-                nextLevelButton.gameObject.SetActive(true);
-            }
-            return;
+            nextLevelButton.gameObject.SetActive(false);
+            Debug.Log("here1");
         }
-        //#if UNITY_EDITOR
-
-        //#endif
-
-        if (LevelManager.curLevelIndex == levelManager.levelProgressIndex)
+        else if(levelManager.curPool == LevelPool.Original && LevelManager.curLevelIndex >= levelManager.levelProgressIndex)
         {
+            Debug.Log("here2");
             nextLevelButton.gameObject.SetActive(false);
         }
         else
         {
             nextLevelButton.gameObject.SetActive(true);
+            Debug.Log("here3");
         }
+
     }
 
     private void UpdatePreviousLevelButton()

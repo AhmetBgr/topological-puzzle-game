@@ -31,6 +31,7 @@ public class Arrow : MonoBehaviour {
     public List<ArrowPoint> arrowPoints = new List<ArrowPoint>();
     //public Transform arrowPointPreview;
     //public int arrowPointPreviewIndex;
+    public float gapForArrowHead = 0.16f;
     private int pointsCount;
     private float defWidth = 0.05f;
 
@@ -643,6 +644,21 @@ public class Arrow : MonoBehaviour {
         }
         points.Add((Vector2)lr.GetPosition(lr.positionCount - 1));
         col.points = points.ToArray();
+    }
+
+    public void FixEdgePointPos(Node edgeNode, Vector3 neighborPos, int edgeIndex)
+    {
+        Vector3 fixedEdgePointPos = edgeNode.GetComponent<Node>().col.ClosestPoint(neighborPos);
+        if (edgeIndex == lr.positionCount - 1)
+        {
+            // Leave gap for arrow head to fit in between last line pos and the node
+            Vector3 dir = fixedEdgePointPos - neighborPos;
+            float length = dir.magnitude - gapForArrowHead;
+            fixedEdgePointPos = dir.normalized * length + neighborPos;
+
+            fixedEdgePointPos = new Vector3(fixedEdgePointPos.x, fixedEdgePointPos.y, 0f);
+        }
+        lr.SetPosition(edgeIndex, fixedEdgePointPos);
     }
 
     public ArrowPoint CreateArrowPoint(Vector3 pos, int index)

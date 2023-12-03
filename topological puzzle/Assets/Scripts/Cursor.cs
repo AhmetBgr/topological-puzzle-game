@@ -103,6 +103,16 @@ public class Cursor : MonoBehaviour
         UnityEngine.Cursor.visible = false;
     }
 
+    public void Enable()
+    {
+        gameObject.SetActive(true);
+        UnityEngine.Cursor.visible = false;
+    }
+    public void Disable()
+    {
+        gameObject.SetActive(false);
+        UnityEngine.Cursor.visible = true;
+    }
     float HalfRound(float value)
     {
         float floor = Mathf.FloorToInt(value);
@@ -156,12 +166,12 @@ public class Cursor : MonoBehaviour
     }
 
 
-    private void OnApplicationFocus(bool focus)
+    /*private void OnApplicationFocus(bool focus)
     {
         #if UNITY_EDITOR
         UnityEngine.Cursor.visible = true;
         #else
         UnityEngine.Cursor.visible = !focus;
         #endif
-    }
+    }*/
 }

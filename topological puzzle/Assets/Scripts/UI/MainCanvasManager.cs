@@ -6,15 +6,22 @@ using DG.Tweening;
 
 public class MainCanvasManager : MonoBehaviour
 {
+    public LevelManager levelManager;
     public Panel mainMenuPanel;
     public Panel gameplayPanel;
     public Panel levelEditorPanel;
 
+    public Button myLevelsButton;
+    
     public Panel currentPanel;
     public Panel previousPanel;
 
+    
+
     void Start()
     {
+        UpdateMyLevelsButton();
+
 #if UNITY_EDITOR
         currentPanel = mainMenuPanel;
         PanelTransition(gameplayPanel);
@@ -81,6 +88,12 @@ public class MainCanvasManager : MonoBehaviour
         nextPanel.Open();
 
         currentPanel = nextPanel;
+    }
+
+    public void UpdateMyLevelsButton()
+    {
+        myLevelsButton.interactable = !(levelManager.playerLevels.Count == 0);
+        Debug.Log("palyer levels count: " + levelManager.playerLevels.Count);
     }
 
     public void Quit()

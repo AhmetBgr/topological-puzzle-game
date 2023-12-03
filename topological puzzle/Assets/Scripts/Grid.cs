@@ -13,7 +13,7 @@ public class Grid : MonoBehaviour
     public float maxGridSize = 1.125f;
     public float gridSize = 0.125f;
     private string cellSizeName = "_CellSize";
-    private bool isActive = false;
+    public bool isActive = false;
 
     public delegate void OnGridToggleDelegate(bool isActive);
     public static event OnGridToggleDelegate OnGridToggle;
@@ -34,7 +34,7 @@ public class Grid : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.G))
         {
-            ToggleGrid();
+            ToggleGrid(!isActive);
         }
 
         if (!isActive) return;
@@ -49,10 +49,9 @@ public class Grid : MonoBehaviour
         }
     }
 
-
-    public void ToggleGrid()
+    public void ToggleGrid(bool isActive)
     {
-        isActive = !gridObj.activeSelf;
+        this.isActive = isActive;
         gridObj.SetActive(isActive);
         SetGridSize(minGridSize);
         Cursor.instance.gridSize = gridSize;

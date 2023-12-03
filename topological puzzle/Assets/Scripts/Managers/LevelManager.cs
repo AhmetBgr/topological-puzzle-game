@@ -71,6 +71,12 @@ public class LevelManager : MonoBehaviour{
 
     private void Awake()
     {
+        if (!Directory.Exists(Application.persistentDataPath))
+        {
+            Debug.Log("path created : " + path);
+            Directory.CreateDirectory(path);
+        }
+
         LoadPlayerLevels();
 
         originalLevelsNames.Clear();
@@ -86,6 +92,11 @@ public class LevelManager : MonoBehaviour{
     void Start(){
         // Get progression data
         GetAndSetProgressionData();
+
+        #if UNITY_EDITOR
+        levelProgressIndex = originalLevels.Count - 1;
+        #endif
+
 
         //LoadLevel(curLevelIndex);
         LoadLevelWithIndex(curLevelIndex); // "multiple square test"
@@ -410,6 +421,13 @@ public class LevelManager : MonoBehaviour{
         #endif
 
         Utility.SaveAsJson(fullPath, levelProperty);
+
+        #if UNITY_EDITOR
+            return;
+        #endif
+       
+        AddToPlayerLevels(levelProperty);
+
         /*BinaryFormatter bf = new BinaryFormatter();
         string path = Application.persistentDataPath + "/Basic Levels";
         
@@ -678,17 +696,29 @@ public class LevelManager : MonoBehaviour{
 
     public void LoadPlayerLevels()
     {
+        string path = Application.persistentDataPath + myLevelsPath;
+        if (!Directory.Exists(path))
+        {
+            Debug.Log("path created : " + path);
+            Directory.CreateDirectory(path);
+        }
+
         // Loads levels from my levels
-        string[] playerLevelsPaths = Directory.GetFiles(Application.persistentDataPath + myLevelsPath + "/", "*.txt");
+        string[] playerLevelsPaths = Directory.GetFiles(path + "/", "*.txt");
 
         //myLevels = new LevelProperty[playerLevelsPaths.Length];
         playerLevelsNames = new List<string>();
         for (int i = 0; i < playerLevelsPaths.Length; i++)
         {
             LevelProperty level = Utility.LoadLevePropertyFromJson(playerLevelsPaths[i]);
-            playerLevels.Add(level);
-            playerLevelsNames.Add(level.levelName);
+            AddToPlayerLevels(level);
         }
+    }
+
+    private void AddToPlayerLevels(LevelProperty level)
+    {
+        playerLevels.Add(level);
+        playerLevelsNames.Add(level.levelName);
     }
 
     public void SetCurLevelPool(LevelPool value)

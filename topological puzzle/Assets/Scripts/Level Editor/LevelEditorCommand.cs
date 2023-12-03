@@ -29,8 +29,8 @@ public class DrawArrow : LeCommand{
     private Arrow arrow;
     private Node startingNode, destinationNode;
     
-    public DrawArrow(Arrow arrow, Node startingNode, Node destinationNode, float gap = 0.16f){
-        gapForArrowHead = gap;
+    public DrawArrow(Arrow arrow, Node startingNode, Node destinationNode){
+        gapForArrowHead = arrow.gapForArrowHead;
         this.startingNode = startingNode;
         this.destinationNode = destinationNode;
         this.arrow = arrow;
@@ -52,10 +52,6 @@ public class DrawArrow : LeCommand{
 
         // Carries first point' position to outside of first node instead of center of it.
         Vector3 fixedFirstPointPos = startingNode.col.ClosestPoint(destinationNode.transform.position);
-        Debug.Log("startingNode node pos : " + startingNode.transform.position);
-        Debug.Log("destination node pos : " + destinationNode.transform.position);
-
-        Debug.Log("start pos : " + fixedFirstPointPos);
         lr.SetPosition(0, fixedFirstPointPos);
 
         lr.startWidth = 0.03f;
@@ -74,8 +70,6 @@ public class DrawArrow : LeCommand{
         pos = new Vector3(pos.x, pos.y, 0f);
 
         lr.SetPosition(1, pos);
-
-
 
         arrow.FixHeadPos();
         arrow.SavePoints();
@@ -492,11 +486,17 @@ public class MoveArrowPoint : LeCommand
     public Arrow arrow;
     Vector3 initialPos;
     int index;
+
+    private Node startingNode;
+    private Node destinationNode;
+
     public MoveArrowPoint(Arrow arrow, int index)
     {
         this.arrow = arrow;
         this.index = index;
         this.initialPos = arrow.lr.GetPosition(index);
+        this.startingNode = arrow.startingNode.GetComponent<Node>();
+        this.destinationNode = arrow.destinationNode.GetComponent<Node>();
     }
 
     public void Move(Vector3 pos)
@@ -504,7 +504,15 @@ public class MoveArrowPoint : LeCommand
         //arrow.lr.SetPosition(index, pos);
         arrow.MoveLinePoint(index, pos);
         if (index == arrow.lr.positionCount - 2)
+        {
+            arrow.FixEdgePointPos(destinationNode, pos, arrow.lr.positionCount - 1);
             arrow.FixHeadPos();
+        }
+        
+        if(index == 1)
+        {
+            arrow.FixEdgePointPos(startingNode, pos, 0);
+        }
     }
 
     public override int Execute(GameObject selectedObject)
@@ -519,7 +527,15 @@ public class MoveArrowPoint : LeCommand
         arrow.FindArrowPoint(initialPos, index).transform.position = initialPos;
 
         if (index == arrow.lr.positionCount - 2)
+        {
+            arrow.FixEdgePointPos(destinationNode, initialPos, arrow.lr.positionCount - 1);
             arrow.FixHeadPos();
+        }
+
+        if (index == 1)
+        {
+            arrow.FixEdgePointPos(startingNode, initialPos, 0);
+        }
         return null;
     }
 }
