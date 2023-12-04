@@ -508,8 +508,8 @@ public class MoveArrowPoint : LeCommand
             arrow.FixEdgePointPos(destinationNode, pos, arrow.lr.positionCount - 1);
             arrow.FixHeadPos();
         }
-        
-        if(index == 1)
+
+        if (index == 1)
         {
             arrow.FixEdgePointPos(startingNode, pos, 0);
         }
@@ -530,11 +530,13 @@ public class MoveArrowPoint : LeCommand
         {
             arrow.FixEdgePointPos(destinationNode, initialPos, arrow.lr.positionCount - 1);
             arrow.FixHeadPos();
+            arrow.FixCollider();
         }
 
         if (index == 1)
         {
             arrow.FixEdgePointPos(startingNode, initialPos, 0);
+            arrow.FixCollider();
         }
         return null;
     }
@@ -545,12 +547,18 @@ public class DeleteArrowPoint : LeCommand
     private ArrowPoint arrowPoint;
     private Arrow arrow;
     private Vector3 pos;
+    private int index;
+    private Node startingNode;
+    private Node destinationNode;
 
     public DeleteArrowPoint(ArrowPoint arrowPoint)
     {
         this.arrowPoint = arrowPoint;
         arrow = arrowPoint.arrow;
         pos = arrowPoint.transform.position;
+        index = arrowPoint.index;
+        this.startingNode = arrow.startingNode.GetComponent<Node>();
+        this.destinationNode = arrow.destinationNode.GetComponent<Node>();
     }
 
     public override int Execute(GameObject selectedArrowPoint)
@@ -559,6 +567,24 @@ public class DeleteArrowPoint : LeCommand
         arrow.RemoveLinePointAt(arrowPoint.index);
         arrowPoint.gameObject.SetActive(false);
         arrow.col.enabled = true;
+
+        if (index == 1 && arrow.lr.positionCount == 2)
+        {
+            arrow.FixEdgePointPos(destinationNode, startingNode.transform.position, 1);
+            arrow.FixEdgePointPos(startingNode, destinationNode.transform.position, 0);
+        }
+        else if (index == arrow.lr.positionCount - 1)
+        {
+            arrow.FixEdgePointPos(destinationNode, arrow.lr.GetPosition(arrow.lr.positionCount - 2), arrow.lr.positionCount - 1);
+        }
+        else if (index == 1)
+        {
+            arrow.FixEdgePointPos(startingNode, arrow.lr.GetPosition(1), 0);
+        }
+
+        arrow.FixHeadPos();
+        arrow.FixCollider();
+
         return 0;
     }
 
@@ -568,6 +594,23 @@ public class DeleteArrowPoint : LeCommand
         arrow.arrowPoints.Add(arrowPoint); 
         arrow.InsertLinePoint(pos, arrowPoint.index);
         arrow.col.enabled = true;
+
+        if(index == 1 && arrow.lr.positionCount == 3)
+        {
+            arrow.FixEdgePointPos(destinationNode, pos, 2);
+            arrow.FixEdgePointPos(startingNode, pos, 0);
+        }
+        else if (index == arrow.lr.positionCount - 2)
+        {
+            arrow.FixEdgePointPos(destinationNode, pos, arrow.lr.positionCount - 1);
+        }
+        else if (index == 1)
+        {
+            arrow.FixEdgePointPos(startingNode, pos, 0);
+        }
+
+        arrow.FixHeadPos();
+        arrow.FixCollider();
         return null;
     }
 }

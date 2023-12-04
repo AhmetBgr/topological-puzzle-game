@@ -10,7 +10,8 @@ public class ItemController : MonoBehaviour
 
     private Node node;
     public List<Lock> padlocks = new List<Lock>();
-    
+    private GameObject addNewItemObj;
+
     public bool hasPadLock = false;
     
     
@@ -24,27 +25,23 @@ public class ItemController : MonoBehaviour
 
     void Start()
     {
-        /*if (hasPadLock && !padLock)
+        GameObject addNewItemPrefab = Resources.Load("Add New Item") as GameObject;
+        addNewItemObj = Instantiate(addNewItemPrefab, Vector3.zero, Quaternion.identity, parent: LevelManager.curLevel.transform);
+        addNewItemObj.SetActive(false);
+        if (GameState.gameState == GameState_EN.inLevelEditor && LevelEditor.state == LeState.waiting)
         {
-            GeneratePadLock();
+            Invoke("EnableAddNewItem", 0.6f);
         }
-
-        if (hasKey && !key)
-        {
-            GenerateKey();
-        }*/
-
-        //node = GetComponent<Node>();
     }
     private void OnEnable()
     {
-        LevelEditor.OnEnter += GenerateAddNewItem;
-        LevelEditor.OnExit += DestroyAddNewItem;
+        LevelEditor.OnEnter += EnableAddNewItem;
+        LevelEditor.OnExit += DisableAddNewItem;
     }
     private void OnDisable()
     {
-        LevelEditor.OnEnter -= GenerateAddNewItem;
-        LevelEditor.OnExit -= DestroyAddNewItem;
+        LevelEditor.OnEnter -= EnableAddNewItem;
+        LevelEditor.OnExit -= DisableAddNewItem;
     }
 
     private void OnMouseEnter()
@@ -178,6 +175,7 @@ public class ItemController : MonoBehaviour
             padlocks.Add(item.GetComponent<Lock>());
         }
         item.owner = node;
+        itemContainer.FindContainerPos();
         itemContainer.AddItem(item, index, dur, skipFix: skipFix, setInstantAnim: setInstantAnim);
     }
 
@@ -192,23 +190,18 @@ public class ItemController : MonoBehaviour
         itemContainer.RemoveItem(item, dur, skipFix: skipFix);
         item.owner = null;
     }
-
-    private void GenerateAddNewItem()
+    public void EnableAddNewItemWithDelay(float delay)
     {
-        GameObject addNewItemPrefab = Resources.Load("Add New Item") as GameObject;
-
-        GenerateItem(addNewItemPrefab);
+        Invoke("EnableAddNewItem", delay);
     }
-    private void DestroyAddNewItem()
+    public void EnableAddNewItem()
     {
-        for (int i = itemContainer.items.Count -1; i>= 0; i--)
-        {
-            Item item = itemContainer.items[i];
-            if (item.type == ItemType.AddNewItem)
-            {
-                RemoveItem(item, 0f);
-                Destroy(item.gameObject);
-            }
-        }
+        addNewItemObj.SetActive(true);
+        AddItem(addNewItemObj.GetComponent<Item>(), -1, 0f, setInstantAnim: true);
+    }
+    public void DisableAddNewItem()
+    {
+        RemoveItem(addNewItemObj.GetComponent<Item>(), 0f);
+        addNewItemObj.SetActive(false);
     }
 }

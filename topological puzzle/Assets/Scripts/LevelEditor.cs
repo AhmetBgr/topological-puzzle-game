@@ -48,7 +48,7 @@ public class LevelEditor : MonoBehaviour{
 
     private Cursor cursor;
 
-    public LeState state;
+    public static LeState state;
 
     public float gapForArrowHead = 0.22f;
 
@@ -230,6 +230,7 @@ public class LevelEditor : MonoBehaviour{
                     
                     oldCommands.Add(command);
                     curObj.GetComponent<Collider2D>().enabled = true;
+                    curObj.GetComponent<ItemController>().EnableAddNewItemWithDelay(0.5f);
                     curObj = null;
                     InstantiateObject(lastPrefab);
                 }
@@ -242,8 +243,8 @@ public class LevelEditor : MonoBehaviour{
                     };
                     command.Swap(selectedObjects);
                     oldCommands.Add(command);
-                    //hit.transform.gameObject.SetActive((false));
                     curObj.GetComponent<Collider2D>().enabled = true;
+                    curObj.GetComponent<ItemController>().EnableAddNewItemWithDelay(0.5f);
                     curObj = null;
                     InstantiateObject(lastPrefab);
                 }
@@ -414,14 +415,13 @@ public class LevelEditor : MonoBehaviour{
         {
             obj = Instantiate(prefab, Vector3.zero, Quaternion.identity).transform;
             obj.SetParent(curLevelInEditing.transform);
-            obj.GetComponent<Collider2D>().enabled = false;
-
             highlightManager.Search(highlightManager.noneSearch);
+            obj.GetComponent<Collider2D>().enabled = false;
         }
 
         curObj = obj;
         lastPrefab = prefab;
-        this.state = state;
+        LevelEditor.state = state;
         lastState = state;
     }
 
@@ -635,6 +635,9 @@ public class LevelEditor : MonoBehaviour{
         enterTestButton.gameObject.SetActive(false);
         cursor.Disable();
 
+        if(grid.isActive)
+            grid.ToggleGrid(false);
+
         if (OnExit != null){
             OnExit();
         }
@@ -642,7 +645,7 @@ public class LevelEditor : MonoBehaviour{
 
     private void UpdateHighlights(int value)
     {
-        HighlightManager.instance.Search(HighlightManager.instance.anySearch);
+        HighlightManager.instance.SearchWithDelay(HighlightManager.instance.anySearch, 1f);
         gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, 0.02f);
     }
 

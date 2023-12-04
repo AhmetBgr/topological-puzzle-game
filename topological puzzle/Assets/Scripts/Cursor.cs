@@ -165,13 +165,8 @@ public class Cursor : MonoBehaviour
         return raysastResults;
     }
 
-
-    /*private void OnApplicationFocus(bool focus)
+    private void OnApplicationFocus(bool focus)
     {
-        #if UNITY_EDITOR
         UnityEngine.Cursor.visible = true;
-        #else
-        UnityEngine.Cursor.visible = !focus;
-        #endif
-    }*/
+    }
 }

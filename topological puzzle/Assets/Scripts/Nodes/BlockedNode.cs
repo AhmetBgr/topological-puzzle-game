@@ -5,18 +5,17 @@ using DG.Tweening;
 
 public class BlockedNode : Node
 {
-    //public Sprite basicNodeSprite;
-    //private Sprite defSprite;
     private bool blocked = true;
     private static int blockedNodeCount = 0;
-    /*protected override void Awake(){
-        base.Awake();
-        defSprite = nodeSprite.sprite;
-    }*/
 
     protected override void Awake()
     {
         base.Awake();
+        blockedNodeCount = 0;
+    }
+
+    protected void Start()
+    {
         blockedNodeCount++;
     }
 

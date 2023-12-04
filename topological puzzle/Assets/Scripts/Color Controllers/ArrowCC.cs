@@ -31,8 +31,8 @@ public class ArrowCC : ColorController
         }
         material = lr.material;
         headMaterial = arrowHead.material;
-        glowIntensityMedium = 0f;
-        glowIntensityHigh = 4f;
+        glowIntensityMedium = -3f;
+        glowIntensityHigh = 1f;
 
         defPalette = FindObjectOfType<GameManager>().defPalette;
     }

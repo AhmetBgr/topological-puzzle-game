@@ -69,6 +69,7 @@ public class Arrow : MonoBehaviour {
         {
             Vector3 pos = lr.GetPosition(i);
             ArrowPoint arrowPoint = CreateArrowPoint(pos, i);
+            if (GameState.gameState == GameState_EN.inLevelEditor) continue;
             arrowPoint.gameObject.SetActive(false);
         }
     }
@@ -699,6 +700,7 @@ public class Arrow : MonoBehaviour {
             item.gameObject.SetActive(true);
         }
     }
+
     private void DisableArrowPoints()
     {
         foreach (var item in arrowPoints)

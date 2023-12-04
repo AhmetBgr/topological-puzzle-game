@@ -60,11 +60,14 @@ public abstract class Item : MonoBehaviour
         nonPermanentColor = new Color(0.71f, 0.71f, 0.71f, 1f); 
         ChangePermanent(isPermanent);
 
-        DisableCollider();
 
         levelManager = FindObjectOfType<LevelManager>();
         //GameManager.OnCurCommandChange += CheckForHighlight;
         HighlightManager.OnSearch += Check;
+
+        if (GameState.gameState == GameState_EN.inLevelEditor) return;
+
+        DisableCollider();
     }
 
     protected void OnDestroy()

@@ -14,12 +14,15 @@ public class ItemManager : MonoBehaviour
         LevelManager.OnLevelLoad += ResetContainer;
         LevelEditor.OnExit += ResetContainer;
         itemContainer.OnContainerChanged += CheckAndUseLastItem;
+        //RemoveNode.OnExecute -= CheckAndUseLastItem;
+
     }
     void OnDisable()
     {
         LevelManager.OnLevelLoad -= ResetContainer;
         LevelEditor.OnExit -= ResetContainer;
         itemContainer.OnContainerChanged -= CheckAndUseLastItem;
+        //RemoveNode.OnExecute -= CheckAndUseLastItem; 
     }
 
     public bool CheckAndUseLastItem(List<Item> items)

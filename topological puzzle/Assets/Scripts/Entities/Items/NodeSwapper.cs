@@ -16,22 +16,14 @@ public class NodeSwapper : Item
     public override IEnumerator CheckAndUseWithDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
-        Debug.Log("should check for usability: swapper");
-        if (OnSwapperUsabilityCheck != null)
+        bool isUsable = LevelManager.GetArrowCount() > 0 ? true : false;
+
+        if (isUsable)
         {
-            
-            OnSwapperUsabilityCheck();
-        }
-        bool isUsable = false;
-        if (suitableObjCount > 0)
-        {
-            isUsable = true;
             Use();
         }
 
         InvokeOnUsabilityCheckEvent(isUsable);
-
-        suitableObjCount = 0;
     }
 
     public override void Use()

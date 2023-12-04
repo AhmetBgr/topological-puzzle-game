@@ -65,24 +65,16 @@ public class Node : MonoBehaviour
     }
 
     void OnEnable(){
-        //RemoveNode.OnExecute += RemoveFromGraph;
-        //RemoveNode.OnUndo += AddToGraph;
-        //GameManager.OnCurCommandChange += CheckIfSuitable;
         GameManager.OnGetNodes += AddNodeToPool;
         LevelManager.OnLevelLoad += GetOnTheLevel;
         Item.OnUsabilityCheck += CheckIfSuitableForKey;
-        NodeSwapper.OnSwapperUsabilityCheck += CheckIfSuitableForNodeSwapper;
         HighlightManager.OnSearch += UpdateHighlight;
     }
 
     void OnDisable(){
-        //RemoveNode.OnExecute -= RemoveFromGraph;
-        //RemoveNode.OnUndo -= AddToGraph;
-        //GameManager.OnCurCommandChange -= CheckIfSuitable;
         GameManager.OnGetNodes -= AddNodeToPool;
         LevelManager.OnLevelLoad -= GetOnTheLevel;
         Item.OnUsabilityCheck -= CheckIfSuitableForKey;
-        NodeSwapper.OnSwapperUsabilityCheck -= CheckIfSuitableForNodeSwapper;
         HighlightManager.OnSearch -= UpdateHighlight;
     }
 
@@ -95,7 +87,6 @@ public class Node : MonoBehaviour
 
         nodeSprite.transform.DOScale(1.1f, 0.3f);
         nodeColorController.Highlight(nodeColorController.glowIntensityHigh, 0.3f);
-        
     }
 
     void OnMouseExit(){
@@ -229,13 +220,6 @@ public class Node : MonoBehaviour
         }
     }
     
-    protected virtual void CheckIfSuitableForNodeSwapper()
-    {
-        //bool hasRequiredItem = itemController.FindItemWithType(ItemType.Padlock) != null ? true : false;
-
-        NodeSwapper.suitableObjCount++;
-    }
-
     public void ChangePermanent(bool isPermanent)
     {
         this.isPermanent = isPermanent;

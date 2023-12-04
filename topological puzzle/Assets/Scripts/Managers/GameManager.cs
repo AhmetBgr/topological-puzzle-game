@@ -72,6 +72,7 @@ public class GameManager : MonoBehaviour{
         LevelEditor.OnExit += GetNodes;
         Command.OnUndoSkipped += AddToSkippedOldCommands;
         Node.OnNodeRemove += CheckForLevelComplete;
+        
     }
 
     void OnDisable(){
@@ -143,7 +144,7 @@ public class GameManager : MonoBehaviour{
                         //rewindCount = 0;
                         ChangeCommandOnNodeRemove(selectedObjects[0]);
                     }
-                    
+                    itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
                     selectedObjects.Clear();
 
                 }
@@ -156,6 +157,7 @@ public class GameManager : MonoBehaviour{
 
                     AddToOldCommands(command);
                     ChangeCommand(Commands.RemoveNode);
+                    itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
                     selectedObjects.Clear();
                 }
                 else if(curCommand == Commands.SwapNodes){
@@ -180,6 +182,7 @@ public class GameManager : MonoBehaviour{
                         //ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"));
                         
                         StartCoroutine(ChangeCommandWithDelay(Commands.RemoveNode, 0.1f));
+                        itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
                         selectedObjects.Clear();
                     }
                     else if(selectedObjects.Count == 1)
@@ -203,6 +206,7 @@ public class GameManager : MonoBehaviour{
                     AddToOldCommands(unlockPadlock);
 
                     ChangeCommand(Commands.RemoveNode);
+                    itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
                     selectedObjects.Clear();
                 }
                 else if (curCommand == Commands.SetArrowPermanent)
@@ -216,6 +220,7 @@ public class GameManager : MonoBehaviour{
                     AddToOldCommands(setArrowPermanent);
 
                     ChangeCommand(Commands.RemoveNode);
+                    itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
                     selectedObjects.Clear();
                 }
                 //timeID++;
@@ -424,6 +429,7 @@ public class GameManager : MonoBehaviour{
 
             rewind.Execute(commandDur, isRewinding: true);
             nonRewindCommands.Remove(nonRewindCommands[nonRewindCommands.Count - 1]);
+            itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
             if (!rewind.skipped)
             {
                 AddToOldCommands(rewind, false);
@@ -451,6 +457,7 @@ public class GameManager : MonoBehaviour{
         DeselectObjects();
         GameState.OnAnimationStartEvent(undoDur + 0.3f);
         OnlyUndoLast();
+        itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
         Debug.Log("skipped old commands count after undos : " + skippedOldCommands.Count);
     }
     

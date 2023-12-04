@@ -353,6 +353,24 @@ public class LevelManager : MonoBehaviour{
 
         return nodeCount;
     }
+    public static int GetArrowCount()
+    {
+        Transform levelTransform = curLevel.transform;
+        int childCount = levelTransform.childCount;
+
+        int arrowCount = 0;
+
+        for (int i = 0; i < childCount; i++)
+        {
+            GameObject child = levelTransform.GetChild(i).gameObject;
+            if (child.activeInHierarchy && ((1 << child.layer) & LayerMask.GetMask("Arrow")) != 0)
+            {
+                arrowCount++;
+            }
+        }
+
+        return arrowCount;
+    }
 
     public void SetCurLevelIndex(int levelIndex){
         Debug.Log("cur level pool count : " + curLevelPool.Count);
