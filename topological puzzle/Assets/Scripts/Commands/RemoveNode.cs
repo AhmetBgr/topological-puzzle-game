@@ -9,6 +9,9 @@ public class RemoveNode : Command
     public delegate void OnExecuteDelegate(GameObject node, RemoveNode command);
     public static event OnExecuteDelegate OnExecute;
 
+    public delegate void PreExecuteDelegate(GameObject node, RemoveNode command);
+    public static event PreExecuteDelegate PreExecute;
+
     public delegate void OnUndoDelegate(GameObject affectedNode);
     public static event OnUndoDelegate OnUndo;
 
@@ -30,6 +33,11 @@ public class RemoveNode : Command
 
     public override void Execute(float dur, bool isRewinding = false)
     {
+        if(PreExecute != null && !isRewinding)
+        {
+            PreExecute(obj, this);
+        }
+
         this.isRewinding = isRewinding;
         executionTime = gameManager.timeID;
         affectedObjects.Add(obj);

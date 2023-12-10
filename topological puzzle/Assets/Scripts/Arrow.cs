@@ -76,7 +76,7 @@ public class Arrow : MonoBehaviour {
 
     void OnEnable(){
         //Node.OnNodeRemove += ChangeDirIfLinkedToStar;
-        RemoveNode.OnExecute += ChangeDirIfLinkedToStar;
+        RemoveNode.PreExecute += ChangeDirIfLinkedToStar;
         //Node.OnNodeAdd += UndoChangeDirIfLinkedToStar;
 
         //GameManager.OnCurCommandChange += CheckIfSuitable;
@@ -88,7 +88,7 @@ public class Arrow : MonoBehaviour {
 
     void OnDisable(){
         //Node.OnNodeRemove -= ChangeDirIfLinkedToStar;
-        RemoveNode.OnExecute -= ChangeDirIfLinkedToStar;
+        RemoveNode.PreExecute -= ChangeDirIfLinkedToStar;
         //Node.OnNodeAdd -= UndoChangeDirIfLinkedToStar;
 
         //GameManager.OnCurCommandChange -= CheckIfSuitable;
@@ -206,10 +206,17 @@ public class Arrow : MonoBehaviour {
         if (command.isRewinding) return;
 
         if (startingNode.CompareTag("HexagonNode") || destinationNode.CompareTag("HexagonNode")){
+            GameObject starNode = startingNode.CompareTag("HexagonNode") ? startingNode : destinationNode;
             if (!(startingNode.CompareTag("HexagonNode") && destinationNode.CompareTag("HexagonNode")))
             {
+                CompareLayer nodeLayer = new CompareLayer(LayerMask.GetMask("Node"));
+                MultipleComparison searchTarget = new MultipleComparison(new List<Comparison> {
+                    new CompareNodeAdjecentNode(starNode.GetComponent<Node>()) });
+
+                //if (!searchTarget.CheckAll(node.GetComponent<Node>())) return;
+
                 ChangeArrowDir changeDirCommand = new ChangeArrowDir(gameManager, gameObject, false, true);
-                changeDirCommand.Execute(gameManager.commandDur);
+                //changeDirCommand.Execute(gameManager.commandDur);
                 command.affectedCommands.Add(changeDirCommand);
                 //changeDirCommands.Add(changeDirCommand);
             } 
@@ -330,9 +337,9 @@ public class Arrow : MonoBehaviour {
         ChangeDir(0.5f); //arrow
 
     }
-    public void Check(SearchTarget searchTarget)
+    public void Check(MultipleComparison mp)
     {
-        if (searchTarget.CheckAll(this))
+        if (mp.CompareAll(this))
         {
             //arrowColorController.Highlight(arrowColorController.glowIntensityHigh, 1f);
             col.enabled = true;

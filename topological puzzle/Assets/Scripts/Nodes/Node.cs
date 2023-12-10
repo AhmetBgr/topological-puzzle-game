@@ -99,7 +99,7 @@ public class Node : MonoBehaviour
         nodeColorController.Highlight(nodeColorController.glowIntensityMedium, 0.3f);
     }
 
-    private void OnMouseUp()
+    private void OnMouseDown()
     {
         if (GameState.gameState != GameState_EN.playing) return;
 
@@ -171,9 +171,9 @@ public class Node : MonoBehaviour
         AppearAnim(duration, 0f, easeType : Ease.Linear);
     }
 
-    protected virtual void UpdateHighlight(SearchTarget searchTarget)
+    protected virtual void UpdateHighlight(MultipleComparison mp)
     {
-        if (searchTarget.CheckAll(this))
+        if (mp.CompareAll(this))
         {
             nodeColorController.Highlight(nodeColorController.glowIntensityMedium, 1f);
             col.enabled = true;

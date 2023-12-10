@@ -220,7 +220,7 @@ public class LevelEditor : MonoBehaviour{
         if (state == LeState.placingNode ){
             // selected node follows mouse pos until placing
             Vector2 ray = Camera.main.ScreenToWorldPoint(cursor.pos);
-            curObj.localPosition = curLevelInEditing.transform.InverseTransformPoint(ray);
+            curObj.position = cursor.worldPos;
             if( Input.GetMouseButtonDown(0) ){
                 // place the node
                 RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero);
@@ -251,13 +251,13 @@ public class LevelEditor : MonoBehaviour{
             }
         }
         else if(state == LeState.drawingArrow ){
-            Vector2 ray = Camera.main.ScreenToWorldPoint(cursor.pos);
-
-            if( Input.GetMouseButtonDown(0) ){
-                
-                RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero, LayerMask.GetMask("Node"));
-                if (hit)
-                {
+            Vector2 ray = cursor.worldPos; // Camera.main.ScreenToWorldPoint(cursor.pos);
+            Debug.Log("drawing arrow: ");
+            if ( Input.GetMouseButtonDown(0) ){
+                Debug.Log("mouse button 0 down : ");
+                RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero);
+                if (hit){
+                    Debug.Log("should select node: " + hit.transform.gameObject.name);
                     selectedObjects.Add(hit.transform.gameObject);
 
                     if(selectedObjects.Count == 2)
@@ -270,14 +270,14 @@ public class LevelEditor : MonoBehaviour{
                         );
                         drawArrow.Execute(null);
                         oldCommands.Add(drawArrow);
-                        HighlightManager.instance.Search(HighlightManager.instance.onlyNodeSearch);
+                        HighlightManager.instance.Search(HighlightManager.instance.onlyNode);
                         selectedObjects.Clear();
 ;                   }
                     else if(selectedObjects.Count == 1)
                     {
-                        SearchTarget searchTarget = new SearchTarget(new List<AttributeSearch> { 
-                                new LayerSearch(LayerMask.GetMask("Node")),
-                                new ExcludeObjectsSearch(new List<GameObject>{selectedObjects[0]}) 
+                        MultipleComparison searchTarget = new MultipleComparison(new List<Comparison> { 
+                            new CompareLayer(LayerMask.GetMask("Node")),
+                            new CompareExcludeObjects(new List<GameObject>{selectedObjects[0]}) 
                         });
                         HighlightManager.instance.Search(searchTarget);
                     }
@@ -366,7 +366,7 @@ public class LevelEditor : MonoBehaviour{
 
             state = LeState.waiting;
             lastState = state;
-            HighlightManager.instance.Search(HighlightManager.instance.anySearch);
+            HighlightManager.instance.Search(HighlightManager.instance.any);
             selectedObjects.Clear();
         }
     }
@@ -409,13 +409,13 @@ public class LevelEditor : MonoBehaviour{
         HighlightManager highlightManager = HighlightManager.instance;
         if (state == LeState.drawingArrow)
         {
-            highlightManager.Search(highlightManager.onlyNodeSearch);
+            highlightManager.Search(highlightManager.onlyNode);
         }
         else if (state == LeState.placingNode)
         {
             obj = Instantiate(prefab, Vector3.zero, Quaternion.identity).transform;
             obj.SetParent(curLevelInEditing.transform);
-            highlightManager.Search(highlightManager.noneSearch);
+            highlightManager.Search(highlightManager.none);
             obj.GetComponent<Collider2D>().enabled = false;
         }
 
@@ -465,22 +465,22 @@ public class LevelEditor : MonoBehaviour{
 
         curLevelInEditing.name = levelNameField.text;
 
-        DesTroyInActiveChildren(curLevelInEditing.transform);
+        DestroyInactiveChildren(curLevelInEditing.transform);
 
         //GameObject savedLevel = PrefabUtility.SaveAsPrefabAsset(curLevelInEditing, "Assets/Resources/Levels/" + levelNameField.text + ".prefab");
         
-        levelManager.SaveLevelProperty(LevelManager.curLevel.transform);
+        levelManager.SaveLevel(LevelManager.curLevel.transform);
     }
 
     public void SaveAsBackup()
     {
         if (levelNameField.text == "") return;
 
-        DesTroyInActiveChildren(curLevelInEditing.transform);
+        DestroyInactiveChildren(curLevelInEditing.transform);
 
         //GameObject savedLevel = PrefabUtility.SaveAsPrefabAsset(curLevelInEditing, "Assets/Resources/Levels/backup/" + levelNameField.text + ".prefab");
 
-        levelManager.SaveLevelProperty(curLevelInEditing.transform, true);
+        levelManager.SaveLevel(curLevelInEditing.transform, true);
     }
 
     /*public void UpdateLevelPrefab()
@@ -505,7 +505,7 @@ public class LevelEditor : MonoBehaviour{
 
         byte[] bytesToEncode = Utility.Zip(levelJson);
 
-        encodedLevelText.text = Utility.EncodeBase64WithBytes(bytesToEncode);
+        encodedLevelText.text = Utility.EncodeBase64FromBytes(bytesToEncode);
     }
 
     private void UpdateGridSizeTextField(float value, float minGridSize)
@@ -544,7 +544,7 @@ public class LevelEditor : MonoBehaviour{
         levelManager.DestroyCurLevel();
         Transform levelHolder = levelManager.GenerateNewLevelHolder(levelProperty.levelName);
         ResetCurLevelInEditing();
-        levelManager.LoadLevelWithLevelProperty(levelProperty, levelProperty.levelName, levelHolder);
+        levelManager.LoadLevelWithLevelProperty(levelProperty, levelHolder);
         ToggleGetLevelPanel();
         curLevelInEditing.SetActive(true);
     }
@@ -590,7 +590,7 @@ public class LevelEditor : MonoBehaviour{
 
         enterTestButton.gameObject.SetActive(true);
 
-        HighlightManager.instance.Search(HighlightManager.instance.anySearch);
+        HighlightManager.instance.Search(HighlightManager.instance.any);
         lastState = LeState.waiting;
         state = LeState.waiting;
         ResetCurLevelInEditing();
@@ -645,7 +645,7 @@ public class LevelEditor : MonoBehaviour{
 
     private void UpdateHighlights(int value)
     {
-        HighlightManager.instance.SearchWithDelay(HighlightManager.instance.anySearch, 1f);
+        HighlightManager.instance.SearchWithDelay(HighlightManager.instance.any, 1f);
         gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, 0.02f);
     }
 
@@ -692,7 +692,7 @@ public class LevelEditor : MonoBehaviour{
 
         Destroy(LevelManager.curLevel);
         string name = initialLevel.levelName;
-        levelManager.LoadLevelWithLevelProperty(initialLevel, name, levelManager.GenerateNewLevelHolder(name));
+        levelManager.LoadLevelWithLevelProperty(initialLevel, levelManager.GenerateNewLevelHolder(name));
         gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, 0.02f);
         OpenLevelEditor();
         gameplayPanel.Close();
@@ -766,7 +766,7 @@ public class LevelEditor : MonoBehaviour{
         levelPoolNameTextField.text = levelManager.curPool == LevelPool.Original ? "Original Levels" : "My Levels";
     }
 
-    private void DesTroyInActiveChildren(Transform parent)
+    private void DestroyInactiveChildren(Transform parent)
     {
         // Find Inactive objects in level
         int childCount = parent.childCount;

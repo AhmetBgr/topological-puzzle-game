@@ -2,146 +2,134 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public struct SearchTarget
-{
-    public List<AttributeSearch> attributesToCheck;
-
-    public SearchTarget(List<AttributeSearch> attributesToCheck = null)
-    {
-        this.attributesToCheck = new List<AttributeSearch>();
-        this.attributesToCheck.AddRange(attributesToCheck);
-    }
-
-    public bool CheckAll(GameObject obj)
-    {
-        if (attributesToCheck == null) return false;
-
-        foreach (var item in attributesToCheck)
-        {
-            if (!item.Check(obj))
-                return false;
-        }
-
-        return true;
-    }
-    public bool CheckAll(Node node)
-    {
-        if (attributesToCheck == null) return false;
-
-        foreach (var item in attributesToCheck)
-        {
-            if (!item.Check(node))
-                return false;
-        }
-
-        return true;
-    }
-    public bool CheckAll(Arrow arrow)
-    {
-        if (attributesToCheck == null) return false;
-
-        foreach (var item in attributesToCheck)
-        {
-            if (!item.Check(arrow))
-                return false;
-        }
-        return true;
-    }
-    public bool CheckAll(Item item)
-    {
-        if (attributesToCheck == null) return false;
-
-        foreach (var obj in attributesToCheck)
-        {
-            if (!obj.Check(item))
-                return false;
-        }
-        return true;
-    }
-}
 public class HighlightManager : MonoBehaviour
 {
-    public SearchTarget anySearch;
-    public SearchTarget noneSearch;
-    public SearchTarget removeNodeSearch;
-    public SearchTarget unlockPadlockSearch;
-    public SearchTarget setArrowPermanentSearch;
-    public SearchTarget setNodePermanentSearch;
-    public SearchTarget setItemPermanentSearch;
-    public SearchTarget onlyNodeSearch;
-    public SearchTarget onlyArrowSearch;
-    public SearchTarget onlyItemSearch;
-    public SearchTarget onlyBlockedSearch;
+    public MultipleComparison any;
+    public MultipleComparison none;
+    public MultipleComparison removeNode;
+    public MultipleComparison unlockPadlock;
+    public MultipleComparison setArrowPermanent;
+    public MultipleComparison setNodePermanent;
+    public MultipleComparison setItemPermanent;
+    public MultipleComparison onlyNode;
+    public MultipleComparison onlyArrow;
+    public MultipleComparison onlyItem;
+    public MultipleComparison onlyBlocked;
 
     public static HighlightManager instance;
 
-    public delegate void OnSearchDelegate(SearchTarget searchTarget);
+    public delegate void OnSearchDelegate(MultipleComparison mp);
     public static event OnSearchDelegate OnSearch;
-    private void Awake()
-    {
+    private void Awake(){
         if (instance != null && instance != this)
-        {
             Destroy(this.gameObject);
-        }
         else
-        {
             instance = this;
-        }
 
         DontDestroyOnLoad(this.gameObject);
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        LayerSearch allLayers = new LayerSearch(LayerMask.GetMask("Arrow", "Node", "Item"));
-        LayerSearch nodeLayer = new LayerSearch(LayerMask.GetMask("Node"));
-        LayerSearch arrowLayer = new LayerSearch(LayerMask.GetMask("Arrow"));
-        LayerSearch itemLayer = new LayerSearch(LayerMask.GetMask("Item"));
+    void Start(){
+        CompareLayer allLayers = new CompareLayer(LayerMask.GetMask("Arrow", 
+            "Node", "Item"));
+        CompareLayer nodeLayer = new CompareLayer(LayerMask.GetMask("Node"));
+        CompareLayer arrowLayer = new CompareLayer(LayerMask.GetMask("Arrow"));
+        CompareLayer itemLayer = new CompareLayer(LayerMask.GetMask("Item"));
 
-        anySearch = new SearchTarget(new List<AttributeSearch> { allLayers } );
+        any = new MultipleComparison(new List<Comparison> { allLayers } );
 
-        noneSearch = new SearchTarget( new List<AttributeSearch> { });
+        none = new MultipleComparison( new List<Comparison> { });
 
-        removeNodeSearch = new SearchTarget(new List<AttributeSearch> {nodeLayer, 
-            new IndegreeSearch(0) });
+        removeNode = new MultipleComparison(new List<Comparison> {nodeLayer, 
+            new CompareIndegree(0) });
 
-        unlockPadlockSearch = new SearchTarget(new List<AttributeSearch> { nodeLayer,
-            new IndegreeSearch(0),
-            new IncludeNodesWithGivenItemTypesSearch(new List<ItemType> {ItemType.Padlock})});
+        unlockPadlock = new MultipleComparison(new List<Comparison> { nodeLayer,
+            new CompareIndegree(0),
+            new CompareIncludeNodesWithGivenItemTypes(
+                new List<ItemType> {ItemType.Padlock})});
         
-        setArrowPermanentSearch = new SearchTarget( new List<AttributeSearch> {arrowLayer, new ArrowPermanentSearch(0)});
+        setArrowPermanent = new MultipleComparison( new List<Comparison> {
+            arrowLayer, new CompareArrowPermanent(0)});
         
-        setNodePermanentSearch = new SearchTarget(new List<AttributeSearch> { nodeLayer, new NodePermanentSearch(0)});
+        setNodePermanent = new MultipleComparison(new List<Comparison> { 
+            nodeLayer, new CompareNodePermanent(0)});
         
-        setItemPermanentSearch = new SearchTarget(new List<AttributeSearch> {itemLayer, new ItemPermanentSearch(0)});
+        setItemPermanent = new MultipleComparison(new List<Comparison> {
+            itemLayer, new CompareItemPermanent(0)});
 
-        onlyArrowSearch = new SearchTarget(new List<AttributeSearch> { arrowLayer});
+        onlyArrow = new MultipleComparison(new List<Comparison> { 
+            arrowLayer});
         
-        onlyNodeSearch = new SearchTarget(new List<AttributeSearch> { nodeLayer });
+        onlyNode = new MultipleComparison(new List<Comparison> { 
+            nodeLayer });
 
-        onlyItemSearch = new SearchTarget(new List<AttributeSearch> {itemLayer });
+        onlyItem = new MultipleComparison(new List<Comparison> {
+            itemLayer });
 
-        onlyBlockedSearch = new SearchTarget(new List<AttributeSearch> { nodeLayer,
-            new ExcludeNodeTag(new List<string> {"BasicNode"})});
+        onlyBlocked = new MultipleComparison(new List<Comparison> { 
+            nodeLayer,
+            new CompareExcludeNodeTag(new List<string> {"BasicNode"})});
 
-        //Search(removeNodeSearch);
     }
 
-    public void Search(SearchTarget searchTarget)
-    {
+    public void Search(MultipleComparison mp){
         if(OnSearch != null)
-        {
-            Debug.Log("Search for targets");
-            OnSearch(searchTarget);
-        }
+            OnSearch(mp);
     }
 
-    public IEnumerator SearchWithDelay(SearchTarget searchTarget, float delay)
-    {
+    public IEnumerator SearchWithDelay(MultipleComparison mp, float delay){
         yield return new WaitForSeconds(delay);
 
-        Search(searchTarget);
+        Search(mp);
     }
 
+}
+
+public struct MultipleComparison{
+    public List<Comparison> attributesToCheck;
+
+    public MultipleComparison(List<Comparison> attributesToCheck = null){
+        this.attributesToCheck = new List<Comparison>();
+        this.attributesToCheck.AddRange(attributesToCheck);
+    }
+
+    public bool CompareAll(GameObject obj){
+        if (attributesToCheck == null) return false;
+
+        foreach (var item in attributesToCheck){
+            if (!item.Compare(obj))
+                return false;
+        }
+
+        return true;
+    }
+
+    public bool CompareAll(Node node){
+        if (attributesToCheck == null) return false;
+
+        foreach (var item in attributesToCheck){
+            if (!item.Compare(node))
+                return false;
+        }
+
+        return true;
+    }
+    public bool CompareAll(Arrow arrow){
+        if (attributesToCheck == null) return false;
+
+        foreach (var item in attributesToCheck){
+            if (!item.Compare(arrow))
+                return false;
+        }
+        return true;
+    }
+    public bool CompareAll(Item item){
+        if (attributesToCheck == null) return false;
+
+        foreach (var obj in attributesToCheck){
+            if (!obj.Compare(item))
+                return false;
+        }
+        return true;
+    }
 }

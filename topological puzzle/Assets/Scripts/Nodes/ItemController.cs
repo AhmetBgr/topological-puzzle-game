@@ -25,9 +25,7 @@ public class ItemController : MonoBehaviour
 
     void Start()
     {
-        GameObject addNewItemPrefab = Resources.Load("Add New Item") as GameObject;
-        addNewItemObj = Instantiate(addNewItemPrefab, Vector3.zero, Quaternion.identity, parent: LevelManager.curLevel.transform);
-        addNewItemObj.SetActive(false);
+
         if (GameState.gameState == GameState_EN.inLevelEditor && LevelEditor.state == LeState.waiting)
         {
             Invoke("EnableAddNewItem", 0.6f);
@@ -42,6 +40,13 @@ public class ItemController : MonoBehaviour
     {
         LevelEditor.OnEnter -= EnableAddNewItem;
         LevelEditor.OnExit -= DisableAddNewItem;
+    }
+    private void OnDestroy()
+    {
+        if(addNewItemObj!= null)
+        {
+            Destroy(addNewItemObj);
+        }
     }
 
     private void OnMouseEnter()
@@ -161,7 +166,7 @@ public class ItemController : MonoBehaviour
     {
         Transform item = Instantiate(prefab, Vector3.zero, Quaternion.identity, parent: itemContainer.transform).transform;
         //item.SetParent(itemContainer.itemContainer);
-        itemContainer.FindContainerPos();
+        itemContainer.UpdateContainerPos();
         AddItem(item.GetComponent<Item>(), index, 0f, setInstantAnim: true);
 
         return item.gameObject;
@@ -175,7 +180,7 @@ public class ItemController : MonoBehaviour
             padlocks.Add(item.GetComponent<Lock>());
         }
         item.owner = node;
-        itemContainer.FindContainerPos();
+        itemContainer.UpdateContainerPos();
         itemContainer.AddItem(item, index, dur, skipFix: skipFix, setInstantAnim: setInstantAnim);
     }
 
@@ -196,6 +201,12 @@ public class ItemController : MonoBehaviour
     }
     public void EnableAddNewItem()
     {
+        if(addNewItemObj == null)
+        {
+            GameObject addNewItemPrefab = Resources.Load("Add New Item") as GameObject;
+            addNewItemObj = Instantiate(addNewItemPrefab, Vector3.zero, Quaternion.identity, parent: LevelManager.curLevel.transform);
+        }
+
         addNewItemObj.SetActive(true);
         AddItem(addNewItemObj.GetComponent<Item>(), -1, 0f, setInstantAnim: true);
     }

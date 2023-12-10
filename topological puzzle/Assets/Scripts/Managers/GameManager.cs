@@ -85,86 +85,67 @@ public class GameManager : MonoBehaviour{
     }
 
     void Update(){
-        skippedOldCommandCount = skippedOldCommands.Count;
-        oldCommandCount = oldCommands.Count;
-
         if (GameState.gameState != GameState_EN.playing & GameState.gameState != GameState_EN.testingLevel) return;
 
         if (Input.GetMouseButtonDown(0)){
             Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-
             RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero, distance: 100f, layerMask : targetLM);
+            if (!hit) return;
 
-            if( hit ){
+            Command command = null;
+            selectedObjects.Add(hit.transform.gameObject);
 
-                selectedObjects.Add(hit.transform.gameObject);
+            // Invokes animation start event 
+            // so that buttons like undo will be blocked during animation
+            GameState.OnAnimationStartEvent(commandDur); 
 
-                // This event will make undo button noninteractive during the animation
-                GameState.OnAnimationStartEvent(commandDur);
-                if (curCommand == Commands.RemoveNode){
-                    
+            switch (curCommand){
+                case Commands.RemoveNode:{
                     commandOwner = selectedObjects[0].GetComponent<Node>();
-                    if (commandOwner.itemController.hasPadLock)
-                    {
+                    if (commandOwner.itemController.hasPadLock){
                         selectedObjects.Clear();
                         return;
                     }
-                    // If player removes a node which wants player to do something before removing it, cur command will change to that action
-                    if (selectedObjects[0].CompareTag("SquareNode"))
-                    {
-                        isCommandOwnerPermanent = commandOwner.isPermanent;
 
-                        ChangeCommand changeCommand = new ChangeCommand(this, commandOwner, curCommand, Commands.ChangeArrowDir);
+                    // Checks if player intents to remove Square Node,
+                    // if so Changes current command to ChangeArrowDir
+                    if (selectedObjects[0].CompareTag("SquareNode")){
+                        isCommandOwnerPermanent = commandOwner.isPermanent;
+                    
+                        ChangeCommand changeCommand = new ChangeCommand(this, commandOwner, 
+                            curCommand, Commands.ChangeArrowDir);
                         changeCommand.isPermanent = commandOwner.isPermanent;
                         changeCommand.Execute(commandDur);
-                        bool isCommandChanged = true;
-                        TransformToBasicNode transformToBasicNode = new TransformToBasicNode(this, commandOwner);
+
+                        TransformToBasicNode transformToBasicNode = new TransformToBasicNode(this, 
+                            commandOwner);
                         transformToBasicNode.Execute(commandDur);
                         changeCommand.affectedCommands.Add(transformToBasicNode);
-                        //bool isCommandChanged = changeCommand.ChangeCommandOnNodeRemove(hit.transform.gameObject, itemManager);
-
-                        if (isCommandChanged)
-                        {
-                            timeID++;
-                            //oldCommands.Add(changeCommand);
-                            AddToOldCommands(changeCommand);
-                            //rewindCount = 0;
-                            selectedObjects.Clear();
-                            return;
-                        }
+                    
+                        timeID++;
+                        AddToOldCommands(changeCommand);
+                        selectedObjects.Clear();
+                        return;
                     }
                     
+                    // Removes selected node
                     timeID++;
-                    Command command = new RemoveNode(this, itemManager, selectedObjects[0]);
+                    command = new RemoveNode(this, itemManager, selectedObjects[0]);
                     command.Execute(commandDur);
-                    Node node = hit.transform.GetComponent<Node>();
-                    if(node.indegree == 0 ){ //&& !node.isLocked
-                        //oldCommands.Add(command);
-                        AddToOldCommands(command);
-                        //rewindCount = 0;
-                        ChangeCommandOnNodeRemove(selectedObjects[0]);
-                    }
-                    itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
-                    selectedObjects.Clear();
-
+                    break;
                 }
-                else if(curCommand == Commands.ChangeArrowDir){
-
+                case Commands.ChangeArrowDir:{
+                    // Changes dir of selected arrow
                     timeID++;
-                    Command command = new ChangeArrowDir(this, selectedObjects[0], false);
-                   
+                    command = new ChangeArrowDir(this, selectedObjects[0], false);
                     command.Execute(commandDur);
-
-                    AddToOldCommands(command);
-                    ChangeCommand(Commands.RemoveNode);
-                    itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
-                    selectedObjects.Clear();
+                    break;
                 }
-                else if(curCommand == Commands.SwapNodes){
-                    if(selectedObjects.Count == 2){
+                case Commands.SwapNodes: {
+                    if (selectedObjects.Count == 2){
+                        // Swaps position of selected two nodes
                         Node node = selectedObjects[0].GetComponent<Node>(); ;
-                        if(selectedObjects[0] == selectedObjects[1])
-                        {
+                        if (selectedObjects[0] == selectedObjects[1]){
                             node.Deselect(0.2f);
                             selectedObjects.Clear();
                             return;
@@ -173,95 +154,88 @@ public class GameManager : MonoBehaviour{
                         selectedObjects[1].GetComponent<Node>().Select(0.2f);
 
                         timeID++;
-                        SearchTarget searchTarget = new SearchTarget(new List<AttributeSearch> { new NodeAdjecentNodeSearch(node) });
-                        Command command = new SwapNodes(this, itemManager, itemManager.GetLastItem(), selectedObjects, searchTarget);
+                        MultipleComparison searchTarget = new MultipleComparison(new List<Comparison> { 
+                            new CompareNodeAdjecentNode(node) 
+                        });
+                        command = new SwapNodes(this, itemManager, itemManager.GetLastItem(), 
+                            selectedObjects, searchTarget);
                         command.Execute(commandDur);
-                        //oldCommands.Add(command);
-                        AddToOldCommands(command);
-                        //rewindCount = 0;
-                        //ChangeCommand(Commands.RemoveNode, LayerMask.GetMask("Node"));
-                        
-                        StartCoroutine(ChangeCommandWithDelay(Commands.RemoveNode, 0.1f));
-                        itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
-                        selectedObjects.Clear();
                     }
-                    else if(selectedObjects.Count == 1)
-                    {
+                    else if (selectedObjects.Count == 1){
+                        // Creates new highlight search
+                        // so that only nodes adjacent to selected node will be selectable
                         Node node = selectedObjects[0].GetComponent<Node>();
-                        SearchTarget searchTarget = new SearchTarget(new List<AttributeSearch> { new NodeAdjecentNodeSearch(node) });
+                        MultipleComparison searchTarget = new MultipleComparison(new List<Comparison> { 
+                            new CompareNodeAdjecentNode(node)
+                        });
                         HighlightManager.instance.Search(searchTarget);
                         node.Select(0.2f);
+                        return;
                     }
+                    break;
                 }
-                else if (curCommand == Commands.UnlockPadlock)
-                {
+                case Commands.UnlockPadlock:{
+                    // Unlocks selected locked node 
                     timeID++;
                     commandOwner = selectedObjects[0].GetComponent<Node>();
                     Key key = itemManager.itemContainer.GetLastItem().GetComponent<Key>();
 
-                    UnlockPadlock unlockPadlock = new UnlockPadlock(this, itemManager, commandOwner, key);
+                    UnlockPadlock unlockPadlock = new UnlockPadlock(this, itemManager, 
+                        commandOwner, key);
                     unlockPadlock.node = commandOwner;
                     unlockPadlock.Execute(commandDur);
-
-                    AddToOldCommands(unlockPadlock);
-
-                    ChangeCommand(Commands.RemoveNode);
-                    itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
-                    selectedObjects.Clear();
+                    command = unlockPadlock;
+                    break;
                 }
-                else if (curCommand == Commands.SetArrowPermanent)
-                {
+                case Commands.SetArrowPermanent:{
+                    // Sets selected arrow permanent 
                     timeID++;
                     Arrow arrow = selectedObjects[0].GetComponent<Arrow>();
                     Item item = itemManager.itemContainer.GetLastItem();
-                    SetArrowPermanent setArrowPermanent = new SetArrowPermanent(arrow, item, this, itemManager);
+                    SetArrowPermanent setArrowPermanent = new SetArrowPermanent(arrow, item, 
+                        this, itemManager);
                     setArrowPermanent.Execute(commandDur);
 
-                    AddToOldCommands(setArrowPermanent);
-
-                    ChangeCommand(Commands.RemoveNode);
-                    itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
-                    selectedObjects.Clear();
+                    command = setArrowPermanent;
+                    break;
                 }
-                //timeID++;
             }
+
+            AddToOldCommands(command);
+            ChangeCommand(Commands.RemoveNode);
+            itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
+            selectedObjects.Clear();
         }
 
+        // Rewind
         if ( (Input.GetMouseButtonDown(1) || rewindStarted) && 
-            (GameState.gameState == GameState_EN.playing | GameState.gameState == GameState_EN.testingLevel))
-        {
-            if (!rewindStarted)
-            {
+            (GameState.gameState == GameState_EN.playing | GameState.gameState == GameState_EN.testingLevel)){
+
+            if (!rewindStarted){
+                // Starts rewind
                 rewindStarted = true;
                 RewindBPointerDown(rewindImageParent.GetComponent<CanvasGroup>());
                 if(selectedObjects.Count == 1)
-                {
                     DeselectObjects();
-                }
             }
             
             time += Time.deltaTime;
-            if (time >= maxUndoDur)
-            {
+            if (time >= maxUndoDur){
                 Rewind();
-
                 time = 0;
             }
             
-            if ( ( rewindFinished || (rewindStarted && Input.GetMouseButtonUp(1)) ) 
-                && (GameState.gameState == GameState_EN.playing | GameState.gameState == GameState_EN.testingLevel))
-            {
+            if ( ( rewindFinished || (rewindStarted && Input.GetMouseButtonUp(1)) ) && 
+                 (GameState.gameState == GameState_EN.playing | 
+                 GameState.gameState == GameState_EN.testingLevel)){
+                // Completes rewind
+
                 Palette palette = defPalette;
                 if (curCommand == Commands.ChangeArrowDir)
-                {
                     palette = changeArrowDirPalette;
-                }
                 else if(curCommand == Commands.UnlockPadlock)
-                {
                     palette = unlockPadlockPalette;
-                }
 
-                //if(paletteSwapper.curPalette == rewindPalette)
                 paletteSwapper.ChangePalette(palette, 0.62f);
 
                 time = maxUndoDur;
@@ -283,31 +257,31 @@ public class GameManager : MonoBehaviour{
         
         if (command == Commands.RemoveNode)
         {
-            highlightManager.Search(highlightManager.removeNodeSearch);
+            highlightManager.Search(highlightManager.removeNode);
             paletteSwapper.ChangePalette(defPalette, 0.5f);
             targetLM = LayerMask.GetMask("Node");
         }
         else if (command == Commands.SetArrowPermanent)
         {
-            highlightManager.Search(highlightManager.setArrowPermanentSearch);
+            highlightManager.Search(highlightManager.setArrowPermanent);
             paletteSwapper.ChangePalette(brushPalette, 0.5f);
             targetLM = LayerMask.GetMask("Arrow");
         }
         else if (command == Commands.SwapNodes)
         {
-            highlightManager.Search(highlightManager.onlyNodeSearch);
+            highlightManager.Search(highlightManager.onlyNode);
             paletteSwapper.ChangePalette(swapNodePalette, 0.5f);
             targetLM = LayerMask.GetMask("Node");
         }
         else if (command == Commands.UnlockPadlock)
         {
-            highlightManager.Search(highlightManager.unlockPadlockSearch);
+            highlightManager.Search(highlightManager.unlockPadlock);
             paletteSwapper.ChangePalette(unlockPadlockPalette, 0.5f);
             targetLM = LayerMask.GetMask("Node");
         }
         else if (command == Commands.ChangeArrowDir)
         {
-            highlightManager.Search(highlightManager.onlyArrowSearch);
+            highlightManager.Search(highlightManager.onlyArrow);
             paletteSwapper.ChangePalette(changeArrowDirPalette, 0.5f);
             targetLM = LayerMask.GetMask("Arrow");
         }
@@ -419,46 +393,38 @@ public class GameManager : MonoBehaviour{
         this.targetLM = targetLM;
     }
 
-    public void Rewind()
-    {
-        if (nonRewindCommands.Count > 0)
-        {
-            DeselectObjects();
+    public void Rewind(){
+        if (nonRewindCommands.Count <= 0) return;
+        
+        DeselectObjects();
 
-            Rewind rewind = new Rewind(this, nonRewindCommands[nonRewindCommands.Count - 1]);
+        Rewind rewind = new Rewind(this, nonRewindCommands[nonRewindCommands.Count - 1]);
+        rewind.Execute(commandDur, isRewinding: true);
 
-            rewind.Execute(commandDur, isRewinding: true);
-            nonRewindCommands.Remove(nonRewindCommands[nonRewindCommands.Count - 1]);
-            itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
-            if (!rewind.skipped)
-            {
-                AddToOldCommands(rewind, false);
-            }
-        }
+        nonRewindCommands.Remove(nonRewindCommands[nonRewindCommands.Count - 1]);
+        itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
+
+        if (!rewind.skipped)
+            AddToOldCommands(rewind, false);
     }
 
-    public void OnlyUndoLast(){
-        if(oldCommands.Count == 0)  return;
-
-        timeID--;
-        Command lastCommand =  oldCommands[ oldCommands.Count  - 1];
-        lastCommand.Undo(undoDur, isRewinding : false);
-        //ChangeCommand(lastCommand.nextCommand, lastCommand.targetLM, lastCommand.targetIndegree, itemType: lastCommand.itemType);
-        oldCommands.Remove(lastCommand);
-        nonRewindCommands.Remove(lastCommand);
-        //rewindCount = 0;
-        UpdateChangesCounter();
-    }
+    // Undo last command
     public void Undo()
     {
-        Debug.Log("skipped old commands count : " + skippedOldCommands.Count);
-        if (oldCommands.Count <= 0 ) return; //&& rewindCommands.Count <= 0
+        if (oldCommands.Count == 0 ) return;
 
+        timeID--;
         DeselectObjects();
         GameState.OnAnimationStartEvent(undoDur + 0.3f);
-        OnlyUndoLast();
+
+        Command lastCommand = oldCommands[oldCommands.Count - 1];
+        lastCommand.Undo(undoDur, isRewinding: false);
+
+        oldCommands.Remove(lastCommand);
+        nonRewindCommands.Remove(lastCommand);
+
+        UpdateChangesCounter();
         itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
-        Debug.Log("skipped old commands count after undos : " + skippedOldCommands.Count);
     }
     
     public void UpdateChangesCounter()
@@ -468,7 +434,7 @@ public class GameManager : MonoBehaviour{
         undoChangesCountText.text = $"{changes} | {pChanges}p Changes."; //<color=#F783B0>{changes}</color>
     }
 
-    public IEnumerator UndoAll(){
+    /*public IEnumerator UndoAll(){
         
         while(oldCommands.Count > 0){
             OnlyUndoLast();
@@ -476,7 +442,7 @@ public class GameManager : MonoBehaviour{
         }
 
         ChangeCommand(Commands.None);
-    }
+    }*/
 
     public void UseLastItem()
     {
@@ -510,21 +476,18 @@ public class GameManager : MonoBehaviour{
     }
 
 
-    private void CheckForLevelComplete(GameObject removedNode)
-    {
-        for (int i = 0; i < nodesPool.Count; i++)
-        {
+    private void CheckForLevelComplete(GameObject removedNode){
+        // Checks if all nodes removed. If so 
+        for (int i = 0; i < nodesPool.Count; i++){
             Node node = nodesPool[i];
-            if (!node.isRemoved)
-            {
-                // nodes remain
+            if (!node.isRemoved){
+                // Nodes remain
                 Debug.Log("nodes remain");
                 return;
             }
         }
 
-        // level complete
-        Debug.Log("LEVEL COMPLETED");
+        // Invoke level complete event
         if (OnLevelComplete != null)
             OnLevelComplete(1f);
     }

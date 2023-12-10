@@ -104,96 +104,72 @@ public static class Utility
         return saveData;
     }
 
-    public static string JsonSerialization(object data)
-    {
+    public static string JsonSerialization(object data){
         string json = JsonUtility.ToJson(data, true);
-        Debug.Log("json: " + json);
         return json;
     }
 
-    public static void SaveAsJson(string path, object data)
-    {
+    public static void SaveAsJson(string path, object data){
         string json = JsonSerialization(data);
 
         FileStream fileStream = new FileStream(path, FileMode.Create);
 
-        using (StreamWriter writer = new StreamWriter(fileStream))
-        {
+        using (StreamWriter writer = new StreamWriter(fileStream)){
             writer.Write(json);
         }
     }
 
-    public static LevelProperty LoadLevePropertyFromJson(string path)
-    {
-        if (File.Exists(path))
-        {
-            using (StreamReader reader = new StreamReader(path))
-            {
+    public static LevelProperty LoadLevePropertyFromJson(string path){
+        if (File.Exists(path)){
+            using (StreamReader reader = new StreamReader(path)){
                 string json = reader.ReadToEnd();
-                //var data = new Object();
                 LevelProperty levelProperty = JsonUtility.FromJson<LevelProperty>(json);
                 return levelProperty;
             }
         }
-        else
-        {
-            Debug.LogWarning("File not found");
+        else{
+            Debug.LogWarning("File could not found");
             return null;
         }
     }
 
-    public static string EncodeBase64(string inputText)
-    {
+    public static string EncodeBase64(string inputText){
         byte[] bytesToEncode = Encoding.UTF8.GetBytes(inputText);
         string encodedText = Convert.ToBase64String(bytesToEncode);
 
         return encodedText;
     }
 
-    public static string EncodeBase64WithBytes(byte[] bytesToEncode)
-    {
-        string encodedText = Convert.ToBase64String(bytesToEncode);
-
-        return encodedText;
+    public static string EncodeBase64FromBytes(byte[] bytesToEncode){
+        return Convert.ToBase64String(bytesToEncode);
     }
 
-    public static string DecodeBase64(string encodedText)
-    {
+    public static string DecodeBase64(string encodedText){
         byte[] decodedBytes = Convert.FromBase64String(encodedText);
         string decodedText = Encoding.UTF8.GetString(decodedBytes);
 
         return decodedText;
     }
 
-    public static byte[] DecodeBase64ToBytes(string encodedText)
-    {
-        byte[] decodedBytes = Convert.FromBase64String(encodedText);
-
-        return decodedBytes;
+    public static byte[] DecodeBase64ToBytes(string encodedText){
+        return Convert.FromBase64String(encodedText);
     }
 
-    public static void CopyTo(Stream src, Stream dest)
-    {
+    public static void CopyTo(Stream src, Stream dest){
         byte[] bytes = new byte[4096];
 
         int cnt;
-
-        while ((cnt = src.Read(bytes, 0, bytes.Length)) != 0)
-        {
+        while ((cnt = src.Read(bytes, 0, bytes.Length)) != 0){
             dest.Write(bytes, 0, cnt);
         }
     }
 
-    public static byte[] Zip(string str)
-    {
+    public static byte[] Zip(string str){
         var bytes = Encoding.UTF8.GetBytes(str);
 
         using (var msi = new MemoryStream(bytes))
-        using (var mso = new MemoryStream())
-        {
-            using (var gs = new GZipStream(mso, CompressionMode.Compress))
-            {
-                //msi.CopyTo(gs);
+        using (var mso = new MemoryStream()){
+            using (var gs = new GZipStream(mso, CompressionMode.Compress)){
                 CopyTo(msi, gs);
             }
 
@@ -201,14 +177,10 @@ public static class Utility
         }
     }
 
-    public static string Unzip(byte[] bytes)
-    {
+    public static string Unzip(byte[] bytes){
         using (var msi = new MemoryStream(bytes))
-        using (var mso = new MemoryStream())
-        {
-            using (var gs = new GZipStream(msi, CompressionMode.Decompress))
-            {
-                //gs.CopyTo(mso);
+        using (var mso = new MemoryStream()){
+            using (var gs = new GZipStream(msi, CompressionMode.Decompress)){
                 CopyTo(gs, mso);
             }
 

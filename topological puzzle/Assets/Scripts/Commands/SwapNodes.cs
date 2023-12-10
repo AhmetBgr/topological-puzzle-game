@@ -11,9 +11,9 @@ public class SwapNodes : Command
     private List<GameObject> selectedObjects = new List<GameObject>();
     private List<GameObject> affectedObjects = new List<GameObject>();
     private Item commandOwner;
-    private SearchTarget swapNodeSearch;
+    private MultipleComparison swapNodeSearch;
 
-    public SwapNodes(GameManager gameManager, ItemManager itemManager, Item commandOwner, List<GameObject> selectedObjects, SearchTarget swapNodeSearch)
+    public SwapNodes(GameManager gameManager, ItemManager itemManager, Item commandOwner, List<GameObject> selectedObjects, MultipleComparison swapNodeSearch)
     {
         this.commandOwner = commandOwner;
         this.gameManager = gameManager;
@@ -147,7 +147,7 @@ public class SwapNodes : Command
             node1.transform.DOScale(0, dur * 2.2f/5f).SetEase(Ease.InBack).OnComplete(() => {
                 node1.Deselect(0f);
                 node1.transform.localPosition = node2.transform.localPosition;
-                node1.itemController.itemContainer.FindContainerPos();
+                node1.itemController.itemContainer.UpdateContainerPos();
             })
         );
         sequence1.Append(node1.transform.DOScale(1, dur * 2.2f/5f).SetEase(Ease.OutBack));
@@ -158,7 +158,7 @@ public class SwapNodes : Command
             node2.transform.DOScale(0, dur * 2.2f/5f).SetEase(Ease.InBack).OnComplete(() => {
                 node2.Deselect(0f);
                 node2.transform.localPosition = tempPos;
-                node2.itemController.itemContainer.FindContainerPos();
+                node2.itemController.itemContainer.UpdateContainerPos();
             })
         );
         sequence2.Append(node2.transform.DOScale(1, dur * 2.2f/5f).SetEase(Ease.OutBack));

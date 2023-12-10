@@ -40,7 +40,7 @@ public class BlockedNode : Node
         }
     }
 
-    protected override void UpdateHighlight(SearchTarget searchTarget)
+    protected override void UpdateHighlight(MultipleComparison mp)
     {
         UpdateBLockStatus();
         if (blocked && GameState.gameState == GameState_EN.playing)
@@ -49,6 +49,6 @@ public class BlockedNode : Node
             return;
         }
 
-        base.UpdateHighlight(searchTarget);
+        base.UpdateHighlight(mp);
     }
 }

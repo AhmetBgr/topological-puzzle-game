@@ -10,143 +10,102 @@ public class Cursor : MonoBehaviour
     private Camera cam;
     public Transform cursor;
     public Image cursorIcon;
-    public bool snapToGrid = false;
-    public float gridSize = 1f;
-    //public bool onlyUpdateOnHover = false;
-    public Vector3 pos;
-    public Vector3 worldPos;
-    public Vector3 mouseWorldPos;
-    int UILayer;
 
+    public Vector3 pos;
+    public Vector2 worldPos;
+    public Vector2 mouseWorldPos;
+
+    public float gridSize = 1f;
+    public bool snapToGrid = false;
     public bool isHiden = false;
+    private int UILayer;
+
     public static Cursor instance = null;
 
-    void Awake()
-    {
-        //UnityEngine.Cursor.visible = false;
+    void Awake(){
         // if the singleton hasn't been initialized yet
-        if (instance != null && instance != this)
-        {
+        if (instance != null && instance != this){
             Destroy(this.gameObject);
         }
-        else
-        {
+        else{
             instance = this;
             cam = Camera.main;
         }
         DontDestroyOnLoad(this.gameObject);
-
     }
-    private void Start()
-    {
+
+    private void Start(){
         this.UILayer = LayerMask.NameToLayer("UI");
         gameObject.SetActive(false);
     }
-    /*private void LateUpdate()
-    {
 
-        if (( Input.GetMouseButtonUp(1)| Input.GetKeyUp(KeyCode.LeftAlt)) && snapToGrid)
-        {
-            snapToGrid = false;
-        }
-        else if ((Input.GetMouseButton(0) && Input.GetMouseButtonUp(1)) | Input.GetKeyUp(KeyCode.LeftAlt))
-        {
-            snapToGrid = true;
-        }
-    }*/
-
-    void Update()
-    {
+    void Update(){
         bool isHoveringUI = IsPointerOverUIElement();
-        if (isHoveringUI && !isHiden)
-        {
+        if (isHoveringUI && !isHiden){
             HideCursor();
             return;
         }
-        else if (!isHoveringUI && isHiden)
-        {
+        else if (!isHoveringUI && isHiden){
             ShowCursor();
             return;
         }
 
         if (isHiden) return;
 
-        if (snapToGrid)
-        {
+        if (snapToGrid){
             Vector3 mousePos = Input.mousePosition;
             worldPos = Camera.main.ScreenToWorldPoint(mousePos);
             Vector3 snappedWorldPos = new Vector3(CustomRound(worldPos.x), CustomRound(worldPos.y), 0f);
-            pos = Camera.main.WorldToScreenPoint(snappedWorldPos);
-            cursor.position = pos;
-            worldPos = Camera.main.ScreenToWorldPoint(pos);
+            SetCursorPos(Camera.main.WorldToScreenPoint(snappedWorldPos));
         }
-        else
-        {
-            pos = Input.mousePosition;
-            cursor.position = pos;
-            worldPos = Camera.main.ScreenToWorldPoint(pos);
+        else{
+            SetCursorPos(Input.mousePosition);
         }
         mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
     }
 
-    public void HideCursor()
-    {
+    private void SetCursorPos(Vector3 pos){
+        cursor.position = pos;
+        worldPos = Camera.main.ScreenToWorldPoint(pos);
+    }
+
+    public void HideCursor(){
         cursorIcon.enabled = false;
         isHiden = true;
         UnityEngine.Cursor.visible = true;
     }
 
-    public void ShowCursor()
-    {
+    public void ShowCursor(){
         cursorIcon.enabled = true;
         isHiden = false;
         UnityEngine.Cursor.visible = false;
     }
 
-    public void Enable()
-    {
+    public void Enable(){
         gameObject.SetActive(true);
         UnityEngine.Cursor.visible = false;
     }
-    public void Disable()
-    {
+    public void Disable(){
         gameObject.SetActive(false);
         UnityEngine.Cursor.visible = true;
     }
-    float HalfRound(float value)
-    {
+    /*float HalfRound(float value){
         float floor = Mathf.FloorToInt(value);
-        
         return floor += 0.5f;
-    }
-
-    float CustomRound(float value)
-    {
-        /*float x = value;
-        return Mathf.FloorToInt(x + gridSize);// * gridSize; // + (gridSize/2);
-        */
-
-        /*value -= value % (gridSize/2);
-
-        return value; // + (gridSize/2);*/
-
+    }*/
+    float CustomRound(float value){
         value = Mathf.Round(value / gridSize);
         return value * gridSize;
-
     }
 
-    //Returns 'true' if we touched or hovering on Unity UI element.
-    public bool IsPointerOverUIElement()
-    {
+    // Returns 'true' if we touched or hovering on Unity UI element.
+    public bool IsPointerOverUIElement(){
         return IsPointerOverUIElement(GetEventSystemRaycastResults());
     }
 
-
-    //Returns 'true' if we touched or hovering on Unity UI element.
-    private bool IsPointerOverUIElement(List<RaycastResult> eventSystemRaysastResults)
-    {
-        for (int index = 0; index < eventSystemRaysastResults.Count; index++)
-        {
+    // Returns 'true' if we touched or hovering on Unity UI element.
+    private bool IsPointerOverUIElement(List<RaycastResult> eventSystemRaysastResults){
+        for (int index = 0; index < eventSystemRaysastResults.Count; index++){
             RaycastResult curRaysastResult = eventSystemRaysastResults[index];
             if (curRaysastResult.gameObject.layer == UILayer)
                 return true;
@@ -154,10 +113,8 @@ public class Cursor : MonoBehaviour
         return false;
     }
 
-
-    //Gets all event system raycast results of current mouse or touch position.
-    static List<RaycastResult> GetEventSystemRaycastResults()
-    {
+    // Gets all event system raycast results of current mouse or touch position.
+    static List<RaycastResult> GetEventSystemRaycastResults(){
         PointerEventData eventData = new PointerEventData(EventSystem.current);
         eventData.position = Input.mousePosition;
         List<RaycastResult> raysastResults = new List<RaycastResult>();
@@ -165,8 +122,7 @@ public class Cursor : MonoBehaviour
         return raysastResults;
     }
 
-    private void OnApplicationFocus(bool focus)
-    {
+    private void OnApplicationFocus(bool focus){
         UnityEngine.Cursor.visible = true;
     }
 }

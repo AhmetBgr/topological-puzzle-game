@@ -50,13 +50,14 @@ public class RemoveArrow : Command
                 gameManager.RemoveFromSkippedOldCommands(this);
             }
         }
+
         arrow.gameObject.SetActive(true);
         arrow.Add(dur);
-        
         
         if(OnUndo != null){
             OnUndo();
         }
+
         return false;
     }
 

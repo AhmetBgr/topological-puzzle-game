@@ -135,9 +135,9 @@ public abstract class Item : MonoBehaviour
         }
     }
 
-    public void Check(SearchTarget searchTarget)
+    public void Check(MultipleComparison mp)
     {
-        if (searchTarget.CheckAll(this))
+        if (mp.CompareAll(this))
         {
             EnableCollider();
         }

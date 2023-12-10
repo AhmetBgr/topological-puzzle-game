@@ -419,25 +419,21 @@ public class LevelManager : MonoBehaviour{
     }
 
 
-    public void SaveLevelProperty(Transform level, bool saveAsBackup = false){
+    public void SaveLevel(Transform level, bool saveAsBackup = false){
 
         LevelProperty levelProperty = CreateLevelProperty(level);
 
-        // Serialize level property
-
+        // Set full path
         string fullPath;
         fullPath = Application.persistentDataPath + myLevelsPath + "/" + levelProperty.levelName + ".txt";
         #if UNITY_EDITOR
             if (saveAsBackup)
-            {
                 fullPath = this.backupPath + levelProperty.levelName + ".txt";
-            }
             else
-            {
                 fullPath = this.path + levelProperty.levelName + ".txt";
-            }
         #endif
 
+        // Serialize level property
         Utility.SaveAsJson(fullPath, levelProperty);
 
         #if UNITY_EDITOR
@@ -445,23 +441,9 @@ public class LevelManager : MonoBehaviour{
         #endif
        
         AddToPlayerLevels(levelProperty);
-
-        /*BinaryFormatter bf = new BinaryFormatter();
-        string path = Application.persistentDataPath + "/Basic Levels";
-        
-        if(!Directory.Exists(path))
-            Directory.CreateDirectory(path);
-
-        FileStream file = File.Create(path + "/" + levelProperty.levelName + ".save");
-        bf.Serialize(file, levelProperty);
-        file.Close();
-        */
-        //string json = JsonUtility.ToJson(levelProperty);
-
     }
 
-    public LevelProperty CreateLevelProperty(Transform level)
-    {
+    public LevelProperty CreateLevelProperty(Transform level){
         level.name = level.name.Replace("(Clone)", "");
 
         LevelProperty levelProperty = new LevelProperty();
@@ -471,21 +453,23 @@ public class LevelManager : MonoBehaviour{
 
         int objCount = level.childCount;
 
-        for (int i = 0; i < objCount; i++)
-        {
+        for (int i = 0; i < objCount; i++){
             Transform obj = level.GetChild(i);
-            if (((1 << obj.gameObject.layer) & LayerMask.GetMask("Node")) != 0 && obj.gameObject.activeSelf)
-            {
+            
+            if (((1 << obj.gameObject.layer) & LayerMask.GetMask("Node")) != 0 && obj.gameObject.activeSelf){
+                // Set and add new node property
+
                 Node node = obj.GetComponent<Node>();
                 NodeProperty nodeP = new NodeProperty();
 
+                // Set node properties
                 nodeP.tag = node.isPermanent ? "p," + obj.tag : obj.tag;
                 nodeP.posX = obj.position.x;
                 nodeP.posY = obj.position.y;
                 nodeP.id = obj.gameObject.GetInstanceID();
 
-                foreach (var item in node.itemController.itemContainer.items)
-                {
+                // Adds items
+                foreach (var item in node.itemController.itemContainer.items){
                     if (item.CompareTag("AddNewItem")) continue;
 
                     string tag = item.isPermanent ? "p," + item.tag : item.tag;
@@ -494,30 +478,28 @@ public class LevelManager : MonoBehaviour{
                 }
 
                 levelProperty.nodes.Add(nodeP);
-
                 levelProperty.nodeCount++;
             }
-            else if (((1 << obj.gameObject.layer) & LayerMask.GetMask("Arrow")) != 0 && obj.gameObject.activeSelf)
-            {
+            else if (((1 << obj.gameObject.layer) & LayerMask.GetMask("Arrow")) != 0 && obj.gameObject.activeSelf){
+                // Set and add new arrow property
+
                 Arrow arrow = obj.GetComponent<Arrow>();
                 LineRenderer lr = obj.GetComponent<LineRenderer>();
                 ArrowProperty arrowP = new ArrowProperty();
 
+                // Set Arrow properties
                 arrowP.tag = arrow.isPermanent ? "p," + obj.tag : obj.tag;
-                //arrowP.position = obj.position;
-
                 arrowP.id = obj.gameObject.GetInstanceID();
                 arrowP.startingNodeID = arrow.startingNode.GetInstanceID();
                 arrowP.destinationNodeID = arrow.destinationNode.GetInstanceID();
-
                 arrowP.pointsX = new float[lr.positionCount];
                 arrowP.pointsY = new float[lr.positionCount];
+
                 Vector3[] positions = new Vector3[lr.positionCount];
 
                 lr.GetPositions(positions);
 
-                for (int j = 0; j < positions.Length; j++)
-                {
+                for (int j = 0; j < positions.Length; j++){
                     arrowP.pointsX[j] = positions[j].x;
                     arrowP.pointsY[j] = positions[j].y;
                 }
@@ -526,9 +508,7 @@ public class LevelManager : MonoBehaviour{
                 levelProperty.arrowCount++;
 
                 if (arrow.CompareTag("TransporterArrow"))
-                {
                     arrowP.priority = arrow.GetComponent<Transporter>().priority;
-                }
             }
         }
 
@@ -578,84 +558,50 @@ public class LevelManager : MonoBehaviour{
 
         if (levelProperty != null)
         {
-            LoadLevelWithLevelProperty(levelProperty, levelName, levelParent);
+            LoadLevelWithLevelProperty(levelProperty, levelParent);
         }
         else
         {
             Debug.Log("No level found with given name: " + levelName);
             throw new System.Exception();
         }
-        ///string filePath = this.path + levelName + ".txt";
-        //if (File.Exists(filePath)){
-
-        // Deserialize level property
-        /*BinaryFormatter bf = new BinaryFormatter();
-        FileStream file = File.Open(filePath, FileMode.Open);
-        LevelProperty levelProperty = (LevelProperty)bf.Deserialize(file);
-        file.Close();*/
-
-
-        //string fullPath = this.path + levelName + ".txt";
-        //LevelProperty levelProperty = Utility.LoadLevePropertyFromJson(fullPath);
-
-        //FileStream file = File.Open(filePath, FileMode.Open);
-
-        //LevelProperty level = JsonUtility.FromJson<LevelProperty>()
-
-        //LoadLevelWithLevelProperty(levelProperty, levelName, levelParent);
-        //}
     }
 
-    public void LoadLevelWithLevelProperty(LevelProperty levelProperty, string levelName, Transform levelParent)
-    {
-        Debug.Log("should load level named " + levelName);
-        Debug.Log("node count in loaded level: " + levelProperty.nodes.Count);
-        Debug.Log("arrow count in loaded level: " + levelProperty.arrows.Count);
-
+    public void LoadLevelWithLevelProperty(LevelProperty levelProperty, Transform levelParent){
         nodesPool.Clear();
         arrowsPool.Clear();
 
-        // Create nodes and set properties
-        foreach (var nodeProperty in levelProperty.nodes)
-        {
+        // Instantiates nodes and set properties
+        foreach (var nodeProperty in levelProperty.nodes){
+
             PrefabAndPool prefabAndPool = GetPrefabAndPoolByTag(nodeProperty.tag.Replace("p,", ""));
             Vector3 pos = new Vector3(nodeProperty.posX, nodeProperty.posY, 0);
             Transform obj = Instantiate(prefabAndPool.prefab, pos, Quaternion.identity).transform;
-            //obj.tag = nodeProperty.tag;
             obj.name = nodeProperty.id.ToString();
             obj.SetParent(levelParent);
             Node node = obj.GetComponent<Node>();
-            if (nodeProperty.tag.Contains("p,"))
-            {
-                Debug.Log("should set permanent item : " + tag);
 
+            if (nodeProperty.tag.Contains("p,"))
                 node.ChangePermanent(true);
-            }
+
             GameObject prefab;
-            // Generate items that this node have
-            for (int i = 0; i < nodeProperty.itemTags.Count; i++)
-            {
+            // Instantiates items that this node have
+            for (int i = 0; i < nodeProperty.itemTags.Count; i++){
                 string tag = nodeProperty.itemTags[i];
                 prefab = GetPrefabAndPoolByTag(tag.Replace("p,", "")).prefab;
 
                 GameObject itemObj = obj.GetComponent<ItemController>().GenerateItem(prefab);
-                if (tag.Contains("p,"))
-                {
-                    Debug.Log("should set permanent item : " + tag);
+                if (tag.Contains("p,")){
                     Item item = itemObj.GetComponent<Item>();
                     item.ChangePermanent(true);
-                }
-                else
-                {
-                    Debug.Log(" item is not permanent : " + tag);
                 }
             }
 
             nodesPool.Add(node);
         }
 
-        foreach (var arrowProperty in levelProperty.arrows)
-        {
+        // Instantiates arrows and sets properties
+        foreach (var arrowProperty in levelProperty.arrows){
             PrefabAndPool prefabAndPool = GetPrefabAndPoolByTag(arrowProperty.tag.Replace("p,", ""));
             Transform obj = Instantiate(prefabAndPool.prefab, Vector3.zero, Quaternion.identity).transform;
             //obj.tag = arrowProperty.tag;    //.Split(",")[1];
@@ -665,10 +611,10 @@ public class LevelManager : MonoBehaviour{
             lr.positionCount = arrowProperty.pointsX.Length;
             Vector3[] positions = new Vector3[arrowProperty.pointsX.Length];
 
-            for (int i = 0; i < positions.Length; i++)
-            {
+            for (int i = 0; i < positions.Length; i++){
                 positions[i] = new Vector3(arrowProperty.pointsX[i], arrowProperty.pointsY[i], 0);
             }
+
             lr.SetPositions(positions);
 
             Arrow arrow = obj.GetComponent<Arrow>();
@@ -678,26 +624,17 @@ public class LevelManager : MonoBehaviour{
             arrow.FixCollider();
 
             if (arrowProperty.tag.Contains("p,"))
-            {
-                Debug.Log("should set permanent item : " + tag);
                 arrow.ChangePermanent(true);
-            }
 
             if (arrow.CompareTag("TransporterArrow"))
-            {
                 arrow.GetComponent<Transporter>().priority = arrowProperty.priority;
-            }
-
+            
             arrowsPool.Add(arrow);
         }
 
         // Set links between objects
-        foreach (var arrowProperty in levelProperty.arrows)
-        {
-            //List<GameObject> pool = GetPrefabAndPoolByTag(arrowProperty.tag).pool;
+        foreach (var arrowProperty in levelProperty.arrows){
             Arrow arrow = FindObjInArrowPool(arrowProperty.id.ToString(), arrowsPool);
-
-            //Arrow arrow = obj.GetComponent<Arrow>();
 
             Node startingNode = FindObjInNodePool(arrowProperty.startingNodeID.ToString(), nodesPool);
             Node destinationNode = FindObjInNodePool(arrowProperty.destinationNodeID.ToString(), nodesPool);
@@ -712,23 +649,20 @@ public class LevelManager : MonoBehaviour{
         arrowCount = levelProperty.arrowCount;
     }
 
-    public void LoadPlayerLevels()
-    {
+    public void LoadPlayerLevels(){
         string path = Application.persistentDataPath + myLevelsPath;
-        if (!Directory.Exists(path))
-        {
+        if (!Directory.Exists(path)){
             Debug.Log("path created : " + path);
             Directory.CreateDirectory(path);
         }
 
-        // Loads levels from my levels
+        // Loads level files from MyLevels path
         string[] playerLevelsPaths = Directory.GetFiles(path + "/", "*.txt");
 
-        //myLevels = new LevelProperty[playerLevelsPaths.Length];
+        // Deserializes json text to levelproperty object
         playerLevelsNames = new List<string>();
-        for (int i = 0; i < playerLevelsPaths.Length; i++)
-        {
-            LevelProperty level = Utility.LoadLevePropertyFromJson(playerLevelsPaths[i]);
+        for (int i = 0; i < playerLevelsPaths.Length; i++){
+            LevelProperty level = (LevelProperty)Utility.LoadLevePropertyFromJson(playerLevelsPaths[i]);
             AddToPlayerLevels(level);
         }
     }

@@ -21,49 +21,36 @@ public class Grid : MonoBehaviour
     public delegate void OnGridSizeChangedDelegate(float value, float minGridSize);
     public static event OnGridSizeChangedDelegate OnGridSizeChanged;
 
-    // Start is called before the first frame update
-    void Awake()
-    {
+    void Awake(){
         gridMat = spriteRenderer.sharedMaterial;
         gridSize = minGridSize;
     }
 
-    void Update()
-    {
+    void Update(){
         if (GameState.gameState != GameState_EN.inLevelEditor) return;
 
         if (Input.GetKeyDown(KeyCode.G))
-        {
             ToggleGrid(!isActive);
-        }
 
         if (!isActive) return;
 
         if (Input.GetKeyDown(KeyCode.KeypadPlus))
-        {
             IncreaseGridSize();
-        }
         else if (Input.GetKeyDown(KeyCode.KeypadMinus))
-        {
             DecreaseGridSize();
-        }
     }
 
-    public void ToggleGrid(bool isActive)
-    {
+    public void ToggleGrid(bool isActive){
         this.isActive = isActive;
         gridObj.SetActive(isActive);
         SetGridSize(minGridSize);
         Cursor.instance.gridSize = gridSize;
 
         if(OnGridToggle != null)
-        {
             OnGridToggle(isActive);
-        }
     }
 
-    public void IncreaseGridSize()
-    {
+    public void IncreaseGridSize(){
         var value =  gridSize + minGridSize;
 
         if (value >= maxGridSize) return;
@@ -71,8 +58,7 @@ public class Grid : MonoBehaviour
         SetGridSize(value);
     }
 
-    public void DecreaseGridSize()
-    {
+    public void DecreaseGridSize(){
         var value = gridSize - minGridSize;
 
         if (value < minGridSize) return;
@@ -80,15 +66,12 @@ public class Grid : MonoBehaviour
         SetGridSize(value);
     }
 
-    public void SetGridSize(float value)
-    {
+    public void SetGridSize(float value){
         gridSize = value;
         gridMat.SetVector(cellSizeName, Vector4.one * gridSize);
         Cursor.instance.gridSize = gridSize;
 
         if (OnGridSizeChanged != null)
-        {
             OnGridSizeChanged(value, minGridSize);
-        }
     }
 }
