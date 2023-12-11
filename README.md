@@ -1,4 +1,4 @@
-# topological-puzzle-game
+# Topological Puzzle Game (in development)
 
 An abstract puzzle game about clearing out nodes from the topology which involves rewinding, special items, nodes and arrows. The game currently in development and includes a level editor with level sharing. Level sharing implemention is level to text convertion which player can copy that text and share it.
 
