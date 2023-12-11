@@ -202,6 +202,7 @@ public class LevelEditor : MonoBehaviour{
                     oldCommands.Add(moveNode);
                     lastState = state;
                     state = LeState.movingNode;
+                    HighlightManager.instance.Search(HighlightManager.instance.onlyNode);
                 }
                 else if (((1 << objToMove.gameObject.layer) & LayerMask.GetMask("ArrowPoint")) != 0)
                 {
@@ -302,6 +303,7 @@ public class LevelEditor : MonoBehaviour{
                     arrowComponents.arrow.FixCollider();
                 }
                 state = lastState;
+                HighlightManager.instance.Search(HighlightManager.instance.any);
             }
             return;
         }
