@@ -154,7 +154,7 @@ public class GameManager : MonoBehaviour{
                         selectedObjects[1].GetComponent<Node>().Select(0.2f);
 
                         timeID++;
-                        MultipleComparison searchTarget = new MultipleComparison(new List<Comparison> { 
+                        MultipleComparison<Component> searchTarget = new MultipleComparison<Component>(new List<Comparison> { 
                             new CompareNodeAdjecentNode(node) 
                         });
                         command = new SwapNodes(this, itemManager, itemManager.GetLastItem(), 
@@ -165,7 +165,7 @@ public class GameManager : MonoBehaviour{
                         // Creates new highlight search
                         // so that only nodes adjacent to selected node will be selectable
                         Node node = selectedObjects[0].GetComponent<Node>();
-                        MultipleComparison searchTarget = new MultipleComparison(new List<Comparison> { 
+                        MultipleComparison<Component> searchTarget = new MultipleComparison<Component>(new List<Comparison> { 
                             new CompareNodeAdjecentNode(node)
                         });
                         HighlightManager.instance.Search(searchTarget);

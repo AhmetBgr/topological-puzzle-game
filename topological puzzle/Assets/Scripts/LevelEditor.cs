@@ -276,7 +276,7 @@ public class LevelEditor : MonoBehaviour{
 ;                   }
                     else if(selectedObjects.Count == 1)
                     {
-                        MultipleComparison searchTarget = new MultipleComparison(new List<Comparison> { 
+                        MultipleComparison<Component> searchTarget = new MultipleComparison<Component>(new List<Comparison> { 
                             new CompareLayer(LayerMask.GetMask("Node")),
                             new CompareExcludeObjects(new List<GameObject>{selectedObjects[0]}) 
                         });
@@ -417,7 +417,7 @@ public class LevelEditor : MonoBehaviour{
         {
             obj = Instantiate(prefab, Vector3.zero, Quaternion.identity).transform;
             obj.SetParent(curLevelInEditing.transform);
-            highlightManager.Search(highlightManager.none);
+            highlightManager.Search(highlightManager.onlyNode);
             obj.GetComponent<Collider2D>().enabled = false;
         }
 
@@ -506,6 +506,8 @@ public class LevelEditor : MonoBehaviour{
         string levelJson = levelManager.SerializeLevelAsJson(curLevelInEditing.transform);
 
         byte[] bytesToEncode = Utility.Zip(levelJson);
+
+        Debug.Log( System.Text.Encoding.Default.GetString(bytesToEncode));
 
         encodedLevelText.text = Utility.EncodeBase64FromBytes(bytesToEncode);
     }

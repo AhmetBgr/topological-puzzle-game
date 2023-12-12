@@ -3,17 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Comparison{
-    public virtual bool Compare(GameObject obj){
-        return false;
-    }
-    public virtual bool Compare(Node node){
-        return false;
-    }
 
-    public virtual bool Compare(Arrow arrow){
-        return false;
-    }
-    public virtual bool Compare(Item item){
+    public virtual bool Compare(Component obj) {
         return false;
     }
 }
@@ -25,20 +16,8 @@ public class CompareLayer : Comparison
         this.layerMask = layerMask; 
     }
 
-    public override bool Compare(GameObject obj){
-        return ((1 << obj.layer) & layerMask) != 0;
-    }
-    public override bool Compare(Node node){
-        GameObject obj = node.gameObject;
-        return ((1 << obj.layer) & layerMask) != 0;
-    }
-    public override bool Compare(Arrow arrow){
-        GameObject obj = arrow.gameObject;
-        return ((1 << obj.layer) & layerMask) != 0;
-    }
-    public override bool Compare(Item item){
-        GameObject obj = item.gameObject;
-        return ((1 << obj.layer) & layerMask) != 0;
+    public override bool Compare(Component obj) {
+        return ((1 << obj.gameObject.layer) & layerMask) != 0;
     }
 }
 
@@ -50,8 +29,10 @@ public class CompareNodePermanent : Comparison
     public CompareNodePermanent(int permanent){
         this.permanent = permanent;
     }
-    public override bool Compare(Node node)
-    {
+
+    public override bool Compare(Component obj) {
+        Node node = obj as Node;
+
         bool permanentCheck = permanent == -1 ? true : (node.isPermanent && permanent == 1) | (!node.isPermanent && permanent == 0);
         return permanentCheck;
     }
@@ -63,10 +44,12 @@ public class CompareArrowPermanent : Comparison
 
     public CompareArrowPermanent(int permanent)
     {
-        this.permanent = -1;
+        this.permanent = permanent;
     }
-    public override bool Compare(Arrow arrow)
+    public override bool Compare(Component obj)
     {
+        Arrow arrow= obj as Arrow;
+
         bool permanentCheck = permanent == -1 ? true : (arrow.isPermanent && permanent == 1) | (!arrow.isPermanent && permanent == 0);
         return permanentCheck;
     }
@@ -80,8 +63,10 @@ public class CompareItemPermanent : Comparison
     {
         this.permanent = permanent;
     }
-    public override bool Compare(Item item)
+    public override bool Compare(Component obj)
     {
+        Item item = obj as Item;
+
         bool permanentCheck = permanent == -1 ? true : (item.isPermanent && permanent == 1) | (!item.isPermanent && permanent == 0);
         return permanentCheck;
     }
@@ -93,7 +78,9 @@ public class CompareItemType : Comparison{
     public CompareItemType(ItemType type){
         this.type = type;
     }
-    public override bool Compare(Item item){
+
+    public override bool Compare(Component obj) {
+        Item item= obj as Item;
         return type == item.type;
     }
 }
@@ -105,8 +92,9 @@ public class CompareArrowAdjecentNodes : Comparison
     {
         this.arrow = arrow;
     }
-    public override bool Compare(Node node)
+    public override bool Compare(Component obj)
     {
+        Node node = obj as Node;
         return arrow.startingNode == node | arrow.destinationNode == node;
     }
 }
@@ -115,7 +103,11 @@ public class CompareNodeAdjecentNode : Comparison{
     public CompareNodeAdjecentNode(Node node){
         this.adjacent = node;
     }
-    public override bool Compare(Node node){
+
+    public override bool Compare(Component obj) {
+        Node node = obj as Node;
+
+        if (!node) return false;
 
         foreach (var item in adjacent.arrowsFromThisNode){
             if (node.arrowsToThisNode.Contains(item)){
@@ -142,8 +134,9 @@ public class CompareIndegree : Comparison
     {
         this.indegree = indegree;
     }
-    public override bool Compare(Node node)
+    public override bool Compare(Component obj)
     {
+        Node node = obj as Node;
         //indegree = indegree == -1 ? node.indegree : indegree;
         //minIndegree = minIndegree == -1 ? node.indegree : minIndegree;
         //maxIndegree = maxIndegree == -1 ? node.indegree : maxIndegree;
@@ -158,24 +151,9 @@ public class CompareExcludeObjects : Comparison
     {
         this.objectsToExclude.AddRange(objectsToExclude);
     }
-    public override bool Compare(GameObject obj)
+    public override bool Compare(Component obj)
     {
-        return !objectsToExclude.Contains(obj);
-    }
-    public override bool Compare(Node node)
-    {
-        GameObject obj = node.gameObject;
-        return !objectsToExclude.Contains(obj);
-    }
-    public override bool Compare(Arrow arrow)
-    {
-        GameObject obj = arrow.gameObject;
-        return !objectsToExclude.Contains(obj);
-    }
-    public override bool Compare(Item item)
-    {
-        GameObject obj = item.gameObject;
-        return !objectsToExclude.Contains(obj);
+        return !objectsToExclude.Contains(obj.gameObject);
     }
 }
 
@@ -186,8 +164,9 @@ public class CompareExcludeNodesWithGivenItemTypes : Comparison
     {
         this.itemTypesToExclude.AddRange(itemTypesToExclude);
     }
-    public override bool Compare(Node node)
+    public override bool Compare(Component obj)
     {
+        Node node = obj as Node;
         foreach (var item in node.itemController.itemContainer.items)
         {
             if (!itemTypesToExclude.Contains(item.type))
@@ -203,8 +182,9 @@ public class CompareIncludeNodesWithGivenItemTypes : Comparison
     {
         this.itemTypesToInclude.AddRange(itemTypesToInclude);
     }
-    public override bool Compare(Node node)
+    public override bool Compare(Component obj)
     {
+        Node node = obj as Node;
         foreach (var item in node.itemController.itemContainer.items)
         {
             if (itemTypesToInclude.Contains(item.type))
@@ -221,8 +201,9 @@ public class CompareExcludeNodeTag : Comparison
     {
         this.tagsToExclude.AddRange(tagsToExclude);
     }
-    public override bool Compare(Node node)
+    public override bool Compare(Component obj)
     {
+        Node node = obj as Node;
         return !tagsToExclude.Contains(node.gameObject.tag);
     }
 }

@@ -4,21 +4,21 @@ using UnityEngine;
 
 public class HighlightManager : MonoBehaviour
 {
-    public MultipleComparison any;
-    public MultipleComparison none;
-    public MultipleComparison removeNode;
-    public MultipleComparison unlockPadlock;
-    public MultipleComparison setArrowPermanent;
-    public MultipleComparison setNodePermanent;
-    public MultipleComparison setItemPermanent;
-    public MultipleComparison onlyNode;
-    public MultipleComparison onlyArrow;
-    public MultipleComparison onlyItem;
-    public MultipleComparison onlyBlocked;
+    public MultipleComparison<Component> any;
+    public MultipleComparison<Component> none;
+    public MultipleComparison<Component> removeNode;
+    public MultipleComparison<Component> unlockPadlock;
+    public MultipleComparison<Component> setArrowPermanent;
+    public MultipleComparison<Component> setNodePermanent;
+    public MultipleComparison<Component> setItemPermanent;
+    public MultipleComparison<Component> onlyNode;
+    public MultipleComparison<Component> onlyArrow;
+    public MultipleComparison<Component> onlyItem;
+    public MultipleComparison<Component> onlyBlocked;
 
     public static HighlightManager instance;
 
-    public delegate void OnSearchDelegate(MultipleComparison mp);
+    public delegate void OnSearchDelegate(MultipleComparison<Component> mp);
     public static event OnSearchDelegate OnSearch;
     private void Awake(){
         if (instance != null && instance != this)
@@ -36,48 +36,50 @@ public class HighlightManager : MonoBehaviour
         CompareLayer arrowLayer = new CompareLayer(LayerMask.GetMask("Arrow"));
         CompareLayer itemLayer = new CompareLayer(LayerMask.GetMask("Item"));
 
-        any = new MultipleComparison(new List<Comparison> { allLayers } );
+        any = new MultipleComparison<Component>(new List<Comparison> { allLayers } );
 
-        none = new MultipleComparison( new List<Comparison> { });
+        none = new MultipleComparison<Component>( new List<Comparison> { 
+            new CompareLayer(LayerMask.GetMask("-"))
+        });
 
-        removeNode = new MultipleComparison(new List<Comparison> {nodeLayer, 
+        removeNode = new MultipleComparison<Component>(new List<Comparison> {nodeLayer, 
             new CompareIndegree(0) });
 
-        unlockPadlock = new MultipleComparison(new List<Comparison> { nodeLayer,
+        unlockPadlock = new MultipleComparison<Component>(new List<Comparison> { nodeLayer,
             new CompareIndegree(0),
             new CompareIncludeNodesWithGivenItemTypes(
                 new List<ItemType> {ItemType.Padlock})});
         
-        setArrowPermanent = new MultipleComparison( new List<Comparison> {
+        setArrowPermanent = new MultipleComparison<Component>( new List<Comparison> {
             arrowLayer, new CompareArrowPermanent(0)});
         
-        setNodePermanent = new MultipleComparison(new List<Comparison> { 
+        setNodePermanent = new MultipleComparison<Component>(new List<Comparison> { 
             nodeLayer, new CompareNodePermanent(0)});
         
-        setItemPermanent = new MultipleComparison(new List<Comparison> {
+        setItemPermanent = new MultipleComparison<Component>(new List<Comparison> {
             itemLayer, new CompareItemPermanent(0)});
 
-        onlyArrow = new MultipleComparison(new List<Comparison> { 
+        onlyArrow = new MultipleComparison<Component>(new List<Comparison> { 
             arrowLayer});
         
-        onlyNode = new MultipleComparison(new List<Comparison> { 
+        onlyNode = new MultipleComparison<Component>(new List<Comparison> { 
             nodeLayer });
 
-        onlyItem = new MultipleComparison(new List<Comparison> {
+        onlyItem = new MultipleComparison<Component>(new List<Comparison> {
             itemLayer });
 
-        onlyBlocked = new MultipleComparison(new List<Comparison> { 
+        onlyBlocked = new MultipleComparison<Component>(new List<Comparison> { 
             nodeLayer,
             new CompareExcludeNodeTag(new List<string> {"BasicNode"})});
 
     }
 
-    public void Search(MultipleComparison mp){
+    public void Search(MultipleComparison<Component> mp){
         if(OnSearch != null)
             OnSearch(mp);
     }
 
-    public IEnumerator SearchWithDelay(MultipleComparison mp, float delay){
+    public IEnumerator SearchWithDelay(MultipleComparison<Component> mp, float delay){
         yield return new WaitForSeconds(delay);
 
         Search(mp);
@@ -85,7 +87,7 @@ public class HighlightManager : MonoBehaviour
 
 }
 
-public struct MultipleComparison{
+public struct MultipleComparison<T> where T : Component {
     public List<Comparison> attributesToCheck;
 
     public MultipleComparison(List<Comparison> attributesToCheck = null){
@@ -93,43 +95,15 @@ public struct MultipleComparison{
         this.attributesToCheck.AddRange(attributesToCheck);
     }
 
-    public bool CompareAll(GameObject obj){
+    public bool CompareAll(T obj) {
         if (attributesToCheck == null) return false;
 
-        foreach (var item in attributesToCheck){
+        foreach (var item in attributesToCheck) {
             if (!item.Compare(obj))
                 return false;
         }
 
         return true;
     }
-
-    public bool CompareAll(Node node){
-        if (attributesToCheck == null) return false;
-
-        foreach (var item in attributesToCheck){
-            if (!item.Compare(node))
-                return false;
-        }
-
-        return true;
-    }
-    public bool CompareAll(Arrow arrow){
-        if (attributesToCheck == null) return false;
-
-        foreach (var item in attributesToCheck){
-            if (!item.Compare(arrow))
-                return false;
-        }
-        return true;
-    }
-    public bool CompareAll(Item item){
-        if (attributesToCheck == null) return false;
-
-        foreach (var obj in attributesToCheck){
-            if (!obj.Compare(item))
-                return false;
-        }
-        return true;
-    }
 }
+    

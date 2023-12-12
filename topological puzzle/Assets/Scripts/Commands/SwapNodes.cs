@@ -11,10 +11,10 @@ public class SwapNodes : Command
     private List<GameObject> selectedObjects = new List<GameObject>();
     private List<GameObject> affectedObjects = new List<GameObject>();
     private Item commandOwner;
-    private MultipleComparison swapNodeSearch;
+    private MultipleComparison<Component> swapNodeSearch;
 
-    public SwapNodes(GameManager gameManager, ItemManager itemManager, Item commandOwner, List<GameObject> selectedObjects, MultipleComparison swapNodeSearch)
-    {
+    public SwapNodes(GameManager gameManager, ItemManager itemManager, Item commandOwner, 
+        List<GameObject> selectedObjects, MultipleComparison<Component> swapNodeSearch){
         this.commandOwner = commandOwner;
         this.gameManager = gameManager;
         this.itemManager = itemManager;

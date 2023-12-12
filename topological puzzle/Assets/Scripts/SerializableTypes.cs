@@ -48,6 +48,45 @@ namespace SerializableTypes{
             => new SVector3(a.x / d, a.y / d, a.z / d);
     }
 
+    [Serializable]
+    public struct SVector2Int {
+        public int x;
+        public int y;
+
+        public SVector2Int(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        public override string ToString()
+            => $"[x, y, z]";
+
+        public static implicit operator Vector2(SVector2Int s)
+            => new Vector2(s.x, s.y);
+
+        public static implicit operator SVector2Int(Vector3Int v)
+            => new SVector2Int(v.x, v.y);
+
+
+        public static SVector2Int operator +(SVector2Int a, SVector2Int b)
+            => new SVector2Int(a.x + b.x, a.y + b.y);
+
+        public static SVector2Int operator -(SVector2Int a, SVector2Int b)
+            => new SVector2Int(a.x - b.x, a.y - b.y);
+
+        public static SVector2Int operator -(SVector2Int a)
+            => new SVector2Int(-a.x, -a.y);
+
+        public static SVector2Int operator *(SVector2Int a, int m)
+            => new SVector2Int(a.x * m, a.y * m);
+
+        public static SVector2Int operator *(int m, SVector2Int a)
+            => new SVector2Int(a.x * m, a.y * m);
+
+        public static SVector2Int operator /(SVector2Int a, int d)
+            => new SVector2Int(a.x / d, a.y / d);
+    }
+
     /// <summary> Serializable version of UnityEngine.Quaternion. </summary>
     [Serializable]
     public struct SQuaternion

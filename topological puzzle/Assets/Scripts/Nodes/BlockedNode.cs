@@ -40,7 +40,7 @@ public class BlockedNode : Node
         }
     }
 
-    protected override void UpdateHighlight(MultipleComparison mp)
+    protected override void UpdateHighlight(MultipleComparison<Component> mp)
     {
         UpdateBLockStatus();
         if (blocked && GameState.gameState == GameState_EN.playing)

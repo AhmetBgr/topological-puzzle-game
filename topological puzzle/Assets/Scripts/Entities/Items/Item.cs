@@ -135,7 +135,7 @@ public abstract class Item : MonoBehaviour
         }
     }
 
-    public void Check(MultipleComparison mp)
+    public void Check(MultipleComparison<Component> mp)
     {
         if (mp.CompareAll(this))
         {

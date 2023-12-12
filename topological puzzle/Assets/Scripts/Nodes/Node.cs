@@ -171,15 +171,12 @@ public class Node : MonoBehaviour
         AppearAnim(duration, 0f, easeType : Ease.Linear);
     }
 
-    protected virtual void UpdateHighlight(MultipleComparison mp)
-    {
-        if (mp.CompareAll(this))
-        {
+    protected virtual void UpdateHighlight(MultipleComparison<Component> mp){
+        if (mp.CompareAll(this)){
             nodeColorController.Highlight(nodeColorController.glowIntensityMedium, 1f);
             col.enabled = true;
 
-            if (nodeTween != null)
-            {
+            if (nodeTween != null){
                 nodeTween.Kill();
                 transform.localScale = Vector3.one;
             }
@@ -189,8 +186,7 @@ public class Node : MonoBehaviour
             nodeTween = transform.DOPunchScale(Vector3.one*0.1f, UnityEngine.Random.Range(1f, 1.5f), vibrato: 1)
                 .SetDelay(gameManager.commandDur + 0.02f).SetLoops(-1);
         }
-        else
-        {
+        else{
             SetNotSelectable();
         }
     }

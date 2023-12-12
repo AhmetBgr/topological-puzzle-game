@@ -210,7 +210,7 @@ public class Arrow : MonoBehaviour {
             if (!(startingNode.CompareTag("HexagonNode") && destinationNode.CompareTag("HexagonNode")))
             {
                 CompareLayer nodeLayer = new CompareLayer(LayerMask.GetMask("Node"));
-                MultipleComparison searchTarget = new MultipleComparison(new List<Comparison> {
+                MultipleComparison<Component> searchTarget = new MultipleComparison<Component>(new List<Comparison> {
                     new CompareNodeAdjecentNode(starNode.GetComponent<Node>()) });
 
                 //if (!searchTarget.CheckAll(node.GetComponent<Node>())) return;
@@ -337,7 +337,7 @@ public class Arrow : MonoBehaviour {
         ChangeDir(0.5f); //arrow
 
     }
-    public void Check(MultipleComparison mp)
+    public void Check(MultipleComparison<Component> mp)
     {
         if (mp.CompareAll(this))
         {

@@ -168,8 +168,10 @@ public static class Utility
         var bytes = Encoding.UTF8.GetBytes(str);
 
         using (var msi = new MemoryStream(bytes))
+
         using (var mso = new MemoryStream()){
             using (var gs = new GZipStream(mso, CompressionMode.Compress)){
+                
                 CopyTo(msi, gs);
             }
 
