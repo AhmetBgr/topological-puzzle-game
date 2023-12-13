@@ -101,7 +101,7 @@ public class Node : MonoBehaviour
 
     private void OnMouseDown()
     {
-        if (GameState.gameState != GameState_EN.playing) return;
+        if (GameState.gameState != GameState_EN.playing && GameState.gameState != GameState_EN.testingLevel) return;
 
         if (itemController.hasPadLock && gameManager.curCommand == Commands.RemoveNode )
         {
@@ -181,7 +181,7 @@ public class Node : MonoBehaviour
                 transform.localScale = Vector3.one;
             }
             
-            if (GameState.gameState != GameState_EN.playing) return;
+            if (GameState.gameState != GameState_EN.playing && GameState.gameState != GameState_EN.testingLevel) return;
 
             nodeTween = transform.DOPunchScale(Vector3.one*0.1f, UnityEngine.Random.Range(1f, 1.5f), vibrato: 1)
                 .SetDelay(gameManager.commandDur + 0.02f).SetLoops(-1);

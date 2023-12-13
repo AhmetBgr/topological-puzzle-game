@@ -13,7 +13,7 @@ public class ItemManager : MonoBehaviour
     {
         LevelManager.OnLevelLoad += ResetContainer;
         LevelEditor.OnExit += ResetContainer;
-        itemContainer.OnContainerChanged += CheckAndUseLastItem;
+        //itemContainer.OnContainerChanged += CheckAndUseLastItem;
         //RemoveNode.OnExecute -= CheckAndUseLastItem;
 
     }
@@ -21,7 +21,7 @@ public class ItemManager : MonoBehaviour
     {
         LevelManager.OnLevelLoad -= ResetContainer;
         LevelEditor.OnExit -= ResetContainer;
-        itemContainer.OnContainerChanged -= CheckAndUseLastItem;
+        //itemContainer.OnContainerChanged -= CheckAndUseLastItem;
         //RemoveNode.OnExecute -= CheckAndUseLastItem; 
     }
 

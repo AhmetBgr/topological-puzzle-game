@@ -252,17 +252,13 @@ public class LevelEditor : MonoBehaviour{
             }
         }
         else if(state == LeState.drawingArrow ){
-            Vector2 ray = cursor.worldPos; // Camera.main.ScreenToWorldPoint(cursor.pos);
-            Debug.Log("drawing arrow: ");
+            Vector2 ray = cursor.worldPos; 
             if ( Input.GetMouseButtonDown(0) ){
-                Debug.Log("mouse button 0 down : ");
                 RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero);
                 if (hit){
-                    Debug.Log("should select node: " + hit.transform.gameObject.name);
                     selectedObjects.Add(hit.transform.gameObject);
 
-                    if(selectedObjects.Count == 2)
-                    {
+                    if(selectedObjects.Count == 2){
                         Arrow arrow = Instantiate(lastPrefab, Vector3.zero, Quaternion.identity).GetComponent<Arrow>();
                         arrow.transform.SetParent(LevelManager.curLevel.transform);
                         DrawArrow drawArrow = new DrawArrow(arrow, 
@@ -274,8 +270,7 @@ public class LevelEditor : MonoBehaviour{
                         HighlightManager.instance.Search(HighlightManager.instance.onlyNode);
                         selectedObjects.Clear();
 ;                   }
-                    else if(selectedObjects.Count == 1)
-                    {
+                    else if(selectedObjects.Count == 1){
                         MultipleComparison<Component> searchTarget = new MultipleComparison<Component>(new List<Comparison> { 
                             new CompareLayer(LayerMask.GetMask("Node")),
                             new CompareExcludeObjects(new List<GameObject>{selectedObjects[0]}) 

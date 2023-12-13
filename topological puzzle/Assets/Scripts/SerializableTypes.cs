@@ -28,7 +28,6 @@ namespace SerializableTypes{
         public static implicit operator SVector3(Vector3 v)
             => new SVector3(v.x, v.y, v.z);
 
-
         public static SVector3 operator +(SVector3 a, SVector3 b) 
             => new SVector3(a.x + b.x, a.y + b.y, a.z + b.z);
 
@@ -59,14 +58,13 @@ namespace SerializableTypes{
         }
 
         public override string ToString()
-            => $"[x, y, z]";
+            => $"[x, y]";
 
-        public static implicit operator Vector2(SVector2Int s)
-            => new Vector2(s.x, s.y);
+        public static implicit operator Vector2Int(SVector2Int s)
+            => new Vector2Int(s.x, s.y);
 
-        public static implicit operator SVector2Int(Vector3Int v)
+        public static implicit operator SVector2Int(Vector2Int v)
             => new SVector2Int(v.x, v.y);
-
 
         public static SVector2Int operator +(SVector2Int a, SVector2Int b)
             => new SVector2Int(a.x + b.x, a.y + b.y);

@@ -8,31 +8,46 @@ using SerializableTypes;
 
 public static class LevelPropertyShorter
 {
-    public static ShortLP LPToShortLP(LevelProperty lp) {
+    /*public static ShortLP LPToShortLP(LevelProperty lp) {
         ShortLP shortLP = new ShortLP();
 
         foreach (var node in lp.nodes) {
             ShortNP shortNP = new ShortNP();
             shortNP.pos = new SVector2Int(FloatToShortInt(node.posX), FloatToShortInt(node.posY));
-            shortNP.tag = TagToShortTag(node.tag);
+            shortNP.tag = node.tag;
             shortNP.id = (uint)node.id;
 
             foreach (var itemTag in node.itemTags) {
-                shortNP.itemTags.Add(TagToShortTag(itemTag));
+                shortNP.itemTags.Add(itemTag);
             }
             shortLP.nodes.Add(shortNP);
         }
+        foreach (var arrow in lp.arrows) {
+            ShortAP shortAP = new ShortAP();
+            shortAP.tag = arrow.tag;
+            shortAP.id = (uint)arrow.id;
+            shortAP.startingNodeID = (uint)arrow.startingNodeID;
+            shortAP.destinationNodeID = (uint)arrow.destinationNodeID;
+            shortAP.pointsX = new int[arrow.pointsX.Length - 2];
+            shortAP.pointsY = new int[arrow.pointsX.Length - 2];
+
+            for (int i = 1; i < arrow.pointsX.Length - 1; i++) {
+                shortAP.pointsX[i - 1] = FloatToShortInt(arrow.pointsX[i]);
+                shortAP.pointsY[i - 1] = FloatToShortInt(arrow.pointsY[i]);
+            }
+
+            shortLP.arrows.Add(shortAP);
+        }
 
         return null;
-
     }
 
     public static int FloatToShortInt(float value) {
         int shortInt = (int)(value * 1000);
         return shortInt;
-    }
+    }*/
 
-    public static char TagToShortTag(string tag) {
+    /*public static char TagToShortTag(string tag) {
         char shortTag = '?';
 
         if (tag == "BasicNode")
@@ -57,10 +72,10 @@ public static class LevelPropertyShorter
             shortTag = 'v';
 
         return shortTag;
-    }
+    }*/
 }
 
-[Serializable]
+/*[Serializable]
 public class ShortLP {
     public string levelName;
 
@@ -71,18 +86,19 @@ public class ShortLP {
 [Serializable]
 public class ShortNP {
     public SVector2Int pos;
-    public char tag;
+    public string tag;
     public uint id;
-    public List<char> itemTags = new List<char>();
+    public List<string> itemTags = new List<string>();
 }
 
 [Serializable]
 public class ShortAP {
-    public char tag;
+    public string tag;
     public uint id;
 
     public uint startingNodeID;
     public uint destinationNodeID;
-    public SVector2Int points;
+    public int[] pointsX;
+    public int[] pointsY;
     public uint priority;
-}
+}*/

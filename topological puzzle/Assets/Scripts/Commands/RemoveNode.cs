@@ -46,21 +46,16 @@ public class RemoveNode : Command
 
         ItemController itemController = node.itemController;
 
-
         bool hasArrow = false;
 
-        if(removeArrows.Count > 0)
-        {
-            for (int i = removeArrows.Count - 1; i >= 0; i--)
-            {
+        if(removeArrows.Count > 0){
+            for (int i = removeArrows.Count - 1; i >= 0; i--){
                 removeArrows[i].Execute(dur/2, isRewinding);
                 hasArrow = true;
             }
         }
-        else
-        {
-            for (int i = node.arrowsFromThisNode.Count - 1; i >= 0; i--)
-            {
+        else{
+            for (int i = node.arrowsFromThisNode.Count - 1; i >= 0; i--){
                 GameObject arrow = node.arrowsFromThisNode[i];
 
                 RemoveArrow removeArrow = new RemoveArrow(arrow.GetComponent<Arrow>(), gameManager);
@@ -69,11 +64,11 @@ public class RemoveNode : Command
                 hasArrow = true;
             }
         }
+
         if(!isRewinding)
             itemController.GetObtainableItems(node.gameObject, this, dur);
 
-        for (int i = affectedCommands.Count - 1; i >= 0; i--)
-        {
+        for (int i = affectedCommands.Count - 1; i >= 0; i--){
             affectedCommands[i].Execute(dur, isRewinding);
         }
 
@@ -81,12 +76,11 @@ public class RemoveNode : Command
         float nodeRemoveDur = hasArrow ? dur / 2 : dur;
         node.RemoveFromGraph(obj, nodeRemoveDur, delay: dur - nodeRemoveDur);
 
-        itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
+        //itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
 
         if (isRewinding) return;
 
-        if (OnExecute != null)
-        {
+        if (OnExecute != null){
             OnExecute(obj, this);
         }
     }

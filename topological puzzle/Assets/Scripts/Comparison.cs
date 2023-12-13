@@ -8,8 +8,7 @@ public class Comparison{
         return false;
     }
 }
-public class CompareLayer : Comparison
-{
+public class CompareLayer : Comparison{
     public LayerMask layerMask;
 
     public CompareLayer(LayerMask layerMask){ 
@@ -21,8 +20,7 @@ public class CompareLayer : Comparison
     }
 }
 
-public class CompareNodePermanent : Comparison
-{
+public class CompareNodePermanent : Comparison{
     // -1 = any, 0 = target nonpermanent, 1 = target permanent
     public int permanent = -1;
 
@@ -205,5 +203,15 @@ public class CompareExcludeNodeTag : Comparison
     {
         Node node = obj as Node;
         return !tagsToExclude.Contains(node.gameObject.tag);
+    }
+}
+public class CompareExcludeLinkless : Comparison {
+
+    public override bool Compare(Component obj) {
+        Node node = obj as Node;
+
+        if (!node) return false;
+
+        return node.arrowsFromThisNode.Count > 0 | node.arrowsToThisNode.Count > 0;
     }
 }

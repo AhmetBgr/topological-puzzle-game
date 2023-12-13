@@ -656,7 +656,7 @@ public class Arrow : MonoBehaviour {
 
     public void FixEdgePointPos(Node edgeNode, Vector3 neighborPos, int edgeIndex)
     {
-        Vector3 fixedEdgePointPos = edgeNode.GetComponent<Node>().col.ClosestPoint(neighborPos);
+        Vector3 fixedEdgePointPos = edgeNode.col.ClosestPoint(neighborPos);
         if (edgeIndex == lr.positionCount - 1)
         {
             // Leave gap for arrow head to fit in between last line pos and the node

@@ -26,7 +26,7 @@ public class GameManager : MonoBehaviour{
     public Palette swapNodePalette;
     public Palette brushPalette;
     public TextMeshProUGUI undoChangesCountText;
-    public InfoIndicator InfoIndicator;
+    public InfoIndicator infoIndicator;
     public Commands curCommand;
     public LayerMask targetLM;
 
@@ -254,92 +254,60 @@ public class GameManager : MonoBehaviour{
     public void ChangeCommand(Commands command){
         curCommand = command;
         HighlightManager highlightManager = HighlightManager.instance;
-        
-        if (command == Commands.RemoveNode)
-        {
-            highlightManager.Search(highlightManager.removeNode);
-            paletteSwapper.ChangePalette(defPalette, 0.5f);
-            targetLM = LayerMask.GetMask("Node");
-        }
-        else if (command == Commands.SetArrowPermanent)
-        {
-            highlightManager.Search(highlightManager.setArrowPermanent);
-            paletteSwapper.ChangePalette(brushPalette, 0.5f);
-            targetLM = LayerMask.GetMask("Arrow");
-        }
-        else if (command == Commands.SwapNodes)
-        {
-            highlightManager.Search(highlightManager.onlyNode);
-            paletteSwapper.ChangePalette(swapNodePalette, 0.5f);
-            targetLM = LayerMask.GetMask("Node");
-        }
-        else if (command == Commands.UnlockPadlock)
-        {
-            highlightManager.Search(highlightManager.unlockPadlock);
-            paletteSwapper.ChangePalette(unlockPadlockPalette, 0.5f);
-            targetLM = LayerMask.GetMask("Node");
-        }
-        else if (command == Commands.ChangeArrowDir)
-        {
-            highlightManager.Search(highlightManager.onlyArrow);
-            paletteSwapper.ChangePalette(changeArrowDirPalette, 0.5f);
-            targetLM = LayerMask.GetMask("Arrow");
-        }
 
+        switch (command) {
+            case Commands.RemoveNode: {
+                highlightManager.Search(highlightManager.removeNode);
+                paletteSwapper.ChangePalette(defPalette, 0.5f);
+                targetLM = LayerMask.GetMask("Node");
+                infoIndicator.HideInfoText();
+                break;
+            }
+            case Commands.SetArrowPermanent: {
+                highlightManager.Search(highlightManager.setArrowPermanent);
+                paletteSwapper.ChangePalette(brushPalette, 0.5f);
+                targetLM = LayerMask.GetMask("Arrow");
+                infoIndicator.ShowInfoText(infoIndicator.setArrowPermanentText);
+                break;
+            }
+            case Commands.None: {
+                highlightManager.Search(highlightManager.none);
+                paletteSwapper.ChangePalette(defPalette, 0.5f);
+                targetLM = LayerMask.GetMask("Default");
+                break;
+            }
+            case Commands.SwapNodes: {
+                highlightManager.Search(highlightManager.onlyLinkedNodes);
+                paletteSwapper.ChangePalette(swapNodePalette, 0.5f);
+                targetLM = LayerMask.GetMask("Node");
 
-        if (command == Commands.ChangeArrowDir)
-        {
-            //paletteSwapper.ChangePalette(changeArrowDirPalette);
-            /*string hexColor = ColorUtility.ToHtmlStringRGB(changeArrowDirPalette.textColor);
-            string text =
-                "<color=#FFFFFF><size=0.7em> choose an </size></color>" +
-                $"<color=#{hexColor}> Arrow </color>" +
-                "<color=#FFFFFF><size=0.7em > to change Its </size></color>" +
-                $"<color=#{hexColor}> Direction </color>";
-            InfoIndicator.ShowInfoText(text);*/
-        }
-        else
-        {
-            InfoIndicator.HideInfoText();
+                infoIndicator.ShowInfoText(infoIndicator.swapNodeText);
+                break;
+            }
+            case Commands.UnlockPadlock: {
+                highlightManager.Search(highlightManager.unlockPadlock);
+                paletteSwapper.ChangePalette(unlockPadlockPalette, 0.5f);
+                targetLM = LayerMask.GetMask("Node");
+                infoIndicator.ShowInfoText(infoIndicator.unlockText);
+                break;
+            }
+            case Commands.ChangeArrowDir: {
+                highlightManager.Search(highlightManager.onlyArrow);
+                paletteSwapper.ChangePalette(changeArrowDirPalette, 0.5f);
+                targetLM = LayerMask.GetMask("Arrow");
+
+                infoIndicator.ShowInfoText(infoIndicator.changeArrowDirText);
+                break;
+            }
         }
     }
 
     public IEnumerator ChangeCommandWithDelay(Commands command, float delay){
+        ChangeCommand(Commands.None);
         yield return new WaitForSeconds(delay);
         ChangeCommand(command);
     }
     
-    private bool ChangeCommandOnNodeRemove(GameObject affectedObject){
-        //LayerMask targetLayerMask = LayerMask.GetMask("Node");
-        //int targetIndegree = 0;
-        if(affectedObject.CompareTag("BasicNode") || affectedObject.CompareTag("HexagonNode")){
-            ChangeCommand(Commands.RemoveNode);
-            return false;
-        }
-
-        if(affectedObject.CompareTag("SquareNode"))
-        {
-            if(LevelManager.arrowCount <= 0){
-                ChangeCommand(Commands.RemoveNode);
-                return false;
-            }
-
-            ChangeCommand(Commands.ChangeArrowDir);
-            return true;
-        }
-
-        if(affectedObject.CompareTag("Arrow")){
-            ChangeCommand(Commands.RemoveNode);
-            return false;
-        }
-
-        if(affectedObject.CompareTag("SwapNode")){
-            ChangeCommand(Commands.SwapNodes);
-            return true;
-        }
-        return false;
-    }
-
     private void ResetData(){
         timeID = 0;
         selectedObjects.Clear();

@@ -15,6 +15,7 @@ public class HighlightManager : MonoBehaviour
     public MultipleComparison<Component> onlyArrow;
     public MultipleComparison<Component> onlyItem;
     public MultipleComparison<Component> onlyBlocked;
+    public MultipleComparison<Component> onlyLinkedNodes;
 
     public static HighlightManager instance;
 
@@ -71,6 +72,9 @@ public class HighlightManager : MonoBehaviour
         onlyBlocked = new MultipleComparison<Component>(new List<Comparison> { 
             nodeLayer,
             new CompareExcludeNodeTag(new List<string> {"BasicNode"})});
+
+        onlyLinkedNodes = new MultipleComparison<Component>(new List<Comparison> {
+            new CompareExcludeLinkless()});
 
     }
 

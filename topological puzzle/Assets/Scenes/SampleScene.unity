@@ -1228,6 +1228,7 @@ GameObject:
   m_Component:
   - component: {fileID: 85544804}
   - component: {fileID: 85544803}
+  - component: {fileID: 85544805}
   m_Layer: 0
   m_Name: Game Manager
   m_TagString: Untagged
@@ -1256,7 +1257,7 @@ MonoBehaviour:
   swapNodePalette: {fileID: 11400000, guid: 1b8a6cc63a15d38428218eac4b8f4efa, type: 2}
   brushPalette: {fileID: 11400000, guid: 4826484f81c114742bbe8a51076fe7be, type: 2}
   undoChangesCountText: {fileID: 1878880951}
-  InfoIndicator: {fileID: 1361513882}
+  infoIndicator: {fileID: 85544805}
   curCommand: 0
   targetLM:
     serializedVersion: 2
@@ -1284,6 +1285,25 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &85544805
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 85544802}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c795af85d3ea3e3469b7a888a8489c4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  infoText: {fileID: 959185952}
+  unlockText: 
+  changeArrowDirText: 
+  swapNodeText: 
+  setArrowPermanentText: 
+  objColor: {r: 0.21560161, g: 0.6964337, b: 0.8962264, a: 0}
+  actionColor: {r: 0.94509804, g: 0.40741947, b: 0.14509803, a: 0}
 --- !u!1 &87534618
 GameObject:
   m_ObjectHideFlags: 0
@@ -9695,7 +9715,7 @@ RectTransform:
   m_GameObject: {fileID: 340643192}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.50869167, y: 0.7099706, z: 0.7099706}
+  m_LocalScale: {x: 0.41954085, y: 0.775228, z: 0.6597686}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 793394118}
@@ -22410,7 +22430,6 @@ GameObject:
   - component: {fileID: 932178244}
   - component: {fileID: 932178246}
   - component: {fileID: 932178245}
-  - component: {fileID: 932178247}
   - component: {fileID: 932178248}
   - component: {fileID: 932178249}
   m_Layer: 2
@@ -22485,29 +22504,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 932178243}
   m_CullTransparentMesh: 1
---- !u!114 &932178247
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 932178243}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5600bfcb61faaf94fabdedc0b484adeb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelManager: {fileID: 195511187}
-  levelIndexText: {fileID: 2127393230}
-  nextLevelButton: {fileID: 1283165980}
-  previousLevelButton: {fileID: 1481792629}
-  undoButton: {fileID: 2029844711}
-  useItemButton: {fileID: 340643194}
-  useItemButtonBCImage: {fileID: 1126569672}
-  mainItemContainer: {fileID: 1966680719}
-  red: {r: 0.3764706, g: 0, b: 0.09411765, a: 1}
-  green: {r: 0, g: 0.3764706, b: 0.1764706, a: 1}
-  inEditor: 0
 --- !u!225 &932178248
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -23139,8 +23135,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -66.900024}
-  m_SizeDelta: {x: 1920, y: 50}
+  m_AnchoredPosition: {x: 0, y: -68.6}
+  m_SizeDelta: {x: 394.0807, y: 12.715}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &959185952
 MonoBehaviour:
@@ -23162,7 +23158,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: <color=#FFFFFF><size=0.7em >choose an</size></color> Arrow <color=#FFFFFF><size=0.7em
+  m_text: <color=#FFFFFF><size=0.7em >select an</size></color> Arrow <color=#FFFFFF><size=0.7em
     >to change Its </size></color>Direction
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 4fbed31c6c1dc504a95f4e2ab57e5774, type: 2}
@@ -23172,8 +23168,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4289758199
-  m_fontColor: {r: 0.96862745, g: 0.5137255, b: 0.6901961, a: 1}
+    rgba: 4288034815
+  m_fontColor: {r: 1, g: 0.21568629, b: 0.5882353, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -23190,15 +23186,15 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 18.66
-  m_fontSizeBase: 18.66
+  m_fontSize: 13
+  m_fontSizeBase: 13
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 1
   m_HorizontalAlignment: 2
-  m_VerticalAlignment: 256
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: -7.19
   m_wordSpacing: 0
@@ -24423,7 +24419,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemContainer: {fileID: 1966680719}
-  levelCanvasManager: {fileID: 932178247}
+  levelCanvasManager: {fileID: 442016450}
 --- !u!4 &1021796666
 Transform:
   m_ObjectHideFlags: 0
@@ -25735,7 +25731,7 @@ RectTransform:
   m_GameObject: {fileID: 1126569670}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.30595213, y: 0.6732361, z: 1.150831}
+  m_LocalScale: {x: 0.30270746, y: 0.71078706, z: 1.2150208}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 340643193}
@@ -25743,7 +25739,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.8, y: -0.7}
+  m_AnchoredPosition: {x: -1.09, y: 0}
   m_SizeDelta: {x: 78.17, y: 79.6}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1126569672
@@ -28888,7 +28884,6 @@ GameObject:
   - component: {fileID: 1361513880}
   - component: {fileID: 1361513879}
   - component: {fileID: 1361513878}
-  - component: {fileID: 1361513882}
   - component: {fileID: 1361513883}
   m_Layer: 5
   m_Name: Main Canvas
@@ -28983,19 +28978,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &1361513882
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1361513877}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c795af85d3ea3e3469b7a888a8489c4f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  infoText: {fileID: 959185952}
 --- !u!114 &1361513883
 MonoBehaviour:
   m_ObjectHideFlags: 0

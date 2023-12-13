@@ -19,7 +19,6 @@ public class ItemContainer : MonoBehaviour{
     void Start(){
         UpdateContainerPos();
     }
-
     public void UpdateContainerPos(){
         if (transform.parent == null){
             containerPos = transform.localPosition;
@@ -33,6 +32,8 @@ public class ItemContainer : MonoBehaviour{
         bool skipFix = false, bool setInstantAnim = false){
 
         if (items.Contains(addedItem)) return;
+
+        UpdateContainerPos();
 
         if(index < 0 | index >= items.Count)
             items.Add(addedItem);
@@ -48,6 +49,9 @@ public class ItemContainer : MonoBehaviour{
 
     public void RemoveItem(Item item, float dur, 
         bool setInactive = false, bool skipFix = false){
+
+        UpdateContainerPos();
+
         items.Remove(item);
         item.transform.SetParent(LevelManager.curLevel.transform);
         if(setInactive)

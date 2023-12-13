@@ -7,33 +7,31 @@ public class NodeSwapper : Item
     public delegate void OnSwapperUsabilityCheckDelegate();
     public static event OnSwapperUsabilityCheckDelegate OnSwapperUsabilityCheck;
 
-    public override void CheckAndUse()
-    {
+    public override void CheckAndUse(){
         //base.CheckAndUse();
-        StartCoroutine(CheckAndUseWithDelay(0.1f));    
+        //StartCoroutine(CheckAndUseWithDelay(0.1f));
+        Use();
     }
 
-    public override IEnumerator CheckAndUseWithDelay(float delay)
-    {
+    public override IEnumerator CheckAndUseWithDelay(float delay){
         yield return new WaitForSeconds(delay);
-        bool isUsable = LevelManager.GetArrowCount() > 0 ? true : false;
+        bool isUsable = LevelManager.GetArrowCount() > 0;
 
-        if (isUsable)
-        {
+        if (isUsable){
             Use();
         }
 
         InvokeOnUsabilityCheckEvent(isUsable);
     }
 
-    public override void Use()
-    {
+    public override void Use(){
 
-        ChangeCommand changeCommand = new ChangeCommand(gameManager, null, gameManager.curCommand, Commands.SwapNodes);
+        /*ChangeCommand changeCommand = new ChangeCommand(gameManager, null, gameManager.curCommand, Commands.SwapNodes);
         changeCommand.isPermanent = isPermanent;
-        changeCommand.Execute(gameManager.commandDur);
-        //HighlightManager.instance.Search(HighlightManager.instance.onlyNodeSearch);
-        //gameManager.AddToOldCommands(changeCommand);
+        changeCommand.Execute(gameManager.commandDur);*/
+
+        gameManager.ChangeCommand(Commands.SwapNodes);
+
     }
 
 }

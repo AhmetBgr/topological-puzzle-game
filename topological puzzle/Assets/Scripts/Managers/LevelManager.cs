@@ -484,7 +484,7 @@ public class LevelManager : MonoBehaviour{
                 // Set and add new arrow property
 
                 Arrow arrow = obj.GetComponent<Arrow>();
-                LineRenderer lr = obj.GetComponent<LineRenderer>();
+                LineRenderer lr = arrow.lr;
                 ArrowProperty arrowP = new ArrowProperty();
 
                 // Set Arrow properties

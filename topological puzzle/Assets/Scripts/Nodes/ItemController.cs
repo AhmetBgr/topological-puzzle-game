@@ -212,6 +212,7 @@ public class ItemController : MonoBehaviour
     }
     public void DisableAddNewItem()
     {
+        
         RemoveItem(addNewItemObj.GetComponent<Item>(), 0f);
         addNewItemObj.SetActive(false);
     }
