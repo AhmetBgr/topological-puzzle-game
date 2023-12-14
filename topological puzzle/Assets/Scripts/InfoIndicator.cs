@@ -10,13 +10,10 @@ public class InfoIndicator : MonoBehaviour{
     private Vector3 initialPos;
     private Sequence infoTextSeq;
     
-    /*private Sequence showInfoTextSeq;
-    private Sequence hideInfoTextSeq;*/
-
-    public string unlockText;
-    public string changeArrowDirText;
-    public string swapNodeText;
-    public string setArrowPermanentText;
+    [HideInInspector] public string unlockText;
+    [HideInInspector] public string changeArrowDirText;
+    [HideInInspector] public string swapNodeText;
+    [HideInInspector] public string setArrowPermanentText;
 
     public Color objColor;
     public Color actionColor;
@@ -57,7 +54,7 @@ public class InfoIndicator : MonoBehaviour{
             "<color=#FFFFFF><size=0.7em >them.</size></color>"; 
 
         setArrowPermanentText = 
-            "<color=#FFFFFF><size=0.7em>select a non-permanet </size></color>" +
+            "<color=#FFFFFF><size=0.7em>select an </size></color>" +
             $"<color=#{objColorHex}>Arrow </color>" +
             "<color=#FFFFFF><size=0.7em >to </size></color>" +
             $"<color=#{actionColorHex}>Set Permanent</color>";
