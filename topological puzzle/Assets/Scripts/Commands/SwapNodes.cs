@@ -36,7 +36,7 @@ public class SwapNodes : Command
             .SetDelay(dur * 2/5)
             .OnComplete(() => { commandOwner.gameObject.SetActive(false); });
         SwapNodesFunc(selectedObjects, dur);
-
+        AudioManager.instance.PlaySound(AudioManager.instance.swapNode);
         for (int i = 0; i < selectedObjects.Count; i++)
         {
             affectedObjects.Add(selectedObjects[i]);
@@ -79,7 +79,9 @@ public class SwapNodes : Command
         });
 
         SwapNodesFunc(affectedObjects, dur);
-        
+        if(isRewinding)
+            AudioManager.instance.PlaySound(AudioManager.instance.swapNode, true);
+
         gameManager.ChangeCommand(Commands.SwapNodes);
 
         return false;

@@ -29,5 +29,14 @@ public class SoundEditor : Editor {
         if (GUILayout.Button("Play")) {
             sound.PlayPreview();
         }
+
+        if (GUILayout.Button("Play Reverse")) {
+            sound.PlayPreview(true);
+        }
+
+        if (sound.source && sound.source.isPlaying && GUILayout.Button("Stop")) {
+            sound.StopPreview();
+        }
+
     }
 }

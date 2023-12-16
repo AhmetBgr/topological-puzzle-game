@@ -36,6 +36,10 @@ public class ChangeArrowDir : Command
 
         arrow = arrowObj.GetComponent<Arrow>();
         arrow.ChangeDir(dur);
+        if (!isSideCommand) {
+            AudioManager.instance.PlaySound(AudioManager.instance.changeArrowDir);
+        }
+        //AudioManager.instance.PlaySoundWithDelay(AudioManager.instance.changeArrowDir, dur / 2, true);
 
         if (OnExecute != null)
         {
@@ -72,6 +76,9 @@ public class ChangeArrowDir : Command
 
         arrow.gameObject.SetActive(true);
         arrow.ChangeDir(dur);
+        if(isRewinding && !isSideCommand) {
+            AudioManager.instance.PlaySound(AudioManager.instance.changeArrowDir, true);
+        }
 
         if (OnUndo != null)
         {

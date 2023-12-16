@@ -49,7 +49,7 @@ public class UnlockPadlock : Command
         //Key key = itemManager.GetLastItem().GetComponent<Key>();
         useItem = new UseItem(key, padlockPos, itemManager, gameManager);
         useItem.Execute(dur);
-
+        AudioManager.instance.PlaySoundWithDelay(AudioManager.instance.unlock, dur * 1 / 3);
         // remove padlock from the node
         //itemController.hasPadLock = false;
 
@@ -95,6 +95,9 @@ public class UnlockPadlock : Command
         Sequence seq = DOTween.Sequence();
         seq.Append(padlock.transform.DOScale(1f, dur));
         padlock.PlayAnimSequence(seq);
+
+        if (isRewinding)
+            AudioManager.instance.PlaySound(AudioManager.instance.unlock, true);
 
         HighlightManager highlightManager = HighlightManager.instance;
         if(key.isPermanent && isRewinding)

@@ -22,7 +22,7 @@ public class SetArrowPermanent : Command
 
         useItem = new UseItem(item, arrow.FindCenter(), itemManager, gameManager);
         useItem.Execute(dur);
-
+        AudioManager.instance.PlaySound(AudioManager.instance.brushA);
         arrow.ChangePermanent(true);
     }
 
@@ -38,7 +38,11 @@ public class SetArrowPermanent : Command
                 gameManager.RemoveFromSkippedOldCommands(this);
 
         arrow.ChangePermanent(false);
-        HighlightManager highlightManager = HighlightManager.instance;
+
+        if(isRewinding)
+            AudioManager.instance.PlaySound(AudioManager.instance.brushA, true);
+
+
         if (item.isPermanent && isRewinding)
             gameManager.ChangeCommand(Commands.RemoveNode);
         else

@@ -41,7 +41,6 @@ public class RemoveNode : Command
         this.isRewinding = isRewinding;
         executionTime = gameManager.timeID;
         affectedObjects.Add(obj);
-
         Node node = obj.GetComponent<Node>();
 
         ItemController itemController = node.itemController;
@@ -55,6 +54,7 @@ public class RemoveNode : Command
             }
         }
         else{
+            //AudioManager.instance.PlaySound(AudioManager.instance.removeArrow);
             for (int i = node.arrowsFromThisNode.Count - 1; i >= 0; i--){
                 GameObject arrow = node.arrowsFromThisNode[i];
 
@@ -75,7 +75,7 @@ public class RemoveNode : Command
         //float dur = playAnim ? 0.5f : 0.1f;
         float nodeRemoveDur = hasArrow ? dur / 2 : dur;
         node.RemoveFromGraph(obj, nodeRemoveDur, delay: dur - nodeRemoveDur);
-
+        AudioManager.instance.PlaySoundWithDelay(AudioManager.instance.removeNode, 0f);
         //itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
 
         if (isRewinding) return;
@@ -111,7 +111,11 @@ public class RemoveNode : Command
             item.SetActive(true);
         }
         node.AddToGraph(affectedObjects[0], dur, isRewinding);
-        for(int i = removeArrows.Count -1; i>= 0; i--)
+        if (isRewinding) {
+            AudioManager.instance.PlaySound(AudioManager.instance.removeNode, true);
+        }
+
+        for (int i = removeArrows.Count -1; i>= 0; i--)
         {
             removeArrows[i].Undo(dur, isRewinding);
             if (!isRewinding)

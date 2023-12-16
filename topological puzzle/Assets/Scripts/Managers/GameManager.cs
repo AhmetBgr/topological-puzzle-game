@@ -18,6 +18,7 @@ public class GameManager : MonoBehaviour{
     //public LevelManager levelManager;
     public PaletteSwapper paletteSwapper;
     public ItemManager itemManager;
+    private AudioManager audioManager;
     private HighlightManager highlightManager;
     public Palette defPalette;
     public Palette changeArrowDirPalette;
@@ -61,8 +62,10 @@ public class GameManager : MonoBehaviour{
     public int oldCommandCount = 0;
 
     void Start(){
-        ChangeCommand(Commands.RemoveNode);
+        //StartCoroutine(ChangeCommandWithDelay(Commands.RemoveNode, 1f));
+
         highlightManager = HighlightManager.instance;
+        audioManager = AudioManager.instance;
     }
 
     void OnEnable(){
@@ -103,6 +106,7 @@ public class GameManager : MonoBehaviour{
                 case Commands.RemoveNode:{
                     commandOwner = selectedObjects[0].GetComponent<Node>();
                     if (commandOwner.itemController.hasPadLock){
+                        audioManager.PlaySound(audioManager.deny);
                         selectedObjects.Clear();
                         return;
                     }
@@ -139,6 +143,7 @@ public class GameManager : MonoBehaviour{
                     timeID++;
                     command = new ChangeArrowDir(this, selectedObjects[0], false);
                     command.Execute(commandDur);
+                    //audioManager.PlaySound(audioManager.changeArrowDir);
                     break;
                 }
                 case Commands.SwapNodes: {
@@ -215,6 +220,7 @@ public class GameManager : MonoBehaviour{
                 // Starts rewind
                 rewindStarted = true;
                 RewindBPointerDown(rewindImageParent.GetComponent<CanvasGroup>());
+                audioManager.PlaySound(audioManager.rewind);
                 if(selectedObjects.Count == 1)
                     DeselectObjects();
             }
@@ -241,6 +247,7 @@ public class GameManager : MonoBehaviour{
                 time = maxUndoDur;
                 rewindStarted = false;
                 RewindBPointerUp(rewindImageParent.GetComponent<CanvasGroup>());
+                audioManager.StartFadeOut(audioManager.rewind);
             }
             
         }
@@ -320,7 +327,7 @@ public class GameManager : MonoBehaviour{
 
         if (GameState.gameState == GameState_EN.inLevelEditor) return;
 
-        ChangeCommand(Commands.RemoveNode);
+        StartCoroutine(ChangeCommandWithDelay(Commands.RemoveNode, 0.7f));
     }
 
     public void AddToOldCommands(Command command, bool addToNonRewindCommands = true)
@@ -454,6 +461,7 @@ public class GameManager : MonoBehaviour{
                 return;
             }
         }
+        AudioManager.instance.PlaySoundWithDelay(AudioManager.instance.levelComplete, 0.5f);
 
         // Invoke level complete event
         if (OnLevelComplete != null)

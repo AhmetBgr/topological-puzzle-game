@@ -311,7 +311,7 @@ public class Arrow : MonoBehaviour {
         //transform.localScale = Vector3.zero;
         //head.localScale = Vector3.zero;
         //head.DOScale(Vector3.one, 1f);
-        float duration = UnityEngine.Random.Range(0.2f, 0.6f);
+        float duration = UnityEngine.Random.Range(0.2f, 0.7f);
         StartCoroutine(AppearAnim(duration, 0f));
     }
 
@@ -393,6 +393,7 @@ public class Arrow : MonoBehaviour {
             InvertPoints();
             StartCoroutine(AppearAnim(dur/2));
             OnChangedEvent();
+
             //col.enabled = true;
         }));
     }

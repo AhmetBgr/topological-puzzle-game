@@ -143,6 +143,8 @@ public class ItemController : MonoBehaviour
             command.affectedCommands.Add(getItem);
             getItems.Add(getItem);
         }*/
+        float delay = 0.15f;
+        AudioManager audioManager = AudioManager.instance;
         for (int i = itemContainer.items.Count - 1; i >=  0; i--)
         {
             Item item = itemContainer.items[i];
@@ -152,6 +154,8 @@ public class ItemController : MonoBehaviour
             getItem.Execute(gameManager.commandDur);
             command.affectedCommands.Add(getItem);
             getItems.Add(getItem);
+            audioManager.PlaySoundWithDelay(audioManager.pickUp, delay);
+            delay += 0.15f;
         }
         bool isMultiple = getItems.Count > 1 ? true : false;
         /*if (getItems.Count ==1)

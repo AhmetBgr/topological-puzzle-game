@@ -26,7 +26,7 @@ public class Key : Obtainable
         Sequence useSeq = DOTween.Sequence();
         useSeq.Append(transform.DOMove(targetPos, dur * 3 / 6));
         useSeq.Append(transform.DOScale(1f, dur * 3 / 6)
-            .SetDelay(-dur * 3 / 6)
+            .SetDelay(-dur * 1 / 4)
             .OnComplete(() => {
                 transform.DOScale(0f, dur * 2 / 6).SetDelay(dur * 1 / 6);
             }));

@@ -69,6 +69,11 @@ public class GetItem : Command
         itemManager.itemContainer.RemoveItem(item, dur, skipFix: skipFix);
         itemController.AddItem(item, nodeIndex, dur, skipFix: skipFix);
 
+        if (isRewinding) {
+            AudioManager audioManager = AudioManager.instance;
+            audioManager.PlaySound(audioManager.pickUp, true);
+        }
+
         if (OnUndo != null)
         {
             OnUndo();

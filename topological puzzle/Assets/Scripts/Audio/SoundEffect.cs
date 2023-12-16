@@ -25,6 +25,10 @@ public class SoundEffect : ScriptableObject {
     [SerializeField] private SoundClipPlayOrder playOrder;
     [SerializeField] private int playIndex = 0;
 
+    public bool loop = false;
+
+    [HideInInspector] public AudioSource source;
+
 #if UNITY_EDITOR
     private AudioSource previewer;
 
@@ -39,8 +43,8 @@ public class SoundEffect : ScriptableObject {
         DestroyImmediate(previewer.gameObject);
     }
 
-    public void PlayPreview() {
-        Play(previewer);
+    public void PlayPreview(bool playReverse = false) {
+        Play(previewer, playReverse);
     }
 
     public void StopPreview() {
@@ -69,13 +73,13 @@ public class SoundEffect : ScriptableObject {
         return clip;
     }
 
-    public AudioSource Play(AudioSource audioSourceParam = null) {
+    public AudioSource Play(AudioSource audioSourceParam = null, bool playReverse = false) {
         if (clips.Length == 0) {
             Debug.LogWarning($"Missing sound clips for {name}");
             return null;
         }
 
-        var source = audioSourceParam;
+        source = audioSourceParam;
         if (source == null) {
             var _obj = new GameObject("Sound", typeof(AudioSource));
             source = _obj.GetComponent<AudioSource>();
@@ -83,22 +87,31 @@ public class SoundEffect : ScriptableObject {
 
         // set source config:
         source.clip = GetAudioClip();
+        source.loop = loop;
         source.volume = useRandomVolume ? Random.Range(volumeRandom.x, volumeRandom.y): volume;
         source.pitch = useRandomPitch ? Random.Range(pitchRandom.x, pitchRandom.y) : pitch;
-        source.time = pitch < 0 ? source.clip.length - 0.001f : 0f;
+        source.pitch = playReverse ? -source.pitch : source.pitch;
+        source.time = source.pitch < 0 ? source.clip.length - 0.001f : 0f;
+
         source.Play();
 
-#if UNITY_EDITOR
+/*#if UNITY_EDITOR
         if (source != previewer) {
             Destroy(source.gameObject, source.clip.length / source.pitch);
         }
 #else
         Destroy(source.gameObject, source.clip.length / source.pitch);
-#endif
+#endif*/
 
         return source;
     }
 
+    public void Stop() {
+        if (source && !source.isPlaying) return;
+
+        source.Stop();
+        source = null;
+    }
     enum SoundClipPlayOrder {
         random,
         in_order,

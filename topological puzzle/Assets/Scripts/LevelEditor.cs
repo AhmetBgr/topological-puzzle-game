@@ -224,8 +224,8 @@ public class LevelEditor : MonoBehaviour{
             curObj.position = cursor.worldPos;
             if( Input.GetMouseButtonDown(0) ){
                 // place the node
-                RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero);
-                if(!hit){
+                RaycastHit2D hit = Physics2D.Raycast(cursor.worldPos, Vector2.zero, LayerMask.GetMask("Node"));
+                if (!hit){
                     LeCommand command = new PlaceNode();
                     command.Execute(curObj.gameObject);
                     
@@ -235,8 +235,8 @@ public class LevelEditor : MonoBehaviour{
                     curObj = null;
                     InstantiateObject(lastPrefab);
                 }
-                else
-                {
+                else{
+                    Debug.Log("should swap items: " + curObj.name + " - " + hit.transform.name);
                     SwapNodesLE command = new SwapNodesLE();
                     List<GameObject> selectedObjects = new List<GameObject>()
                     {

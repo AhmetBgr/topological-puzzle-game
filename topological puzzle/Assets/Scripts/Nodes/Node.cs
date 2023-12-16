@@ -167,7 +167,7 @@ public class Node : MonoBehaviour
     private void GetOnTheLevel(){
         //Debug.Log("should get on level");
         transform.localScale = Vector3.zero;
-        float duration = UnityEngine.Random.Range(0.2f, 0.6f);
+        float duration = UnityEngine.Random.Range(0.2f, 0.7f);
         AppearAnim(duration, 0f, easeType : Ease.Linear);
     }
 
