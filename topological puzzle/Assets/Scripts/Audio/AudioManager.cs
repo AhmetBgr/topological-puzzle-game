@@ -20,7 +20,6 @@ public class AudioManager : MonoBehaviour
 
     public static AudioManager instance;
 
-
     void Awake(){
         // if the singleton hasn't been initialized yet
         if (instance != null && instance != this) {

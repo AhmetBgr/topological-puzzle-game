@@ -99,7 +99,7 @@ public class Node : MonoBehaviour
         nodeColorController.Highlight(nodeColorController.glowIntensityMedium, 0.3f);
     }
 
-    private void OnMouseDown()
+    protected virtual void OnMouseDown()
     {
         if (GameState.gameState != GameState_EN.playing && GameState.gameState != GameState_EN.testingLevel) return;
 
@@ -173,24 +173,26 @@ public class Node : MonoBehaviour
 
     protected virtual void UpdateHighlight(MultipleComparison<Component> mp){
         if (mp.CompareAll(this)){
-            nodeColorController.Highlight(nodeColorController.glowIntensityMedium, 1f);
-            col.enabled = true;
-
-            if (nodeTween != null){
-                nodeTween.Kill();
-                transform.localScale = Vector3.one;
-            }
-            
-            if (GameState.gameState != GameState_EN.playing && GameState.gameState != GameState_EN.testingLevel) return;
-
-            nodeTween = transform.DOPunchScale(Vector3.one*0.1f, UnityEngine.Random.Range(1f, 1.5f), vibrato: 1)
-                .SetDelay(gameManager.commandDur + 0.02f).SetLoops(-1);
+            SetSelectable();
         }
         else{
             SetNotSelectable();
         }
     }
+    protected void SetSelectable() {
+        nodeColorController.Highlight(nodeColorController.glowIntensityMedium, 1f);
+        col.enabled = true;
 
+        if (nodeTween != null) {
+            nodeTween.Kill();
+            transform.localScale = Vector3.one;
+        }
+
+        if (GameState.gameState != GameState_EN.playing && GameState.gameState != GameState_EN.testingLevel) return;
+
+        nodeTween = transform.DOPunchScale(Vector3.one * 0.1f, UnityEngine.Random.Range(1f, 1.5f), vibrato: 1)
+            .SetDelay(gameManager.commandDur + 0.02f).SetLoops(-1);
+    }
     protected void SetNotSelectable()
     {
         nodeColorController.Highlight(nodeColorController.glowIntensityVeryLow, 1f);
@@ -241,9 +243,12 @@ public class Node : MonoBehaviour
 
     public void AddToArrowsFromThisNodeList(GameObject arrowToAdd){
         arrowsFromThisNode.Add(arrowToAdd);
+        UpdateIndegree(arrowsToThisNode.Count);
+
     }
     public void RemoveFromArrowsFromThisNodeList(GameObject arrowToRemove){
         arrowsFromThisNode.Remove(arrowToRemove);
+        UpdateIndegree(arrowsToThisNode.Count);
     }
     public void AddToArrowsToThisNodeList(GameObject arrowToAdd){
         Debug.Log("arrow added to arrows to this node list");
@@ -311,7 +316,7 @@ public class Node : MonoBehaviour
         }*/
     }
 
-    private void UpdateIndegree(int indegree){
+    protected virtual void UpdateIndegree(int indegree){
         this.indegree = indegree;
         indegree_text.text = indegree.ToString();
         OnIndegreeChangeInvoke();

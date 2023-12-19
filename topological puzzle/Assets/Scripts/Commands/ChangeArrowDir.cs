@@ -41,6 +41,10 @@ public class ChangeArrowDir : Command
         }
         //AudioManager.instance.PlaySoundWithDelay(AudioManager.instance.changeArrowDir, dur / 2, true);
 
+        for (int i = affectedCommands.Count - 1; i >= 0; i--) {
+            affectedCommands[i].Undo(dur, isRewinding);
+        }
+
         if (OnExecute != null)
         {
             OnExecute(arrowObj);
@@ -49,6 +53,13 @@ public class ChangeArrowDir : Command
 
     public override bool Undo(float dur, bool isRewinding = false)
     {
+        for (int i = affectedCommands.Count - 1; i >= 0; i--) {
+            affectedCommands[i].Undo(dur, isRewinding);
+
+            if (!isRewinding)
+                affectedCommands.RemoveAt(i);
+        }
+
         if ((!isCommandOwnerPermanent | !isRewinding) && !isSideCommand)
         {
             gameManager.ChangeCommand(Commands.ChangeArrowDir);
@@ -73,6 +84,7 @@ public class ChangeArrowDir : Command
                 gameManager.RemoveFromSkippedOldCommands(this);
             }
         }
+
 
         arrow.gameObject.SetActive(true);
         arrow.ChangeDir(dur);

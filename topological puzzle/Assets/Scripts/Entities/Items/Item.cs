@@ -6,7 +6,7 @@ using System;
 
 public enum ItemType
 {
-    None, Key, Padlock, NodeSwapper, AddNewItem
+    None, Key, Padlock, NodeSwapper, AddNewItem, ReverseArrow
 }
 
 public abstract class Item : MonoBehaviour
@@ -22,11 +22,11 @@ public abstract class Item : MonoBehaviour
     protected Collider2D col;
     protected LevelManager levelManager;
 
-    protected Color nonPermanentColor;
+    public Color nonPermanentColor;
 
     public static int suitableObjCount = 0;
 
-    public bool isUsable;
+    public bool isUsable = false;
     public bool isObtainable;
     public bool isTransportable;
     public bool isPermanent;

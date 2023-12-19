@@ -54,6 +54,9 @@ public class UseItem : Command
                 gameManager.RemoveFromSkippedOldCommands(this);
             }
         }
+
+        Debug.Log("should undo use item");
+        item.itemSR.color = item.nonPermanentColor;
         item.gameObject.SetActive(true);
         itemManager.itemContainer.AddItem(item, -1, dur);
 

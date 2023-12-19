@@ -141,9 +141,15 @@ public class GameManager : MonoBehaviour{
                 case Commands.ChangeArrowDir:{
                     // Changes dir of selected arrow
                     timeID++;
-                    command = new ChangeArrowDir(this, selectedObjects[0], false);
-                    command.Execute(commandDur);
-                    //audioManager.PlaySound(audioManager.changeArrowDir);
+                    ChangeArrowDir changeArrowDir = new ChangeArrowDir(this, selectedObjects[0], false);
+                    changeArrowDir.Execute(commandDur);
+                    Item lastItem = itemManager.GetLastItem();
+                    if (lastItem && lastItem.isUsable) {
+                        UseItem useItem = new UseItem(lastItem, lastItem.transform.position + Vector3.up, itemManager, this);
+                        useItem.Execute(commandDur);
+                        changeArrowDir.affectedCommands.Add(useItem);
+                    }
+                    command = changeArrowDir;
                     break;
                 }
                 case Commands.SwapNodes: {
@@ -220,7 +226,7 @@ public class GameManager : MonoBehaviour{
                 // Starts rewind
                 rewindStarted = true;
                 RewindBPointerDown(rewindImageParent.GetComponent<CanvasGroup>());
-                audioManager.PlaySound(audioManager.rewind);
+                //audioManager.PlaySound(audioManager.rewind);
                 if(selectedObjects.Count == 1)
                     DeselectObjects();
             }
@@ -247,7 +253,7 @@ public class GameManager : MonoBehaviour{
                 time = maxUndoDur;
                 rewindStarted = false;
                 RewindBPointerUp(rewindImageParent.GetComponent<CanvasGroup>());
-                audioManager.StartFadeOut(audioManager.rewind);
+                //audioManager.StartFadeOut(audioManager.rewind);
             }
             
         }
@@ -487,13 +493,16 @@ public class GameManager : MonoBehaviour{
         rewindSequence.Append(rewindImageParent.DOFade(0 , 0.5f));
         rewindSequence.Append(rewindImageParent.DOFade(1 , 0.5f));
         rewindSequence.SetLoops(-1);
+        audioManager.PlaySound(audioManager.rewind);
     }
-    
+
     public void RewindBPointerUp(CanvasGroup rewindImageParent)
     {
         rewindSequence.Kill();
         rewindImageParent.alpha = 1;
+        rewindStarted = false;
         rewindFinished = true;
+        audioManager.StartFadeOut(audioManager.rewind);
     }
 }
 

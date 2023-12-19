@@ -12,6 +12,11 @@ Shader "Custom/background"
         _Brightness ("_Brightness", Range(0, 1)) = 0.1
         _Contrast ("_Contrast", Range(0, 1)) = 0.5
         _Saturation ("_Saturation ", Range(0, 2)) = 1.5
+        _Red("Red", Range(-10, 10)) = 1.8
+        _Green("Green", Range(-10, 10)) = 1.4
+        _Blue("Blue", Range(-10, 10)) = 1.5
+        _Iteration("Iteration", Range(1, 100)) = 32
+
         _A ("A", Range(-1, 0)) = .5
         _B("B ", Range(-1, 0)) = .4
         _C("C ", Range(-2, 0)) = -1.5
@@ -49,6 +54,11 @@ Shader "Custom/background"
             float _Brightness;
             float _Contrast;
             float _Saturation;
+            float _Red;
+            float _Green;
+            float _Blue;
+            int _Iteration;
+
             float _A;
             float _B;
             float _C;
@@ -85,7 +95,7 @@ Shader "Custom/background"
                 float accum = 0.;
                 float prev = 0.;
                 float tw = 1.;
-                for (int i = 0;i<32; ++i)
+                for (int i = 0;i<_Iteration; ++i)
                 {
                     float mag = dot(p, p);
                     p = abs(p)/mag+float3( _A - sin(_Time.x)/30., _B , _C); // max(sin(_Time.x)/40., 0.09)
@@ -125,7 +135,7 @@ Shader "Custom/background"
                 float t = field(p);
                 float v = (1.-exp((abs(uv.x)-1.)*6.))*(1.-exp((abs(uv.y)-1.)*6.));
                 
-                float4 color = lerp(0.4, 1., v)*float4(1.8*t*t*t, 1.4*t*t, t, 1.);
+                float4 color = lerp(0.4, 1., v)*float4(_Red*t*t*t, _Green*t*t, t*_Blue, 1.);
 
                 color.rgb /= color.a;
                 color.rgb = (color.rgb-0.5)*max(_Contrast, 0.)+0.5;
