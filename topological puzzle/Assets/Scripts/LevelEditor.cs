@@ -318,8 +318,8 @@ public class LevelEditor : MonoBehaviour{
 
         if (Input.GetKeyDown(KeyCode.P))
         {
-            Vector2 ray = Camera.main.ScreenToWorldPoint(cursor.pos);
-            RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero, LayerMask.GetMask("Item", "Arrow", "Node"));
+            //Vector2 ray = cursor.worldPos; // Camera.main.ScreenToWorldPoint(cursor.pos);
+            RaycastHit2D hit = Physics2D.Raycast(cursor.worldPos, Vector2.zero, LayerMask.GetMask("Item", "Arrow", "Node"));
             if (hit)
             {
                 GameObject selectedObject = hit.transform.gameObject;

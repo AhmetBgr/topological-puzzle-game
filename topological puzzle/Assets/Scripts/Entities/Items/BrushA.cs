@@ -9,7 +9,7 @@ public class BrushA : Item
     {
         yield return new WaitForSeconds(delay);
 
-        bool isUsable = false;
+        isUsable = false;
 
         foreach (var item in levelManager.arrowsPool)
         {

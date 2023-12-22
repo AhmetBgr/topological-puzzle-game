@@ -32,6 +32,7 @@ public class UseItem : Command
         // = itemManager.GetLastItem().GetComponent<Key>();
         itemManager.itemContainer.RemoveItem(item, dur);
         item.PlayUseAnim(targetPos, dur);
+        item.isUsable = false;
         //key.PlayAnimSequence(key.GetUnlockSequence(padlockPos, dur));
 
         if (OnExecute != null)
@@ -54,12 +55,10 @@ public class UseItem : Command
                 gameManager.RemoveFromSkippedOldCommands(this);
             }
         }
-
-        Debug.Log("should undo use item");
+        item.isUsable = true;
         item.itemSR.color = item.nonPermanentColor;
         item.gameObject.SetActive(true);
         itemManager.itemContainer.AddItem(item, -1, dur);
-
         if (OnUndo != null)
         {
             OnUndo();

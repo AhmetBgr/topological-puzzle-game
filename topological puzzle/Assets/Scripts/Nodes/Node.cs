@@ -32,9 +32,9 @@ public class Node : MonoBehaviour
     public Collider2D col;
     private Tween disappearTween;
     protected Tween nodeTween;
-    private Color nonPermanentColor;
+    protected Color nonPermanentColor;
 
-    private string defTag;
+    protected string defTag;
     private float initialTopPosY;
     
     public int indegree = 0;
@@ -179,7 +179,7 @@ public class Node : MonoBehaviour
             SetNotSelectable();
         }
     }
-    protected void SetSelectable() {
+    protected virtual void SetSelectable() {
         nodeColorController.Highlight(nodeColorController.glowIntensityMedium, 1f);
         col.enabled = true;
 
@@ -193,7 +193,7 @@ public class Node : MonoBehaviour
         nodeTween = transform.DOPunchScale(Vector3.one * 0.1f, UnityEngine.Random.Range(1f, 1.5f), vibrato: 1)
             .SetDelay(gameManager.commandDur + 0.02f).SetLoops(-1);
     }
-    protected void SetNotSelectable()
+    protected virtual void SetNotSelectable()
     {
         nodeColorController.Highlight(nodeColorController.glowIntensityVeryLow, 1f);
         col.enabled = false;
@@ -293,7 +293,7 @@ public class Node : MonoBehaviour
         
     }
     
-    public void TransformIntoBasic(){
+    public virtual void TransformIntoBasic(float dur){
         nodeSprite.sprite = basicSprite;
         gameObject.tag = "BasicNode";
         
@@ -305,7 +305,7 @@ public class Node : MonoBehaviour
             
         }*/
     }
-    public void TransformBackToDef(){
+    public virtual void TransformBackToDef(float dur){
         nodeSprite.sprite = defSprite;
         gameObject.tag = defTag;
         

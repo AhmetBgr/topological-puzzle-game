@@ -8,11 +8,14 @@ using System;
 public class NodeCC : ColorController
 {
     public SpriteRenderer nodeSprite;
+    public SpriteRenderer secondarySprite;
     public TextMeshProUGUI indegreeText;
     public Material defMaterial;
     
     private Material material;
-    
+    private Material secondaryMaterial;
+
+
     [HideInInspector] public float glowIntensityVeryLow = -8f;
     [HideInInspector] public float glowIntensityLow = -3f;
     [HideInInspector] public float glowIntensityMedium = 1f;
@@ -29,13 +32,20 @@ public class NodeCC : ColorController
             nodeSprite.material = defMaterial;
         }
         material = nodeSprite.material;
+
+        if (secondarySprite)
+            secondaryMaterial = secondarySprite.sharedMaterial;
     }
 
     protected override void ChangeColorsOnPaletteSwap(Palette palette, float duration)
     {
         if(nodeSprite != null) 
             nodeSprite.DOColor(palette.nodeColor, duration);
-        if(indegreeText != null)
+
+        if (secondarySprite != null)
+            secondarySprite.DOColor(palette.nodeColor, duration);
+
+        if (indegreeText != null)
             indegreeText.DOColor(palette.nodeColor, duration);
     }
 
@@ -58,7 +68,8 @@ public class NodeCC : ColorController
             Color color = Color.Lerp(curColor, targetColor, t);
             material.SetColor("_Color", color);
             curColor = color;
-
+            if (secondaryMaterial)
+                secondaryMaterial.SetColor("_Color", color);
             yield return null;
         }
         //Debug.Log("cur mat color: " + material.GetColor("_Color"));

@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class TransformToBasicNode : Command
 {
+    public List<Command> affectedCommands = new List<Command>();
+
     public delegate void OnExecuteDelegate();
 
     public static event OnExecuteDelegate OnExecute;
@@ -24,7 +26,11 @@ public class TransformToBasicNode : Command
     public override void Execute(float dur, bool isRewinding = false)
     {
         executionTime = gameManager.timeID;
-        node.TransformIntoBasic();
+        node.TransformIntoBasic(dur);
+
+        for (int i = affectedCommands.Count - 1; i >= 0; i--) {
+            affectedCommands[i].Undo(dur, isRewinding);
+        }
 
         if (OnExecute != null)
         {
@@ -34,6 +40,13 @@ public class TransformToBasicNode : Command
 
     public override bool Undo(float dur, bool isRewinding = false)
     {
+        for (int i = affectedCommands.Count - 1; i >= 0; i--) {
+            affectedCommands[i].Undo(dur, isRewinding);
+
+            if (!isRewinding)
+                affectedCommands.RemoveAt(i);
+        }
+
         if (node.isPermanent && isRewinding)
         {
             gameManager.ChangeCommand(Commands.RemoveNode);
@@ -47,8 +60,11 @@ public class TransformToBasicNode : Command
                 gameManager.RemoveFromSkippedOldCommands(this);
             }
         }
+        //if(!gameManager.itemManager.GetLastItem().isUsable)
+          
         gameManager.ChangeCommand(Commands.RemoveNode);
-        node.TransformBackToDef();
+
+        node.TransformBackToDef(dur);
 
         if (OnUndo != null)
         {

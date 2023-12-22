@@ -6,6 +6,7 @@ using DG.Tweening;
 
 public class MainCanvasManager : MonoBehaviour
 {
+    public GameManager gameManager;
     public LevelManager levelManager;
     public Panel mainMenuPanel;
     public Panel gameplayPanel;
@@ -37,7 +38,7 @@ public class MainCanvasManager : MonoBehaviour
 
         if (Input.GetKeyUp(KeyCode.Escape))
         {
-            PanelTransition(previousPanel);
+            ToggleMainMenu();
         }
     }
 
@@ -62,6 +63,7 @@ public class MainCanvasManager : MonoBehaviour
         else
         {
             PanelTransition(mainMenuPanel);
+            //gameManager.ChangeCommand(Commands.None);
         }
     }
 

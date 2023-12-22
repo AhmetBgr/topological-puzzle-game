@@ -184,6 +184,7 @@ public class ItemController : MonoBehaviour
             padlocks.Add(item.GetComponent<Lock>());
         }
         item.owner = node;
+        //item.isUsable = false;
         itemContainer.UpdateContainerPos();
         itemContainer.AddItem(item, index, dur, skipFix: skipFix, setInstantAnim: setInstantAnim);
     }

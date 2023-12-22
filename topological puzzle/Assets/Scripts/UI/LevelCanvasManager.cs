@@ -73,20 +73,14 @@ public class LevelCanvasManager : MonoBehaviour
 
     private void UpdateNextLevelButton()
     {
-        if(levelManager.curPool == LevelPool.Player && LevelManager.curLevelIndex >= levelManager.playerLevels.Count - 1)
-        {
-            nextLevelButton.gameObject.SetActive(false);
-            Debug.Log("here1");
-        }
-        else if(levelManager.curPool == LevelPool.Original && LevelManager.curLevelIndex >= levelManager.levelProgressIndex)
-        {
-            Debug.Log("here2");
+        if(levelManager.curPool == LevelPool.Player && LevelManager.curLevelIndex >= levelManager.playerLevels.Count - 1){
             nextLevelButton.gameObject.SetActive(false);
         }
-        else
-        {
+        else if(levelManager.curPool == LevelPool.Original && LevelManager.curLevelIndex >= levelManager.levelProgressIndex){
+            nextLevelButton.gameObject.SetActive(false);
+        }
+        else{
             nextLevelButton.gameObject.SetActive(true);
-            Debug.Log("here3");
         }
 
     }

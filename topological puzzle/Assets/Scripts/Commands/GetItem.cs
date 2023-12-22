@@ -30,7 +30,7 @@ public class GetItem : Command
     public override void Execute(float dur, bool isRewinding = false)
     {
         if (item.owner == null) return;
-        Debug.Log("shoul get item");
+        
         executionTime = gameManager.timeID;
         
         if (!item.gameObject.activeSelf) return;
@@ -38,9 +38,9 @@ public class GetItem : Command
         int addIndex = isRewinding ? mainIndex : -1;
         nodeIndex = isRewinding ? nodeIndex : itemController.itemContainer.GetItemIndex(item);
 
-        itemController.RemoveItem(item, dur, skipFix: true);
-        itemManager.itemContainer.AddItem(item, addIndex, dur, skipFix: !isRewinding);
-
+        itemController.RemoveItem(item, dur, skipFix: !isRewinding ? skipFix : !isRewinding);
+        itemManager.itemContainer.AddItem(item, addIndex, dur, skipFix: !isRewinding ? skipFix : !isRewinding);
+        Debug.Log("should get item: " + item.name);
         //item.CheckIfUsable();
 
         if (OnExecute != null)

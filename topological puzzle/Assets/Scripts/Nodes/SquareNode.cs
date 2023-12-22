@@ -1,34 +1,32 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class SquareNode : Node{
+    public SpriteRenderer squareSprite;
+    public SpriteRenderer baseSprite;
 
+    public override void TransformIntoBasic(float dur) {
+        nodeColorController.secondarySprite = null;
+        randomSpriteColor.secondarySprite = null;
+        squareSprite.transform.DOScale(2f, dur);
+        squareSprite.DOFade(0f, dur); //.SetDelay(0.25f);
 
-    /*protected override void RemoveFromGraph(GameObject nodeToRemove){
-        if(nodeToRemove != gameObject){ return; }
+        nodeSprite = baseSprite;
+        nodeSprite.transform.DOScale(1f, dur);
+        gameObject.tag = "BasicNode";
+    }
 
-        collider.enabled = false;
+    public override void TransformBackToDef(float dur) {
+        nodeColorController.secondarySprite = squareSprite;
+        randomSpriteColor.secondarySprite = squareSprite;
+        nodeSprite = squareSprite;
 
-        
+        nodeSprite.transform.DOScale(Vector3.one * 1.03f, dur);
+        baseSprite.transform.DOScale(Vector3.one * 0.8f, dur);
+        nodeSprite.DOFade(1f, dur);
 
-        if( arrowsToThisNode.Count == 0){
-            Debug.Log("indegree 0");
-            
-            if(base.OnNodeRemove != null){
-                OnNodeRemove(gameObject);
-            }
-
-            DisappearAnim(0.5f, 0.5f, true);
-            
-            //  disable collider
-
-        }
-        else{
-            Debug.Log("indegree > 0");
-            // negative feedback
-            transform.DOShakePosition(0.5f, 0.1f).OnComplete( () => { collider.enabled = true; });
-        }
-    }*/
-
+        gameObject.tag = defTag;
+    }
 }

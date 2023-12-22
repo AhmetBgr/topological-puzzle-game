@@ -8,20 +8,18 @@ public class NodeSwapper : Item
     public static event OnSwapperUsabilityCheckDelegate OnSwapperUsabilityCheck;
 
     public override void CheckAndUse(){
-        //base.CheckAndUse();
-        //StartCoroutine(CheckAndUseWithDelay(0.1f));
-        Use();
+        isUsable = LevelManager.GetArrowCount() > 0;
+
+        if (isUsable) {
+            Use();
+        }
+        Debug.Log("swapper is usable: " + isUsable);
+        InvokeOnUsabilityCheckEvent(isUsable);
     }
 
     public override IEnumerator CheckAndUseWithDelay(float delay){
         yield return new WaitForSeconds(delay);
-        bool isUsable = LevelManager.GetArrowCount() > 0;
-
-        if (isUsable){
-            Use();
-        }
-
-        InvokeOnUsabilityCheckEvent(isUsable);
+        CheckAndUse();
     }
 
     public override void Use(){

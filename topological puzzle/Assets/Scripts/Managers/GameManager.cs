@@ -112,22 +112,27 @@ public class GameManager : MonoBehaviour{
                     }
 
                     // Checks if player intents to remove Square Node,
-                    // if so Changes current command to ChangeArrowDir
+                    // if so transforms and get last item from the node(if it has any)
                     if (selectedObjects[0].CompareTag("SquareNode")){
                         isCommandOwnerPermanent = commandOwner.isPermanent;
                     
-                        ChangeCommand changeCommand = new ChangeCommand(this, commandOwner, 
-                            curCommand, Commands.ChangeArrowDir);
-                        changeCommand.isPermanent = commandOwner.isPermanent;
-                        changeCommand.Execute(commandDur);
-
                         TransformToBasicNode transformToBasicNode = new TransformToBasicNode(this, 
                             commandOwner);
                         transformToBasicNode.Execute(commandDur);
-                        changeCommand.affectedCommands.Add(transformToBasicNode);
-                    
+
+                        ItemController itemController = selectedObjects[0].GetComponent<Node>().itemController;
+                        Item item = itemController.itemContainer.GetLastItem();
+                        if (item) {
+                            GetItem getItem = new GetItem(item, itemController, itemManager, this);
+
+                            getItem.Execute(commandDur);
+
+                            transformToBasicNode.affectedCommands.Add(getItem);
+                        }
+                        //changeCommand.affectedCommands.Add(transformToBasicNode);
+                        itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
                         timeID++;
-                        AddToOldCommands(changeCommand);
+                        AddToOldCommands(transformToBasicNode);
                         selectedObjects.Clear();
                         return;
                     }
@@ -213,8 +218,7 @@ public class GameManager : MonoBehaviour{
             }
 
             AddToOldCommands(command);
-            ChangeCommand(Commands.RemoveNode);
-            itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
+            UpdateCommand();
             selectedObjects.Clear();
         }
 
@@ -235,24 +239,30 @@ public class GameManager : MonoBehaviour{
             if (time >= maxUndoDur){
                 Rewind();
                 time = 0;
+
+
+
             }
-            
+
             if ( ( rewindFinished || (rewindStarted && Input.GetMouseButtonUp(1)) ) && 
                  (GameState.gameState == GameState_EN.playing | 
                  GameState.gameState == GameState_EN.testingLevel)){
                 // Completes rewind
 
-                Palette palette = defPalette;
+
+                /*Palette palette = defPalette;
                 if (curCommand == Commands.ChangeArrowDir)
                     palette = changeArrowDirPalette;
                 else if(curCommand == Commands.UnlockPadlock)
                     palette = unlockPadlockPalette;
 
-                paletteSwapper.ChangePalette(palette, 0.62f);
+                paletteSwapper.ChangePalette(palette, 0.62f);*/
 
                 time = maxUndoDur;
                 rewindStarted = false;
                 RewindBPointerUp(rewindImageParent.GetComponent<CanvasGroup>());
+
+                UpdateCommand();
                 //audioManager.StartFadeOut(audioManager.rewind);
             }
             
@@ -262,6 +272,11 @@ public class GameManager : MonoBehaviour{
             Undo();
 
         UpdateChangesCounter();
+    }
+
+    private void UpdateCommand() {
+        if (!itemManager.CheckAndUseLastItem(itemManager.itemContainer.items))
+            ChangeCommand(Commands.RemoveNode);
     }
 
     public void ChangeCommand(Commands command){
@@ -405,9 +420,9 @@ public class GameManager : MonoBehaviour{
         nonRewindCommands.Remove(lastCommand);
 
         UpdateChangesCounter();
-        itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
+        UpdateCommand();
     }
-    
+
     public void UpdateChangesCounter()
     {
         int changes = oldCommands.Count;
