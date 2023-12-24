@@ -56,7 +56,10 @@ public class UseItem : Command
             }
         }
         item.isUsable = true;
+
         item.itemSR.color = item.nonPermanentColor;
+        item.randomSpriteColor.enabled = item.isPermanent;
+
         item.gameObject.SetActive(true);
         itemManager.itemContainer.AddItem(item, -1, dur);
         if (OnUndo != null)

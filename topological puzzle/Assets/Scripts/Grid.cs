@@ -43,7 +43,7 @@ public class Grid : MonoBehaviour
     public void ToggleGrid(bool isActive){
         this.isActive = isActive;
         gridObj.SetActive(isActive);
-        SetGridSize(minGridSize);
+        SetGridSize(OptionsMenu.optionsData.gridSize * minGridSize);
         Cursor.instance.gridSize = gridSize;
 
         if(OnGridToggle != null)
@@ -55,6 +55,7 @@ public class Grid : MonoBehaviour
 
         if (value >= maxGridSize) return;
 
+        //OptionsMenu.SetGridSize(OptionsMenu.optionsData.gridSize + 1);
         SetGridSize(value);
     }
 
@@ -62,6 +63,7 @@ public class Grid : MonoBehaviour
         var value = gridSize - minGridSize;
 
         if (value < minGridSize) return;
+        //OptionsMenu.SetGridSize(OptionsMenu.optionsData.gridSize - 1);
 
         SetGridSize(value);
     }
@@ -70,7 +72,6 @@ public class Grid : MonoBehaviour
         gridSize = value;
         gridMat.SetVector(cellSizeName, Vector4.one * gridSize);
         Cursor.instance.gridSize = gridSize;
-
         if (OnGridSizeChanged != null)
             OnGridSizeChanged(value, minGridSize);
     }

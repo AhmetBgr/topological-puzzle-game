@@ -58,9 +58,19 @@ public class InfoIndicator : MonoBehaviour{
             $"<color=#{objColorHex}>Arrow </color>" +
             "<color=#FFFFFF><size=0.7em >to </size></color>" +
             $"<color=#{actionColorHex}>Set Permanent</color>";
+
+        if(OptionsMenu.optionsData != null && OptionsMenu.optionsData.disableActionInfoText) {
+            this.enabled = !OptionsMenu.optionsData.disableActionInfoText;
+        }
+    }
+
+    private void OnDisable() {
+        infoText.gameObject.SetActive(false);
     }
 
     public void ShowInfoText(string text){
+        if (!this.enabled) return;
+
         infoText.gameObject.SetActive(true);
         infoText.text = text;
         
@@ -78,6 +88,7 @@ public class InfoIndicator : MonoBehaviour{
     }
 
     public void HideInfoText(){
+        if (!this.enabled) return;
         //initialPos = infoText.transform.localPosition;
 
         if (infoTextSeq != null && infoTextSeq.IsPlaying())

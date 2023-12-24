@@ -10,6 +10,9 @@ public class RandomSpriteColor : MonoBehaviour
     private float duration = 0.7f;
     private float t = 2f;
 
+    private void OnEnable() {
+        t = duration;
+    }
 
     private void OnDisable()
     {

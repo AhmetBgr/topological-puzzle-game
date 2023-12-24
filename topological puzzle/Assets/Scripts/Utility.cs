@@ -111,11 +111,25 @@ public static class Utility
 
     public static void SaveAsJson(string path, object data){
         string json = JsonSerialization(data);
-
         FileStream fileStream = new FileStream(path, FileMode.Create);
 
         using (StreamWriter writer = new StreamWriter(fileStream)){
             writer.Write(json);
+        }
+        //fileStream.Close();
+    }
+
+    public static T LoadDataFromJson<T>(string path) {
+        if (File.Exists(path)) {
+            using (StreamReader reader = new StreamReader(path)) {
+                string json = reader.ReadToEnd();
+                T data = JsonUtility.FromJson<T>(json);
+                return data;
+            }
+        }
+        else {
+            Debug.LogWarning("File could not found");
+            return default(T);
         }
     }
 
