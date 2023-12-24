@@ -59,8 +59,8 @@ public class InfoIndicator : MonoBehaviour{
             "<color=#FFFFFF><size=0.7em >to </size></color>" +
             $"<color=#{actionColorHex}>Set Permanent</color>";
 
-        if(OptionsMenu.optionsData != null && OptionsMenu.optionsData.disableActionInfoText) {
-            this.enabled = !OptionsMenu.optionsData.disableActionInfoText;
+        if(Options.optionsData != null && Options.optionsData.disableActionInfoText) {
+            this.enabled = !Options.optionsData.disableActionInfoText;
         }
     }
 

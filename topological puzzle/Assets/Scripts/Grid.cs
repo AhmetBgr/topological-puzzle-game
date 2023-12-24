@@ -43,7 +43,7 @@ public class Grid : MonoBehaviour
     public void ToggleGrid(bool isActive){
         this.isActive = isActive;
         gridObj.SetActive(isActive);
-        SetGridSize(OptionsMenu.optionsData.gridSize * minGridSize);
+        SetGridSize(Options.optionsData.gridSize * minGridSize);
         Cursor.instance.gridSize = gridSize;
 
         if(OnGridToggle != null)
