@@ -499,6 +499,8 @@ public class Arrow : MonoBehaviour {
                 yield return null ;
             }
         }
+        OnChangedEvent();
+
         if(OnComplete != null)
             OnComplete();
     }
@@ -801,7 +803,7 @@ public class Arrow : MonoBehaviour {
             BeforeChange();
         }
     }
-    private void OnChangedEvent()
+    public void OnChangedEvent()
     {
         if(OnChanged != null)
         {

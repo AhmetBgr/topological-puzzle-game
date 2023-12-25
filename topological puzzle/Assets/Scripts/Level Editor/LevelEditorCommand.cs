@@ -171,6 +171,8 @@ public class DeleteArrow : LeCommand
     private Arrow arrow;
     private Node startNode;
     private Node destinationNode;
+    int priority;
+
 
     public override int Execute(GameObject selectedArrow)
     {
@@ -179,6 +181,18 @@ public class DeleteArrow : LeCommand
         destinationNode = arrow.destinationNode.GetComponent<Node>();
         startNode.RemoveFromArrowsFromThisNodeList(selectedArrow);
         destinationNode.RemoveFromArrowsToThisNodeList(selectedArrow);
+
+        Transporter transporter;
+        if(arrow.TryGetComponent(out transporter)) {
+            priority = transporter.priority;
+            
+            foreach(var item in Transporter.transporters) {
+                if(item != transporter && item.priority > priority) {
+                    Debug.Log("should update other priorities");
+                    item.SetPriority(item.priority - 1, true);
+                }
+            }
+        }
 
         selectedArrow.gameObject.SetActive(false);
         return 0;
@@ -189,6 +203,15 @@ public class DeleteArrow : LeCommand
         arrow.gameObject.SetActive(true);
         startNode.AddToArrowsFromThisNodeList(arrow.gameObject);
         destinationNode.AddToArrowsToThisNodeList(arrow.gameObject);
+
+        Transporter transporter;
+        if (arrow.TryGetComponent(out transporter)) {
+            foreach (var item in Transporter.transporters) {
+                if (item != transporter && item.priority >= priority) {
+                    item.SetPriority(item.priority++, true);
+                }
+            }
+        }
 
         return null;
     }
@@ -310,18 +333,15 @@ public class MoveNode : LeCommand
         }
     }
 
-    public void Move(Vector3 targetPos)
-    {
+    public void Move(Vector3 targetPos){
         node.position = targetPos;
-        foreach (var arrowComponents in arrowsFromThisNode)
-        {
+        foreach (var arrowComponents in arrowsFromThisNode){
             LineRenderer arrowLR = arrowComponents.arrowLR;
             
             // Closest point on the starting node's collider to the second line position in world space
             Vector3 fixedFirstPointPos = arrowComponents.startingNodeCol.ClosestPoint(arrowLR.GetPosition(1));
             arrowLR.SetPosition(0, fixedFirstPointPos);
-            if (arrowLR.positionCount == 2)
-            {
+            if (arrowLR.positionCount == 2){
                 Arrow arrow = arrowComponents.arrow;
                 int lasPointIndex = arrowLR.positionCount - 1;
 
@@ -335,11 +355,11 @@ public class MoveNode : LeCommand
 
                 arrowLR.SetPosition(lasPointIndex, pos);
                 arrow.FixHeadPos();
+                arrow.OnChangedEvent();
             }
         }
 
-        foreach (var arrowComponents in arrowsToThisNode)
-        {
+        foreach (var arrowComponents in arrowsToThisNode){
             LineRenderer arrowLR = arrowComponents.arrowLR;
             int lasPointIndex = arrowLR.positionCount - 1;
 
@@ -354,33 +374,31 @@ public class MoveNode : LeCommand
             arrowLR.SetPosition(lasPointIndex, pos);
             Arrow arrow = arrowComponents.arrow;
             arrow.FixHeadPos();
-
-            if (arrowLR.positionCount == 2)
-            {
+            arrow.OnChangedEvent();
+            if (arrowLR.positionCount == 2){
                 Vector3 fixedFirstPointPos = arrowComponents.startingNodeCol.ClosestPoint(arrowLR.GetPosition(1));
                 arrowLR.SetPosition(0, fixedFirstPointPos);
             }
         }
     }
 
-    public override GameObject Undo()
-    {
+    public override GameObject Undo(){
         node.position = initialPos;
 
-        foreach (var arrowComponents in arrowsFromThisNode)
-        {
+        foreach (var arrowComponents in arrowsFromThisNode){
             arrowComponents.arrowLR.SetPositions(arrowComponents.initialLRPointsPos);
             arrowComponents.arrow.SavePoints();
             arrowComponents.arrow.FixCollider();
             arrowComponents.arrow.FixHeadPos();
+            arrowComponents.arrow.OnChangedEvent();
         }
 
-        foreach (var arrowComponents in arrowsToThisNode)
-        {
+        foreach (var arrowComponents in arrowsToThisNode){
             arrowComponents.arrowLR.SetPositions(arrowComponents.initialLRPointsPos);
             arrowComponents.arrow.SavePoints();
             arrowComponents.arrow.FixCollider();
             arrowComponents.arrow.FixHeadPos();
+            arrowComponents.arrow.OnChangedEvent();
         }
         return null;
     }
@@ -611,6 +629,30 @@ public class DeleteArrowPoint : LeCommand
 
         arrow.FixHeadPos();
         arrow.FixCollider();
+        return null;
+    }
+}
+
+public class SwapPriority : LeCommand {
+    private Transporter transporter1;
+    private Transporter transporter2;
+
+
+    public SwapPriority(Transporter transporter1, Transporter transporter2) {
+        this.transporter1 = transporter1;
+        this.transporter2 = transporter2;
+    }
+
+    public override int Execute(GameObject selectedArrowPoint) {
+
+        return 0;
+    }
+
+    public override GameObject Undo() {
+        int temp = transporter1.priority;
+        transporter1.SetPriority(transporter2.priority, true);
+        transporter2.SetPriority(temp, true);
+
         return null;
     }
 }

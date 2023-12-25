@@ -126,9 +126,8 @@ public class ItemController : MonoBehaviour
 
     }
 
-    public void GetObtainableItems(GameObject node, RemoveNode command, float dur)
-    {
-        if (node.gameObject != node) return;
+    public void GetObtainableItems( RemoveNode command, float dur) { //GameObject removedNode,
+        //if (node.gameObject != removedNode) return;
 
         GameManager gameManager = FindObjectOfType<GameManager>();
         ItemManager itemManager = FindObjectOfType<ItemManager>();
@@ -143,13 +142,14 @@ public class ItemController : MonoBehaviour
             command.affectedCommands.Add(getItem);
             getItems.Add(getItem);
         }*/
+        
         float delay = 0.15f;
         AudioManager audioManager = AudioManager.instance;
         for (int i = itemContainer.items.Count - 1; i >=  0; i--)
         {
             Item item = itemContainer.items[i];
             if (!item.isObtainable) continue;
-
+            Debug.Log("should get items");
             GetItem getItem = new GetItem(item, this, itemManager, gameManager, skipFix: true);
             getItem.Execute(gameManager.commandDur);
             command.affectedCommands.Add(getItem);
@@ -176,7 +176,7 @@ public class ItemController : MonoBehaviour
         return item.gameObject;
     }
 
-    public void AddItem(Item item, int index, float dur, bool skipFix = false, bool setInstantAnim = false)
+    public void AddItem(Item item, int index,  float dur, Vector3[] lastItemFixPath = null, bool skipFix = false, bool setInstantAnim = false)
     {
         if (item.CompareTag("Padlock"))
         {
@@ -186,7 +186,7 @@ public class ItemController : MonoBehaviour
         item.owner = node;
         //item.isUsable = false;
         itemContainer.UpdateContainerPos();
-        itemContainer.AddItem(item, index, dur, skipFix: skipFix, setInstantAnim: setInstantAnim);
+        itemContainer.AddItem(item, index, dur, lastItemFixPath, skipFix: skipFix, setInstantAnim: setInstantAnim);
     }
 
     public void RemoveItem(Item item, float dur, bool skipFix = false)

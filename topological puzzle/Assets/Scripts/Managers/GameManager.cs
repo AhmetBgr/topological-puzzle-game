@@ -39,6 +39,19 @@ public class GameManager : MonoBehaviour{
     private Node commandOwner;
     private bool isCommandOwnerPermanent = false;
 
+    private bool _waitForCommandUpdate;
+    public bool waitForCommandUpdate {
+        get { return _waitForCommandUpdate;  }
+        set {
+            _waitForCommandUpdate = value;
+
+            if (value)
+                ChangeCommand(Commands.None);
+            else
+                UpdateCommand();
+        }
+    }
+
     public float commandDur = 0.5f;
     public float undoDur = 0.1f;
     public int timeID = 0;
@@ -274,9 +287,13 @@ public class GameManager : MonoBehaviour{
         UpdateChangesCounter();
     }
 
-    private void UpdateCommand() {
+    public void UpdateCommand() {
+
         if (!itemManager.CheckAndUseLastItem(itemManager.itemContainer.items))
             ChangeCommand(Commands.RemoveNode);
+    }
+    public void UpdateCommandWithDelay(float delay) {
+        Invoke("UpdateCommand", delay);
     }
 
     public void ChangeCommand(Commands command){

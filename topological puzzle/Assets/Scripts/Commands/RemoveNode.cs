@@ -66,7 +66,7 @@ public class RemoveNode : Command
         }
 
         if(!isRewinding)
-            itemController.GetObtainableItems(node.gameObject, this, dur);
+            itemController.GetObtainableItems(this, dur);
 
         for (int i = affectedCommands.Count - 1; i >= 0; i--){
             affectedCommands[i].Execute(dur, isRewinding);

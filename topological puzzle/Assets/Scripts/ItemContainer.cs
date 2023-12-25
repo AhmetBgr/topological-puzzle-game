@@ -9,7 +9,7 @@ public class ItemContainer : MonoBehaviour{
     public List<Item> items = new List<Item>();
 
     private Sequence sequence;
-    private Vector3 containerPos;
+    public Vector3 containerPos;
 
     public float gap = 0.3f;
 
@@ -28,7 +28,7 @@ public class ItemContainer : MonoBehaviour{
         containerPos = transform.parent.localPosition + transform.localPosition;
     }
 
-    public void AddItem(Item addedItem, int index, float dur, 
+    public void AddItem(Item addedItem, int index, float dur, Vector3[] lastItemFixPath = null,
         bool skipFix = false, bool setInstantAnim = false){
 
         if (items.Contains(addedItem)) return;
@@ -44,7 +44,7 @@ public class ItemContainer : MonoBehaviour{
 
         if (skipFix) return;
 
-        FixItemPositions(dur, setInstantAnim: setInstantAnim);
+        FixItemPositions(dur, lastItemFixPath, setInstantAnim: setInstantAnim);
     }
 
     public void RemoveItem(Item item, float dur, 
@@ -80,7 +80,7 @@ public class ItemContainer : MonoBehaviour{
         return items[items.Count - 1];
     }
 
-    public void FixItemPositions(float dur, bool setDelayBetweenFixes = false, 
+    public void FixItemPositions(float dur, Vector3[] lastItemFixPath = null, bool setDelayBetweenFixes = false, 
         bool setInstantAnim = false){
 
         //gap = style == Style.Main ? 0.15f : 0.3f;
@@ -126,7 +126,17 @@ public class ItemContainer : MonoBehaviour{
             }
             else if (style == Style.Node){
                 pos = containerPos + nextItemPos;
-                sequence.Append(item.transform.DOMove(pos, dur));
+
+                Tween moveTween;
+
+                if(i == items.Count - 1 && lastItemFixPath != null) {
+                    moveTween = item.transform.DOPath(lastItemFixPath, dur);
+                }
+                else {
+                    moveTween = item.transform.DOMove(pos, dur);
+                }
+
+                sequence.Append(moveTween);
                 sequence.Append(item.transform.DOScale(1f, dur)
                     .OnComplete(() => item.transform.SetParent(transform))
                     .SetDelay(-dur));

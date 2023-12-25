@@ -65,7 +65,8 @@ public class InfoIndicator : MonoBehaviour{
     }
 
     private void OnDisable() {
-        infoText.gameObject.SetActive(false);
+       
+        //infoText.gameObject.SetActive(false);
     }
 
     public void ShowInfoText(string text){

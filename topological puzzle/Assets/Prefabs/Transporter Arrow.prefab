@@ -200,6 +200,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sr: {fileID: 282529941505921820}
+  secondarySprite: {fileID: 0}
 --- !u!1 &282529941782624232
 GameObject:
   m_ObjectHideFlags: 0
@@ -378,11 +379,12 @@ MonoBehaviour:
   arrowColorController: {fileID: 2906467770978984395}
   randomLRColor: {fileID: 3029745935353946619}
   randomSprite: {fileID: 1937073300682839724}
-  isPermanent: 1
+  isPermanent: 0
   lr: {fileID: 0}
   col: {fileID: 0}
   linePoints: []
   arrowPoints: []
+  gapForArrowHead: 0.16
 --- !u!114 &-4542943842018105911
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -507,8 +509,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4280098077
-  m_fontColor: {r: 0.11320752, g: 0.11320752, b: 0.11320752, a: 1}
+    rgba: 4279440147
+  m_fontColor: {r: 0.0754717, g: 0.0754717, b: 0.0754717, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -627,7 +629,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.6698113, g: 0.6698113, b: 0.6698113, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

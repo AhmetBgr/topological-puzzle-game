@@ -1,0 +1,153 @@
+{
+    "levelName": "transporter_1",
+    "nodes": [
+        {
+            "posX": 0.5000001192092896,
+            "posY": -2.5,
+            "tag": "BasicNode",
+            "id": -439730,
+            "itemTags": [
+                "ReverseArrow"
+            ]
+        },
+        {
+            "posX": 1.5000003576278687,
+            "posY": -0.9999999403953552,
+            "tag": "BasicNode",
+            "id": -439806,
+            "itemTags": []
+        },
+        {
+            "posX": -1.5000003576278687,
+            "posY": -2.5,
+            "tag": "BasicNode",
+            "id": -439860,
+            "itemTags": []
+        },
+        {
+            "posX": -0.5000001192092896,
+            "posY": -2.5,
+            "tag": "BasicNode",
+            "id": -439914,
+            "itemTags": []
+        },
+        {
+            "posX": -1.5000003576278687,
+            "posY": 1.9999998807907105,
+            "tag": "StarNode",
+            "id": -439968,
+            "itemTags": []
+        },
+        {
+            "posX": -1.5000003576278687,
+            "posY": -0.9999999403953552,
+            "tag": "StarNode",
+            "id": -440020,
+            "itemTags": [
+                "Key"
+            ]
+        },
+        {
+            "posX": 0.0,
+            "posY": 0.5000001192092896,
+            "tag": "BasicNode",
+            "id": -440094,
+            "itemTags": [
+                "Padlock"
+            ]
+        },
+        {
+            "posX": 1.5000003576278687,
+            "posY": 1.9999998807907105,
+            "tag": "StarNode",
+            "id": -440170,
+            "itemTags": []
+        },
+        {
+            "posX": 1.5000003576278687,
+            "posY": -2.5,
+            "tag": "BasicNode",
+            "id": -440222,
+            "itemTags": []
+        }
+    ],
+    "arrows": [
+        {
+            "tag": "TransporterArrow",
+            "id": -440276,
+            "startingNodeID": -439806,
+            "destinationNodeID": -440020,
+            "pointsX": [
+                1.1000003814697266,
+                -0.9400002956390381
+            ],
+            "pointsY": [
+                -0.9999999403953552,
+                -0.9999999403953552
+            ],
+            "priority": 0
+        },
+        {
+            "tag": "TransporterArrow",
+            "id": -440332,
+            "startingNodeID": -440020,
+            "destinationNodeID": -439968,
+            "pointsX": [
+                -1.5000003576278687,
+                -1.5000003576278687
+            ],
+            "pointsY": [
+                -0.5999999642372131,
+                1.4399998188018799
+            ],
+            "priority": 1
+        },
+        {
+            "tag": "Arrow",
+            "id": -440388,
+            "startingNodeID": -440094,
+            "destinationNodeID": -440020,
+            "pointsX": [
+                -0.2828427255153656,
+                -1.104020595550537
+            ],
+            "pointsY": [
+                0.21715742349624635,
+                -0.6040202379226685
+            ],
+            "priority": 0
+        },
+        {
+            "tag": "TransporterArrow",
+            "id": -440414,
+            "startingNodeID": -439968,
+            "destinationNodeID": -440170,
+            "pointsX": [
+                -1.1000003814697266,
+                0.9400002956390381
+            ],
+            "pointsY": [
+                1.9999998807907105,
+                1.9999998807907105
+            ],
+            "priority": 2
+        },
+        {
+            "tag": "TransporterArrow",
+            "id": -440470,
+            "startingNodeID": -440170,
+            "destinationNodeID": -439806,
+            "pointsX": [
+                1.5000003576278687,
+                1.5000003576278687
+            ],
+            "pointsY": [
+                1.5999999046325684,
+                -0.4399998188018799
+            ],
+            "priority": 3
+        }
+    ],
+    "nodeCount": 9,
+    "arrowCount": 5
+}

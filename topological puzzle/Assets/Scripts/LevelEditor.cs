@@ -61,7 +61,7 @@ public class LevelEditor : MonoBehaviour{
     public GameObject itemToAdd;
     private Button curSelButton;
     private LineRenderer lr;
-    private List<LeCommand> oldCommands = new List<LeCommand>();
+    public List<LeCommand> oldCommands = new List<LeCommand>();
     private LeState lastState;
     private GameManager gameManager;
     MoveNode moveNode = null;
@@ -721,52 +721,42 @@ public class LevelEditor : MonoBehaviour{
         }
     }
 
-    public void OpenAddItemPanel(Item item)
-    {
+    public void OpenAddItemPanel(Item item){
         addItemPanel.gameObject.SetActive(true);
         addItemPanel.position = Camera.main.WorldToScreenPoint(item.transform.position + (Vector3.up * -0.5f));
         addItemNode = item.owner;
         state = LeState.addingItem;
     }
 
-    public void CloseAddItemPanel()
-    {
+    public void CloseAddItemPanel(){
         addItemPanel.gameObject.SetActive(false);
     }
 
-    public void ToggleSharePanel()
-    {
-        if (sharePanel.gameObject.activeSelf)
-        {
+    public void ToggleSharePanel(){
+        if (sharePanel.gameObject.activeSelf){
             sharePanel.gameObject.SetActive(false);
         }
-        else
-        {
+        else{
             sharePanel.gameObject.SetActive(true);
             UpdateEncodedLevelText();
         }
     }
 
-    public void ToggleGetLevelPanel()
-    {
-        if (GetLevelPanel.gameObject.activeSelf)
-        {
+    public void ToggleGetLevelPanel(){
+        if (GetLevelPanel.gameObject.activeSelf){
             GetLevelPanel.gameObject.SetActive(false);
         }
-        else
-        {
+        else{
             GetLevelPanel.gameObject.SetActive(true);
             encodedLevelTextField.text = "PASTE YOUR LEVEL CODE HERE.";
         }
     }
 
-    public void UpdateLevelPoolName()
-    {
+    public void UpdateLevelPoolName(){
         levelPoolNameTextField.text = levelManager.curPool == LevelPool.Original ? "Original Levels" : "My Levels";
     }
 
-    private void DestroyInactiveChildren(Transform parent)
-    {
+    private void DestroyInactiveChildren(Transform parent){
         // Find Inactive objects in level
         int childCount = parent.childCount;
         List<GameObject> childrenToDestroy = new List<GameObject>();

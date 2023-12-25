@@ -627,8 +627,11 @@ public class LevelManager : MonoBehaviour{
             if (arrowProperty.tag.Contains("p,"))
                 arrow.ChangePermanent(true);
 
-            if (arrow.CompareTag("TransporterArrow"))
+            if (arrow.CompareTag("TransporterArrow")) {
+                //arrow.GetComponent<Transporter>().SetPriority(arrowProperty.priority, true);
                 arrow.GetComponent<Transporter>().priority = arrowProperty.priority;
+            }
+                
             
             arrowsPool.Add(arrow);
         }
