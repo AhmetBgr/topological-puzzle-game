@@ -47,24 +47,22 @@ public class TransportCommand : Command
 
     public override bool Undo(float dur, bool isRewinding = false)
     {
-        if (affectedObjects[0].GetComponent<Item>().isPermanent  && isRewinding)
-        {
+        if (affectedObjects[0].GetComponent<Item>().isPermanent  && isRewinding){
             InvokeOnUndoSkipped(this);
             //skipped = true;
             return true;
         }
-        else
-        {
-            if (gameManager.skippedOldCommands.Contains(this))
-            {
+        else{
+            if (gameManager.skippedOldCommands.Contains(this)){
                 gameManager.RemoveFromSkippedOldCommands(this);
             }
         }
 
         Vector3[] reversedPoints = (Vector3[])arrow.linePoints.Clone();
         Array.Reverse(reversedPoints);
-        transporter.Transport(affectedObjects[0].transform, destItemCont, startingItemCont, reversedPoints, dur, -1);
 
+        transporter.Transport(affectedObjects[0].transform, destItemCont, startingItemCont, reversedPoints, dur, -1);
+        
         if (OnUndo != null)
         {
             OnUndo(affectedObjects[0]);

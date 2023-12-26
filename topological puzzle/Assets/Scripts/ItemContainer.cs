@@ -130,7 +130,7 @@ public class ItemContainer : MonoBehaviour{
                 Tween moveTween;
 
                 if(i == items.Count - 1 && lastItemFixPath != null) {
-                    moveTween = item.transform.DOPath(lastItemFixPath, dur);
+                    moveTween = item.transform.DOPath(lastItemFixPath, dur).SetEase(Ease.InCubic);
                 }
                 else {
                     moveTween = item.transform.DOMove(pos, dur);

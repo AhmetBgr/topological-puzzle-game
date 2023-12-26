@@ -22,6 +22,7 @@ public class LevelCanvasManager : MonoBehaviour
 
     public bool inEditor;
 
+    private IEnumerator disableCor;
     private Sequence useItemButtonBCImageSeq;
 
     private void OnEnable()
@@ -125,7 +126,17 @@ public class LevelCanvasManager : MonoBehaviour
     }
     public void MakeUndoNoninteractive(float duration)
     {
-        StartCoroutine(Utility.MakeButtonNoninteractive(undoButton, duration));
+        if (disableCor != null)
+            StopCoroutine(disableCor);
+
+        disableCor = DisableButton(undoButton, duration);
+        StartCoroutine(disableCor);
+    }
+
+    public  IEnumerator DisableButton(Button button, float duration) {
+        button.interactable = false;
+        yield return new WaitForSeconds(duration);
+        button.interactable = true;
     }
 
     public void UpdateUseItemButtonBCImage(bool isUsable) //List<Item> items

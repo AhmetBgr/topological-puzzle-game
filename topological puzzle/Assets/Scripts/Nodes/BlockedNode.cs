@@ -5,6 +5,7 @@ using DG.Tweening;
 
 public class BlockedNode : Node
 {
+    private LevelManager levelManager;
     private bool blocked = true;
     private static int blockedNodeCount = 0;
 
@@ -20,8 +21,11 @@ public class BlockedNode : Node
     }
 
     private void UpdateBLockStatus(){
+        if (levelManager == null)
+            levelManager = FindObjectOfType<LevelManager>();
+
         // Update locked status if node has lock
-        int nodeCount = LevelManager.GetNodeCount();
+        int nodeCount = levelManager.GetActiveNodeCount();
         
         if (nodeCount - blockedNodeCount <= 0)
         { // Unlock the node if only it is left 
@@ -43,7 +47,7 @@ public class BlockedNode : Node
     protected override void UpdateHighlight(MultipleComparison<Component> mp)
     {
         UpdateBLockStatus();
-        if (blocked && GameState.gameState == GameState_EN.playing)
+        if (blocked && (GameState.gameState == GameState_EN.playing | GameState.gameState == GameState_EN.testingLevel))
         {
             SetNotSelectable();
             return;

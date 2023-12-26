@@ -182,13 +182,16 @@ public class DeleteArrow : LeCommand
         startNode.RemoveFromArrowsFromThisNodeList(selectedArrow);
         destinationNode.RemoveFromArrowsToThisNodeList(selectedArrow);
 
+        foreach (var item in arrow.arrowPoints) {
+            item.gameObject.SetActive(false);
+        }
+
         Transporter transporter;
         if(arrow.TryGetComponent(out transporter)) {
             priority = transporter.priority;
             
             foreach(var item in Transporter.transporters) {
                 if(item != transporter && item.priority > priority) {
-                    Debug.Log("should update other priorities");
                     item.SetPriority(item.priority - 1, true);
                 }
             }
@@ -203,7 +206,11 @@ public class DeleteArrow : LeCommand
         arrow.gameObject.SetActive(true);
         startNode.AddToArrowsFromThisNodeList(arrow.gameObject);
         destinationNode.AddToArrowsToThisNodeList(arrow.gameObject);
-
+        
+        foreach (var item in arrow.arrowPoints) {
+            item.gameObject.SetActive(true);
+        }
+        
         Transporter transporter;
         if (arrow.TryGetComponent(out transporter)) {
             foreach (var item in Transporter.transporters) {
@@ -556,6 +563,9 @@ public class MoveArrowPoint : LeCommand
             arrow.FixEdgePointPos(startingNode, initialPos, 0);
             arrow.FixCollider();
         }
+
+        arrow.OnChangedEvent();
+
         return null;
     }
 }

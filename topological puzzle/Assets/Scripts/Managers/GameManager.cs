@@ -62,6 +62,7 @@ public class GameManager : MonoBehaviour{
     private float maxUndoDur = 0.6f;
     private bool rewindStarted = false;
     private bool rewindFinished = false;
+    public bool isPriorityActive = false;
     private Sequence rewindSequence;
     public Transform rewindImageParent;
         
@@ -70,6 +71,9 @@ public class GameManager : MonoBehaviour{
 
     public delegate void OnGetNodesDelegate(List<Node> nodesPool);
     public static OnGetNodesDelegate OnGetNodes;
+
+    public delegate void OnPriorityToggleDelegate(bool isActive);
+    public static OnPriorityToggleDelegate OnPriorityToggle;
 
     public int skippedOldCommandCount = 0;
     public int oldCommandCount = 0;
@@ -101,6 +105,13 @@ public class GameManager : MonoBehaviour{
     }
 
     void Update(){
+        if (GameState.gameState != GameState_EN.inMenu && Input.GetKeyDown(KeyCode.LeftAlt)) {
+            if(OnPriorityToggle != null) {
+                isPriorityActive = !isPriorityActive;
+                OnPriorityToggle(isPriorityActive);
+            }
+        }
+
         if (GameState.gameState != GameState_EN.playing & GameState.gameState != GameState_EN.testingLevel) return;
 
         if (Input.GetMouseButtonDown(0)){
@@ -347,8 +358,12 @@ public class GameManager : MonoBehaviour{
         }
     }
 
-    public IEnumerator ChangeCommandWithDelay(Commands command, float delay){
+    public void ChangeCommandWithDelay(Commands command, float delay) {
+        StartCoroutine(_ChangeCommand(command, delay));
+    }
+    private IEnumerator _ChangeCommand(Commands command, float delay){
         ChangeCommand(Commands.None);
+
         yield return new WaitForSeconds(delay);
         ChangeCommand(command);
     }
@@ -365,7 +380,7 @@ public class GameManager : MonoBehaviour{
 
         if (GameState.gameState == GameState_EN.inLevelEditor) return;
 
-        StartCoroutine(ChangeCommandWithDelay(Commands.RemoveNode, 0.7f));
+        ChangeCommandWithDelay(Commands.RemoveNode, 0.7f);
     }
 
     public void AddToOldCommands(Command command, bool addToNonRewindCommands = true)

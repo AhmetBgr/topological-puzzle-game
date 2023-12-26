@@ -339,18 +339,25 @@ public class LevelManager : MonoBehaviour{
         arrowCount += amount;
     }
 
-    public static int GetNodeCount(){
+    public int GetActiveNodeCount(){
         Transform levelTransform = curLevel.transform;
         int childCount = levelTransform.childCount;
 
         int nodeCount = 0;
-       
-        for (int i = 0; i < childCount; i++){
+
+        foreach (var item in nodesPool) {
+            GameObject nodeObj = item.gameObject;
+            if (!item.isRemoved) {
+                nodeCount++;
+            }
+        }
+
+        /*for (int i = 0; i < childCount; i++){
             GameObject child = levelTransform.GetChild(i).gameObject;
             if(child.activeInHierarchy && ((1<<child.layer) & LayerMask.GetMask("Node")) != 0){
                 nodeCount++;
             }
-        }
+        }*/
 
         return nodeCount;
     }
@@ -654,6 +661,8 @@ public class LevelManager : MonoBehaviour{
     }
 
     public void LoadPlayerLevels(){
+        playerLevels.Clear();
+
         string path = Application.persistentDataPath + myLevelsPath;
         if (!Directory.Exists(path)){
             Debug.Log("path created : " + path);

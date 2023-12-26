@@ -13,6 +13,7 @@ public class ChangeArrowDir : Command
     private GameManager gameManager;
     private bool isCommandOwnerPermanent = false;
     private bool isSideCommand;
+    //Transporter transporter;
 
     public delegate void OnExecuteDelegate(GameObject arrow); //, GameObject commandOwner = null
     public static event OnExecuteDelegate OnExecute;
@@ -36,6 +37,12 @@ public class ChangeArrowDir : Command
 
         arrow = arrowObj.GetComponent<Arrow>();
         arrow.ChangeDir(dur);
+
+        /*if (arrow.TryGetComponent(out transporter)) {
+            transporter.PriorityObjDisappear(dur * 0.1f);
+            transporter.PriorityObjAppear(dur * 0.1f, dur);
+        }*/
+
         if (!isSideCommand) {
             AudioManager.instance.PlaySound(AudioManager.instance.changeArrowDir);
         }
@@ -88,7 +95,13 @@ public class ChangeArrowDir : Command
 
         arrow.gameObject.SetActive(true);
         arrow.ChangeDir(dur);
-        if(isRewinding && !isSideCommand) {
+
+        /*if (transporter) {
+            transporter.PriorityObjDisappear(dur * 0.1f);
+            transporter.PriorityObjAppear(dur * 0.1f, dur);
+        }*/
+
+        if (isRewinding && !isSideCommand) {
             AudioManager.instance.PlaySound(AudioManager.instance.changeArrowDir, true);
         }
 

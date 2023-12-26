@@ -13,6 +13,9 @@ public class SwapNodes : Command
     private Item commandOwner;
     private MultipleComparison<Component> swapNodeSearch;
 
+    public delegate void PostExecuteDelegate();
+    public static event PostExecuteDelegate PostExecute;
+
     public SwapNodes(GameManager gameManager, ItemManager itemManager, Item commandOwner, 
         List<GameObject> selectedObjects, MultipleComparison<Component> swapNodeSearch){
         this.commandOwner = commandOwner;
@@ -41,6 +44,8 @@ public class SwapNodes : Command
         {
             affectedObjects.Add(selectedObjects[i]);
         }
+
+
     }
 
     public override bool Undo(float dur, bool isRewinding = false)
@@ -164,5 +169,11 @@ public class SwapNodes : Command
             })
         );
         sequence2.Append(node2.transform.DOScale(1, dur * 2.2f/5f).SetEase(Ease.OutBack));
+
+        sequence1.OnComplete(() => {
+            if (PostExecute != null) {
+                PostExecute();
+            }
+        });
     }
 }

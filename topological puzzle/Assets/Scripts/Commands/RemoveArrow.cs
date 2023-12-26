@@ -12,6 +12,7 @@ public class RemoveArrow : Command
 
     private Arrow arrow;
     private GameManager gameManager;
+    //Transporter transporter;
 
     private List<GameObject> affectedObjects = new List<GameObject>();
 
@@ -28,6 +29,11 @@ public class RemoveArrow : Command
         if (!arrow.gameObject.activeSelf) return;
 
         arrow.Remove(dur);
+
+        
+        /*if(arrow.TryGetComponent(out transporter)) {
+            transporter.PriorityObjDisappear(dur * 0.1f);
+        }*/
 
         if (OnExecute != null)
         {
@@ -53,6 +59,10 @@ public class RemoveArrow : Command
 
         arrow.gameObject.SetActive(true);
         arrow.Add(dur);
+
+        /*if (transporter) {
+            transporter.PriorityObjAppear(dur * 0.1f);
+        }*/
         
         if(OnUndo != null){
             OnUndo();

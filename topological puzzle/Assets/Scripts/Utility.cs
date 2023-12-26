@@ -223,10 +223,5 @@ public static class Utility
             return Direction.none;
     }
 
-    public static IEnumerator MakeButtonNoninteractive(Button button, float duration)
-    {
-        button.interactable = false;
-        yield return new WaitForSeconds(duration);
-        button.interactable = true;
-    }
+
 }

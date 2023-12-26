@@ -118,8 +118,7 @@ public class LevelEditor : MonoBehaviour{
     }
 
     void Update(){
-        if (Input.GetKeyUp(KeyCode.Escape) && GameState.gameState == GameState_EN.testingLevel)
-        {
+        if (Input.GetKeyUp(KeyCode.Escape) && GameState.gameState == GameState_EN.testingLevel){
             Invoke("ExitTesting", 0.02f);
             return;
         }
@@ -132,29 +131,25 @@ public class LevelEditor : MonoBehaviour{
             RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero);
             if(hit){
                 GameObject selectedObject = hit.transform.gameObject;
-                if (((1 << selectedObject.layer) & LayerMask.GetMask("Item")) != 0)
-                {
+                if (((1 << selectedObject.layer) & LayerMask.GetMask("Item")) != 0){
                     if (selectedObject.CompareTag("AddNewItem")) return;
 
                     DeleteItem deleteItem = new DeleteItem();
                     deleteItem.Execute(selectedObject);
                     oldCommands.Add(deleteItem);
                 }
-                else if (((1 << selectedObject.layer) & LayerMask.GetMask("Node")) != 0)
-                {
+                else if (((1 << selectedObject.layer) & LayerMask.GetMask("Node")) != 0){
                     DeleteNode deleteNode = new DeleteNode();
                     deleteNode.Execute(selectedObject);
                     oldCommands.Add(deleteNode);
                 }
-                else if (((1 << selectedObject.layer) & LayerMask.GetMask("Arrow")) != 0)
-                {
+                else if (((1 << selectedObject.layer) & LayerMask.GetMask("Arrow")) != 0){
                     DeleteArrow deleteArrow = new DeleteArrow();
                     deleteArrow.Execute(selectedObject);
                     oldCommands.Add(deleteArrow);
                     arrowPointPreview.gameObject.SetActive(false);
                 }
-                else if (((1 << selectedObject.layer) & LayerMask.GetMask("ArrowPoint")) != 0)
-                {
+                else if (((1 << selectedObject.layer) & LayerMask.GetMask("ArrowPoint")) != 0){
                     DeleteArrowPoint deleteArrowPoint = new DeleteArrowPoint(selectedObject.GetComponent<ArrowPoint>());
                     deleteArrowPoint.Execute(selectedObject);
                     oldCommands.Add(deleteArrowPoint);
@@ -163,23 +158,19 @@ public class LevelEditor : MonoBehaviour{
         }
         
         // Checks if player intents to move a node, If so change the level editor state to movingObject
-        if ( ( state == LeState.waiting  && Input.GetMouseButtonDown(0) ) || isButtonDown)
-        {
-            if (!isButtonDown)
-            {
+        if ( ( state == LeState.waiting  && Input.GetMouseButtonDown(0) ) || isButtonDown){
+            if (!isButtonDown){
                 Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero, LayerMask.GetMask("Node", "Arrow", "ArrowPoint"));
                 if (hit){ 
 
                     GameObject selectedObject = hit.transform.gameObject;
-                    if (((1 << selectedObject.layer) & LayerMask.GetMask("Arrow")) != 0)
-                    {
+                    if (((1 << selectedObject.layer) & LayerMask.GetMask("Arrow")) != 0){
                         AddArrowPoint addArrowPoint = new AddArrowPoint(selectedObject.GetComponent<Arrow>());
                         addArrowPoint.Execute(selectedObject);
                         oldCommands.Add(addArrowPoint);
                     }
-                    else
-                    {
+                    else{
                         objToMove = hit.transform;
                         isButtonDown = true;
                     }

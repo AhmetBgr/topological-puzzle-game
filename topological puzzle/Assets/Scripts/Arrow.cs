@@ -415,7 +415,6 @@ public class Arrow : MonoBehaviour {
 
             Vector3 pos = endPosition ;
 
-
             while (pos != startPosition) {
                  
                 float t = segmentDuration == 0 ? 1 : (Time.time - startTime) / segmentDuration ;
@@ -424,7 +423,6 @@ public class Arrow : MonoBehaviour {
                 Vector3 pos2 = Vector3.zero;
                 if(i>=2)
                     pos2 = Vector3.Lerp(linePoints[i-1], linePoints[i-2], t);
-
 
                 // animate all other points except point at index i
                 for (int j = i; j < pointsCount; j++){
@@ -440,6 +438,11 @@ public class Arrow : MonoBehaviour {
                         head.rotation = Quaternion.Euler(0, 0, AngleDeg);
                     }
                     head.position = pos;
+
+                    Transporter transporter;
+                    if (j == 1 && TryGetComponent(out transporter)) {
+                        transporter.priorityObj.position = FindCenter();
+                    }
                 }
                 yield return null ;
             }
@@ -493,7 +496,11 @@ public class Arrow : MonoBehaviour {
                 // animate all other points except point at index i
                 for (int j = i + 1; j < pointsCount; j++){
                     lr.SetPosition (j, pos) ;
-                    
+
+                    Transporter transporter;
+                    if(j == 1 && TryGetComponent(out transporter)) {
+                        transporter.priorityObj.position = FindCenter();
+                    }
                 }
                 head.position = pos; //lr.GetPosition(pointsCount -1)
                 yield return null ;

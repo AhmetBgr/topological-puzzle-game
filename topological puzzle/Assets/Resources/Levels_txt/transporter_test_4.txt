@@ -1,0 +1,110 @@
+{
+    "levelName": "transporter_test_4",
+    "nodes": [
+        {
+            "posX": -1.0249552726745606,
+            "posY": 0.29411792755126955,
+            "tag": "HexagonNode",
+            "id": -92116,
+            "itemTags": [
+                "Key",
+                "Key"
+            ]
+        },
+        {
+            "posX": 1.684492826461792,
+            "posY": 1.1853832006454468,
+            "tag": "HexagonNode",
+            "id": -92222,
+            "itemTags": [
+                "Key"
+            ]
+        },
+        {
+            "posX": 1.0606071949005128,
+            "posY": -1.2210335731506348,
+            "tag": "BasicNode",
+            "id": -92306,
+            "itemTags": []
+        },
+        {
+            "posX": 4.322638988494873,
+            "posY": -1.0962567329406739,
+            "tag": "BasicNode",
+            "id": -92360,
+            "itemTags": []
+        },
+        {
+            "posX": 4.50089168548584,
+            "posY": 1.1319071054458619,
+            "tag": "BasicNode",
+            "id": -92414,
+            "itemTags": []
+        },
+        {
+            "posX": 3.5918006896972658,
+            "posY": -0.11586427688598633,
+            "tag": "BasicNode",
+            "id": -92468,
+            "itemTags": []
+        },
+        {
+            "posX": 3.0570411682128908,
+            "posY": -1.6666665077209473,
+            "tag": "SquareNode",
+            "id": -92882,
+            "itemTags": [
+                "NodeSwapper"
+            ]
+        }
+    ],
+    "arrows": [
+        {
+            "tag": "TransporterArrow",
+            "id": -92522,
+            "startingNodeID": -92116,
+            "destinationNodeID": -92222,
+            "pointsX": [
+                -0.6449849009513855,
+                1.1525344848632813
+            ],
+            "pointsY": [
+                0.4191080927848816,
+                1.010396957397461
+            ],
+            "priority": 0
+        },
+        {
+            "tag": "TransporterArrow",
+            "id": -92578,
+            "startingNodeID": -92222,
+            "destinationNodeID": -92306,
+            "pointsX": [
+                1.5841079950332642,
+                1.201145887374878
+            ],
+            "pointsY": [
+                0.7981843948364258,
+                -0.6789553165435791
+            ],
+            "priority": 1
+        },
+        {
+            "tag": "TransporterArrow",
+            "id": -92634,
+            "startingNodeID": -92116,
+            "destinationNodeID": -92306,
+            "pointsX": [
+                -0.7013411521911621,
+                0.6075475215911865
+            ],
+            "pointsY": [
+                0.05901379883289337,
+                -0.8918877840042114
+            ],
+            "priority": 2
+        }
+    ],
+    "nodeCount": 7,
+    "arrowCount": 3
+}
