@@ -112,7 +112,6 @@ public class Transporter : MonoBehaviour{
         canTransport = false;
 
         if (arrow.startingNode == removedNode | arrow.destinationNode == removedNode) return;
-
         if (isNextToAStarNode) return;
 
         if (command.isRewinding) return;

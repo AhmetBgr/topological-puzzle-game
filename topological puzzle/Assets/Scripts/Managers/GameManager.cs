@@ -29,6 +29,7 @@ public class GameManager : MonoBehaviour{
     public TextMeshProUGUI undoChangesCountText;
     public InfoIndicator infoIndicator;
     public Commands curCommand;
+    private Commands prevCommand;
     public LayerMask targetLM;
 
     //private UnlockPadlock unlockPadlock;
@@ -105,6 +106,12 @@ public class GameManager : MonoBehaviour{
     }
 
     void Update(){
+
+        if (GameState.gameState == GameState_EN.inMenu && curCommand != Commands.None)
+            ChangeCommand(Commands.None);
+        else if (GameState.gameState != GameState_EN.inMenu && curCommand == Commands.None)
+            ChangeCommand(prevCommand);
+
         if (GameState.gameState != GameState_EN.inMenu && Input.GetKeyDown(KeyCode.LeftAlt)) {
             if(OnPriorityToggle != null) {
                 isPriorityActive = !isPriorityActive;
@@ -308,6 +315,7 @@ public class GameManager : MonoBehaviour{
     }
 
     public void ChangeCommand(Commands command){
+        prevCommand = curCommand;
         curCommand = command;
         HighlightManager highlightManager = HighlightManager.instance;
 

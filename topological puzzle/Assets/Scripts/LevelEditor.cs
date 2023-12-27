@@ -580,7 +580,7 @@ public class LevelEditor : MonoBehaviour{
 
         enterTestButton.gameObject.SetActive(true);
 
-        HighlightManager.instance.Search(HighlightManager.instance.any);
+        HighlightManager.instance.SearchWithDelay(HighlightManager.instance.any, 0.1f);
         lastState = LeState.waiting;
         state = LeState.waiting;
         ResetCurLevelInEditing();

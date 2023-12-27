@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using TMPro;
 
 public class MainCanvasManager : MonoBehaviour
 {
@@ -11,9 +12,14 @@ public class MainCanvasManager : MonoBehaviour
     public Panel mainMenuPanel;
     public Panel gameplayPanel;
     public Panel levelEditorPanel;
+    public GameObject optionsPanel;
 
     public Button myLevelsButton;
-    
+    public Button optionsButton;
+    public Image optionsImage;
+
+    public TextMeshProUGUI playText;
+
     public Panel currentPanel;
     public Panel previousPanel;
 
@@ -56,14 +62,12 @@ public class MainCanvasManager : MonoBehaviour
 
     public void ToggleMainMenu()
     {
-        if(currentPanel == mainMenuPanel)
-        {
+        if(currentPanel == mainMenuPanel){
             PanelTransition(previousPanel);
         }
-        else
-        {
+        else{
+            //playText.text = "Play" + " - " + LevelManager.curLevel.name;
             PanelTransition(mainMenuPanel);
-            //gameManager.ChangeCommand(Commands.None);
         }
     }
 
@@ -76,6 +80,17 @@ public class MainCanvasManager : MonoBehaviour
         else
         {
             PanelTransition(levelEditorPanel);
+        }
+    }
+
+    public void ToggleOptionsPanel() {
+        optionsPanel.SetActive(!optionsPanel.activeSelf);
+
+        if (optionsPanel.activeSelf) {
+            optionsImage.color = optionsButton.colors.normalColor;
+        }
+        else {
+            optionsImage.color = optionsButton.colors.highlightedColor;
         }
     }
 

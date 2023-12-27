@@ -34,7 +34,7 @@ public class NodeCC : ColorController
         material = nodeSprite.material;
 
         if (secondarySprite)
-            secondaryMaterial = secondarySprite.sharedMaterial;
+            secondaryMaterial = secondarySprite.material;
     }
 
     protected override void ChangeColorsOnPaletteSwap(Palette palette, float duration)

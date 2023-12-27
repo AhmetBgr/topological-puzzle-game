@@ -83,7 +83,10 @@ public class HighlightManager : MonoBehaviour
             OnSearch(mp);
     }
 
-    public IEnumerator SearchWithDelay(MultipleComparison<Component> mp, float delay){
+    public void SearchWithDelay(MultipleComparison<Component> mp, float delay) {
+        StartCoroutine(_Search(mp, delay));
+    }
+    private IEnumerator _Search(MultipleComparison<Component> mp, float delay){
         yield return new WaitForSeconds(delay);
 
         Search(mp);

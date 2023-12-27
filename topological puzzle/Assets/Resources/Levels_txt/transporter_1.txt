@@ -2,48 +2,35 @@
     "levelName": "transporter_1",
     "nodes": [
         {
-            "posX": 0.5000001192092896,
+            "posX": 1.5000003576278687,
+            "posY": -0.9999999403953552,
+            "tag": "BasicNode",
+            "id": -309388,
+            "itemTags": []
+        },
+        {
+            "posX": -1.5000003576278687,
             "posY": -2.5,
             "tag": "BasicNode",
-            "id": -439730,
+            "id": -309442,
             "itemTags": [
                 "ReverseArrow"
             ]
         },
         {
-            "posX": 1.5000003576278687,
-            "posY": -0.9999999403953552,
-            "tag": "BasicNode",
-            "id": -439806,
-            "itemTags": []
-        },
-        {
-            "posX": -1.5000003576278687,
-            "posY": -2.5,
-            "tag": "BasicNode",
-            "id": -439860,
-            "itemTags": []
-        },
-        {
-            "posX": -0.5000001192092896,
-            "posY": -2.5,
-            "tag": "BasicNode",
-            "id": -439914,
-            "itemTags": []
-        },
-        {
             "posX": -1.5000003576278687,
             "posY": 1.9999998807907105,
             "tag": "StarNode",
-            "id": -439968,
+            "id": -309518,
             "itemTags": []
         },
         {
             "posX": -1.5000003576278687,
             "posY": -0.9999999403953552,
             "tag": "StarNode",
-            "id": -440020,
+            "id": -309570,
             "itemTags": [
+                "Key",
                 "Key"
             ]
         },
@@ -51,8 +38,9 @@
             "posX": 0.0,
             "posY": 0.5000001192092896,
             "tag": "BasicNode",
-            "id": -440094,
+            "id": -309666,
             "itemTags": [
+                "Padlock",
                 "Padlock"
             ]
         },
@@ -60,23 +48,41 @@
             "posX": 1.5000003576278687,
             "posY": 1.9999998807907105,
             "tag": "StarNode",
-            "id": -440170,
+            "id": -309764,
             "itemTags": []
         },
         {
             "posX": 1.5000003576278687,
             "posY": -2.5,
             "tag": "BasicNode",
-            "id": -440222,
+            "id": -309816,
             "itemTags": []
+        },
+        {
+            "posX": 0.5000001192092896,
+            "posY": -2.5,
+            "tag": "SquareNode",
+            "id": -309870,
+            "itemTags": [
+                "ReverseArrow"
+            ]
+        },
+        {
+            "posX": -0.5000001192092896,
+            "posY": -2.5,
+            "tag": "BasicNode",
+            "id": -309962,
+            "itemTags": [
+                "ReverseArrow"
+            ]
         }
     ],
     "arrows": [
         {
             "tag": "TransporterArrow",
-            "id": -440276,
-            "startingNodeID": -439806,
-            "destinationNodeID": -440020,
+            "id": -310038,
+            "startingNodeID": -309388,
+            "destinationNodeID": -309570,
             "pointsX": [
                 1.1000003814697266,
                 -0.9400002956390381
@@ -85,13 +91,13 @@
                 -0.9999999403953552,
                 -0.9999999403953552
             ],
-            "priority": 0
+            "priority": 3
         },
         {
             "tag": "TransporterArrow",
-            "id": -440332,
-            "startingNodeID": -440020,
-            "destinationNodeID": -439968,
+            "id": -310094,
+            "startingNodeID": -309570,
+            "destinationNodeID": -309518,
             "pointsX": [
                 -1.5000003576278687,
                 -1.5000003576278687
@@ -104,9 +110,9 @@
         },
         {
             "tag": "Arrow",
-            "id": -440388,
-            "startingNodeID": -440094,
-            "destinationNodeID": -440020,
+            "id": -310150,
+            "startingNodeID": -309666,
+            "destinationNodeID": -309570,
             "pointsX": [
                 -0.2828427255153656,
                 -1.104020595550537
@@ -119,9 +125,9 @@
         },
         {
             "tag": "TransporterArrow",
-            "id": -440414,
-            "startingNodeID": -439968,
-            "destinationNodeID": -440170,
+            "id": -310176,
+            "startingNodeID": -309518,
+            "destinationNodeID": -309764,
             "pointsX": [
                 -1.1000003814697266,
                 0.9400002956390381
@@ -134,9 +140,9 @@
         },
         {
             "tag": "TransporterArrow",
-            "id": -440470,
-            "startingNodeID": -440170,
-            "destinationNodeID": -439806,
+            "id": -310232,
+            "startingNodeID": -309764,
+            "destinationNodeID": -309388,
             "pointsX": [
                 1.5000003576278687,
                 1.5000003576278687
@@ -145,7 +151,7 @@
                 1.5999999046325684,
                 -0.4399998188018799
             ],
-            "priority": 3
+            "priority": 0
         }
     ],
     "nodeCount": 9,
