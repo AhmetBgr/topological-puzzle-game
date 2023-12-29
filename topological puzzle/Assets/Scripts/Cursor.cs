@@ -18,6 +18,7 @@ public class Cursor : MonoBehaviour
     public float gridSize = 1f;
     public bool snapToGrid = false;
     public bool isHiden = false;
+    public bool isHoveringUI = false;
     private int UILayer;
 
     public static Cursor instance = null;
@@ -40,7 +41,7 @@ public class Cursor : MonoBehaviour
     }
 
     void Update(){
-        bool isHoveringUI = IsPointerOverUIElement();
+        isHoveringUI = IsPointerOverUIElement();
         if (isHoveringUI && !isHiden){
             HideCursor();
             return;

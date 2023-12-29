@@ -40,6 +40,20 @@ public class DropdownHandler : MonoBehaviour
             OnValueChanged(dropdown.value);
     }
 
+    public void SetNextValue() {
+        int value = dropdown.value + 1;
+
+        if (value >= dropdown.options.Count) return;
+
+        UpdateCurrentValue(value);
+    }
+    public void SetPrevValue() {
+        int value = dropdown.value - 1;
+
+        if (value < 0) return;
+
+        UpdateCurrentValue(value);
+    }
     public void AddOption(string option){
         dropdown.options.Add(new TMP_Dropdown.OptionData() { text = option });
     }

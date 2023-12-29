@@ -19,11 +19,9 @@ public class LevelEditor : MonoBehaviour{
     public GameObject basicNode;
     public GameObject squareNode;
     public GameObject padLockPrefab;
-    public GameObject permanentPadLockPrefab;
     public GameObject keyPrefab;
     public GameObject permanentKeyPrefab;
     public GameObject nodeSwapperPrefab;
-    public GameObject permanentNodeSwapperPrefab;
 
     public RectTransform topPanel;
     public RectTransform bottomPanel;
@@ -39,6 +37,10 @@ public class LevelEditor : MonoBehaviour{
     public Button enterTestButton;
     public Button exitTestButton;
     public Transform _arrowPointPreview;
+
+    public ToggleHandler toggleShareHandler;
+    public ToggleHandler toggleImportHandler;
+    public ToggleHandler toggleGridHandler;
     public Button toggleGridButton;
     public RectTransform gridControllers;
     public TextMeshProUGUI gridSizeTextField;
@@ -96,8 +98,7 @@ public class LevelEditor : MonoBehaviour{
         arrowPointPreview = _arrowPointPreview;
     }
 
-    void OnEnable()
-    {
+    void OnEnable(){
         cursor = Cursor.instance;
         LevelManager.OnLevelLoad += ResetCurLevelInEditing;
         AddNewItem.OnMouseEnter += OpenAddItemPanel;
@@ -105,9 +106,12 @@ public class LevelEditor : MonoBehaviour{
         levelsDropdownHandler.OnValueChanged += UpdateHighlights;
         Grid.OnGridToggle += ToggleGrid;
         Grid.OnGridSizeChanged += UpdateGridSizeTextField;
+
+        bottomPanel.localPosition = initialPos;
+        topPanel.localPosition = initialPos2;
+        rightPanel.localPosition = rightPInitialPos;
     }
-    void OnDisable()
-    {
+    void OnDisable(){
         LevelManager.OnLevelLoad -= ResetCurLevelInEditing;
         AddNewItem.OnMouseEnter -= OpenAddItemPanel;
         GameManager.OnLevelComplete -= ExitTestingWithDelay;
@@ -124,9 +128,12 @@ public class LevelEditor : MonoBehaviour{
         }
 
         if (GameState.gameState != GameState_EN.inLevelEditor) return;
-        
+
+        if (Input.GetKeyDown(KeyCode.G))
+            toggleGridHandler.Toggle();
+
         // Delete Object
-        if(Input.GetMouseButtonDown(2) && GameState.gameState == GameState_EN.inLevelEditor){
+        if (Input.GetMouseButtonDown(2) && GameState.gameState == GameState_EN.inLevelEditor){
             Vector2 ray = cursor.worldPos;
             RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero);
             if(hit){
@@ -211,9 +218,16 @@ public class LevelEditor : MonoBehaviour{
 
         if (state == LeState.placingNode ){
             // selected node follows mouse pos until placing
-            Vector2 ray = Camera.main.ScreenToWorldPoint(cursor.pos);
+            //Vector2 ray = Camera.main.ScreenToWorldPoint(cursor.pos);
             curObj.position = cursor.worldPos;
-            if( Input.GetMouseButtonDown(0) ){
+            if (!cursor.isHoveringUI && !curObj.gameObject.activeSelf) {
+                curObj.gameObject.SetActive(true);
+            }
+            else if(cursor.isHoveringUI && curObj.gameObject.activeSelf) {
+                curObj.gameObject.SetActive(false);
+            }
+
+            if ( Input.GetMouseButtonDown(0) && curObj.gameObject.activeSelf) {
                 // place the node
                 RaycastHit2D hit = Physics2D.Raycast(cursor.worldPos, Vector2.zero, LayerMask.GetMask("Node"));
                 if (!hit){
@@ -340,30 +354,37 @@ public class LevelEditor : MonoBehaviour{
         // Cancel current action
         if(Input.GetMouseButtonDown(1) && state != LeState.waiting && GameState.gameState == GameState_EN.inLevelEditor)
         {
-            if (state == LeState.addingItem)
-                CloseAddItemPanel();
-
-            clickCount = 0;
-
-            if(curSelButton)
-                curSelButton.interactable = true;
-
-            curSelButton = null;
-            if(curObj)
-                Destroy(curObj.gameObject);
-
-            state = LeState.waiting;
-            lastState = state;
-            HighlightManager.instance.Search(HighlightManager.instance.any);
-            selectedObjects.Clear();
+            CancelCurrentAction();
         }
+    }
+
+    public void CancelCurrentAction() {
+        if (state == LeState.addingItem)
+            CloseAddItemPanel();
+
+        clickCount = 0;
+
+        if (curSelButton)
+            curSelButton.GetComponent<LEObjectSelHandler>().isOn = false;
+
+        /*if (curSelButton)
+            curSelButton.interactable = true;*/
+
+        curSelButton = null;
+        if (curObj)
+            Destroy(curObj.gameObject);
+
+        state = LeState.waiting;
+        lastState = state;
+        HighlightManager.instance.Search(HighlightManager.instance.any);
+        selectedObjects.Clear();
     }
 
     public void ToggleGrid(bool isActive)
     {
         cursor.snapToGrid = isActive;
-        Color color = isActive ? Color.blue : Color.magenta;
-        toggleGridButton.image.color = color;
+        //Color color = isActive ? Color.blue : Color.magenta;
+        //toggleGridButton.image.color = color;
         gridControllers.gameObject.SetActive(isActive);
     }
     public void AddItem(GameObject itemPrefab, Node node)
@@ -381,7 +402,8 @@ public class LevelEditor : MonoBehaviour{
         if(curSelButton != null)
             curSelButton.interactable = true;
 
-        button.interactable = false;
+        //button.Select();
+
         curSelButton = button;
 
         if(curObj != null){
@@ -405,6 +427,7 @@ public class LevelEditor : MonoBehaviour{
             obj.SetParent(curLevelInEditing.transform);
             highlightManager.Search(highlightManager.onlyNode);
             obj.GetComponent<Collider2D>().enabled = false;
+            obj.gameObject.SetActive(false);
         }
 
         curObj = obj;
@@ -427,6 +450,8 @@ public class LevelEditor : MonoBehaviour{
     }
 
     public void Undo(){
+        CancelCurrentAction();
+
         if(oldCommands.Count > 0){
             LeCommand lastCommand = oldCommands[ oldCommands.Count - 1 ];
             GameObject destroyObject = lastCommand.Undo();
@@ -506,7 +531,7 @@ public class LevelEditor : MonoBehaviour{
     public void CopyLevelCode()
     {
         GUIUtility.systemCopyBuffer = encodedLevelText.text;
-        ToggleSharePanel();
+        //ToggleSharePanel();
     }
 
     public void PasteLevelCode()
@@ -535,7 +560,7 @@ public class LevelEditor : MonoBehaviour{
         Transform levelHolder = levelManager.GenerateNewLevelHolder(levelProperty.levelName);
         ResetCurLevelInEditing();
         levelManager.LoadLevelWithLevelProperty(levelProperty, levelHolder);
-        ToggleGetLevelPanel();
+        //ToggleGetLevelPanel();
         curLevelInEditing.SetActive(true);
     }
 
@@ -562,8 +587,7 @@ public class LevelEditor : MonoBehaviour{
         rightPanel.localPosition += Vector3.right * 100f;
 
         GameObject curLevel = LevelManager.curLevel;
-        if (panelSequance != null)
-        {
+        if (panelSequance != null){
             panelSequance.Kill();
         }
         
@@ -585,10 +609,10 @@ public class LevelEditor : MonoBehaviour{
         state = LeState.waiting;
         ResetCurLevelInEditing();
 
+        levelManager.OpenPlayerLevels();
         levelsDropdownHandler.AddOptions(levelManager.GetCurLevelsNameList());
         levelsDropdownHandler.UpdateCurrentValue(LevelManager.curLevelIndex, false);
         UpdateLevelPoolName();
-
     }   
 
     private void CloseLevelEditor(){
@@ -610,14 +634,14 @@ public class LevelEditor : MonoBehaviour{
             .SetDelay(-0.5f));
         panelSequance.OnComplete(() =>
         {
-            bottomPanel.localPosition = initialPos;
+        /*    bottomPanel.localPosition = initialPos;
             bottomPanel.gameObject.SetActive(false);
 
             topPanel.localPosition = initialPos2;
             topPanel.gameObject.SetActive(false);
 
             rightPanel.localPosition = rightPInitialPos;
-            rightPanel.gameObject.SetActive(false);
+            rightPanel.gameObject.SetActive(false);*/
         });
 
         state = LeState.closed;
@@ -661,6 +685,8 @@ public class LevelEditor : MonoBehaviour{
 
     public void EnterTesting()
     {
+        CancelCurrentAction();
+
         initialLevel = levelManager.CreateLevelProperty(LevelManager.curLevel.transform);
         
         CloseLevelEditor();
@@ -721,26 +747,6 @@ public class LevelEditor : MonoBehaviour{
 
     public void CloseAddItemPanel(){
         addItemPanel.gameObject.SetActive(false);
-    }
-
-    public void ToggleSharePanel(){
-        if (sharePanel.gameObject.activeSelf){
-            sharePanel.gameObject.SetActive(false);
-        }
-        else{
-            sharePanel.gameObject.SetActive(true);
-            UpdateEncodedLevelText();
-        }
-    }
-
-    public void ToggleGetLevelPanel(){
-        if (GetLevelPanel.gameObject.activeSelf){
-            GetLevelPanel.gameObject.SetActive(false);
-        }
-        else{
-            GetLevelPanel.gameObject.SetActive(true);
-            encodedLevelTextField.text = "PASTE YOUR LEVEL CODE HERE.";
-        }
     }
 
     public void UpdateLevelPoolName(){
