@@ -161,7 +161,14 @@ public class LevelManager : MonoBehaviour{
 
     public void OpenPlayerLevels()
     {
-        if (playerLevels.Count == 0) return;
+        if (playerLevels.Count == 0) {
+            DestroyCurLevel();
+            GenerateNewLevelHolder("Empty Level");
+            LevelProperty emptyLevel = CreateLevelProperty(curLevel.transform);
+            AddToPlayerLevels(emptyLevel);
+            //LoadLevelWithLevelProperty(emptyLevel, curLevel.transform);
+            //return;
+        }
 
         SetCurLevelPool(LevelPool.Player);
         SetCurLevelIndex(0);
@@ -339,20 +346,41 @@ public class LevelManager : MonoBehaviour{
         arrowCount += amount;
     }
 
-    public int GetActiveNodeCount(){
+    public void UpdatePools() {
+        nodesPool.Clear();
+        arrowsPool.Clear();
         Transform levelTransform = curLevel.transform;
         int childCount = levelTransform.childCount;
+        for (int i = 0; i < childCount; i++){
+            GameObject child = levelTransform.GetChild(i).gameObject;
+            if(((1<<child.layer) & LayerMask.GetMask("Node")) != 0){
+                nodesPool.Add(child.GetComponent<Node>());
+            }
+            else if (((1 << child.layer) & LayerMask.GetMask("Arrow")) != 0) {
+                arrowsPool.Add(child.GetComponent<Arrow>());
+            }
+        }
+    }
+
+    public int GetActiveNodeCount(){
+        
+        
 
         int nodeCount = 0;
 
         foreach (var item in nodesPool) {
+            if (item == null) continue;
+
             GameObject nodeObj = item.gameObject;
             if (!item.isRemoved) {
                 nodeCount++;
             }
         }
 
-        /*for (int i = 0; i < childCount; i++){
+        /*
+        Transform levelTransform = curLevel.transform;
+        int childCount = levelTransform.childCount;
+        for (int i = 0; i < childCount; i++){
             GameObject child = levelTransform.GetChild(i).gameObject;
             if(child.activeInHierarchy && ((1<<child.layer) & LayerMask.GetMask("Node")) != 0){
                 nodeCount++;
@@ -440,14 +468,14 @@ public class LevelManager : MonoBehaviour{
             else
                 fullPath = this.path + levelProperty.levelName + ".txt";
         #endif
-
+ 
         // Serialize level property
         Utility.SaveAsJson(fullPath, levelProperty);
 
-        #if UNITY_EDITOR
-            return;
-        #endif
-       
+#if UNITY_EDITOR
+    return;
+#endif
+    
         AddToPlayerLevels(levelProperty);
     }
 
@@ -773,6 +801,8 @@ public class LevelManager : MonoBehaviour{
         
         return obj;
     }
+
+
     private Node FindObjInNodePool(string id, List<Node> pool)
     {
         Node obj = null;

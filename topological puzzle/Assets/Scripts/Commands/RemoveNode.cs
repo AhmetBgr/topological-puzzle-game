@@ -23,6 +23,7 @@ public class RemoveNode : Command
     private List<GameObject> affectedObjects = new List<GameObject>();
 
     public bool isRewinding = false;
+    private int[] priorities = new int[2];
 
     public RemoveNode(GameManager gameManager, ItemManager itemManager, GameObject obj)
     {
@@ -31,10 +32,8 @@ public class RemoveNode : Command
         this.obj = obj;
     }
 
-    public override void Execute(float dur, bool isRewinding = false)
-    {
-        if(PreExecute != null && !isRewinding)
-        {
+    public override void Execute(float dur, bool isRewinding = false){
+        if(PreExecute != null && !isRewinding){
             PreExecute(obj, this);
         }
 
@@ -68,16 +67,22 @@ public class RemoveNode : Command
         if(!isRewinding)
             itemController.GetObtainableItems(this, dur);
 
-        for (int i = affectedCommands.Count - 1; i >= 0; i--){
+        /*for (int i = affectedCommands.Count - 1; i >= 0; i--){
+            affectedCommands[i].Execute(dur, isRewinding);
+        }*/
+        for (int i = 0; i < affectedCommands.Count; i++) {
             affectedCommands[i].Execute(dur, isRewinding);
         }
 
-        //float dur = playAnim ? 0.5f : 0.1f;
         float nodeRemoveDur = hasArrow ? dur / 2 : dur;
         node.RemoveFromGraph(obj, nodeRemoveDur, delay: dur - nodeRemoveDur);
         AudioManager.instance.PlaySoundWithDelay(AudioManager.instance.removeNode, 0f);
-        //itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
+        priorities[0] = gameManager.curPriorities[0];
+        priorities[1] = gameManager.curPriorities[1];
 
+        gameManager.SetNextPriorities();
+        //gameManager.curPriority += 2;
+        //gameManager.curPriority2 += 2;
         if (isRewinding) return;
 
         if (OnExecute != null){
@@ -85,16 +90,14 @@ public class RemoveNode : Command
         }
     }
 
-    public override bool Undo(float dur, bool isRewinding = false)
-    {
+    public override bool Undo(float dur, bool isRewinding = false){
         this.isRewinding = isRewinding;
         //gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, dur);
 
         Node node = affectedObjects[0].GetComponent<Node>();
         ItemController itemController = node.itemController;
 
-        if (node.isPermanent && isRewinding)
-        {
+        if (node.isPermanent && isRewinding){
             InvokeOnUndoSkipped(this);
             return true;
         }
@@ -123,8 +126,7 @@ public class RemoveNode : Command
         }
         //removeArrows.Clear();
 
-        for (int i = affectedCommands.Count - 1; i >= 0; i--)
-        {
+        for (int i = affectedCommands.Count - 1; i >= 0; i--){
             affectedCommands[i].Undo(dur, isRewinding);
 
             if (!isRewinding)
@@ -136,6 +138,11 @@ public class RemoveNode : Command
         //gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, dur);
         gameManager.ChangeCommand(Commands.RemoveNode);
         //HighlightManager.instance.Search(HighlightManager.instance.removeNodeSearch);
+        gameManager.curPriorities[0] = priorities[0];
+        gameManager.curPriorities[1] = priorities[1];
+
+        //gameManager.curPriority -= 2;
+        //gameManager.curPriority2 -=2;
 
         if (OnUndo != null)
         {

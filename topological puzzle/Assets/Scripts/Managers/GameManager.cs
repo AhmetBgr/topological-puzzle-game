@@ -36,6 +36,8 @@ public class GameManager : MonoBehaviour{
 
     public List<GameObject> selectedObjects = new List<GameObject>();
     public List<Node> nodesPool = new List<Node>();
+    public List<Transporter> transporters = new List<Transporter>();
+    public List<Transporter> workingTransporters = new List<Transporter>();
 
     private Node commandOwner;
     private bool isCommandOwnerPermanent = false;
@@ -52,6 +54,31 @@ public class GameManager : MonoBehaviour{
                 UpdateCommand();
         }
     }
+    private int _curPriority;
+    public int curPriority {
+        get { return _curPriority; }
+        set {
+            if (value >= Transporter.priorityNext)
+                _curPriority = 0;
+            else if (value < 0)
+                _curPriority = Transporter.priorityNext - 1;
+            else
+                _curPriority = value;
+        }
+    }
+    private int _curPriority2;
+    public int curPriority2 {
+        get { return _curPriority2; }
+        set {
+            if (value == Transporter.priorityNext)
+                _curPriority2 = 0;
+            else if (value < 0)
+                _curPriority2 = Transporter.priorityNext - 1;
+            else
+                _curPriority2 = value;
+        }
+    }
+    public int[] curPriorities = new int[2];
 
     public float commandDur = 0.5f;
     public float undoDur = 0.1f;
@@ -93,7 +120,6 @@ public class GameManager : MonoBehaviour{
         LevelEditor.OnExit += GetNodes;
         Command.OnUndoSkipped += AddToSkippedOldCommands;
         Node.OnNodeRemove += CheckForLevelComplete;
-        
     }
 
     void OnDisable(){
@@ -112,12 +138,12 @@ public class GameManager : MonoBehaviour{
         else if (GameState.gameState != GameState_EN.inMenu && curCommand == Commands.None)
             ChangeCommand(prevCommand);
 
-        if (GameState.gameState != GameState_EN.inMenu && Input.GetKeyDown(KeyCode.LeftAlt)) {
+        /*if (GameState.gameState != GameState_EN.inMenu && Input.GetKeyDown(KeyCode.LeftAlt)) {
             if(OnPriorityToggle != null) {
                 isPriorityActive = !isPriorityActive;
                 OnPriorityToggle(isPriorityActive);
             }
-        }
+        }*/
 
         if (GameState.gameState != GameState_EN.playing & GameState.gameState != GameState_EN.testingLevel) return;
 
@@ -172,6 +198,11 @@ public class GameManager : MonoBehaviour{
                     timeID++;
                     command = new RemoveNode(this, itemManager, selectedObjects[0]);
                     command.Execute(commandDur);
+
+                    foreach (var item in workingTransporters) {
+
+                    }
+
                     break;
                 }
                 case Commands.ChangeArrowDir:{
@@ -252,6 +283,8 @@ public class GameManager : MonoBehaviour{
             UpdateCommand();
             selectedObjects.Clear();
         }
+
+        if (waitForCommandUpdate) return;
 
         // Rewind
         if ( (Input.GetMouseButtonDown(1) || rewindStarted) && 
@@ -377,6 +410,9 @@ public class GameManager : MonoBehaviour{
     }
     
     private void ResetData(){
+        curPriority = 0;
+        curPriority2 = 1;
+        curPriorities = new int[]{0, 1};
         timeID = 0;
         selectedObjects.Clear();
         nodesPool.Clear();
@@ -541,6 +577,8 @@ public class GameManager : MonoBehaviour{
     
     public void RewindBPointerDown(CanvasGroup rewindImageParent)
     {
+        if (waitForCommandUpdate) return;
+
         rewindStarted = true;
         rewindFinished = false;
 
@@ -553,11 +591,38 @@ public class GameManager : MonoBehaviour{
 
     public void RewindBPointerUp(CanvasGroup rewindImageParent)
     {
+        if (waitForCommandUpdate) return;
+
         rewindSequence.Kill();
         rewindImageParent.alpha = 1;
         rewindStarted = false;
         rewindFinished = true;
         audioManager.StartFadeOut(audioManager.rewind);
+    }
+
+    public void SetNextPriorities() {
+        int value1 = curPriorities[0] + 2; 
+        int value2 = curPriorities[1] + 2; 
+
+        int priorityNext = Transporter.priorityNext; 
+
+        if (value1 >= priorityNext && value2 >= priorityNext) {
+            curPriorities[0] = 0;
+            curPriorities[1] = 1;
+        }
+        else if (value2 >= priorityNext) {
+            curPriorities[0] = value1;
+            curPriorities[1] = value2 - priorityNext;
+        }
+        else if (value1 >= priorityNext) {
+            curPriorities[0] = value1 - priorityNext;
+            curPriorities[1] = value2;
+        }
+        else {
+            curPriorities[0] = value1;
+            curPriorities[1] = value2;
+        }
+
     }
 }
 

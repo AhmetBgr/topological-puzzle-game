@@ -42,6 +42,15 @@ public class Grid : MonoBehaviour
 
         if (!isActive) return;
 
+        if (cursor.isHoveringUI && gridObj.activeSelf) {
+            gridObj.SetActive(false);
+        }
+        else if (!cursor.isHoveringUI && !gridObj.activeSelf) {
+            gridObj.SetActive(true);
+        }
+
+        if (!gridObj.activeSelf) return;
+
         gridMat.SetVector(mousePosName, cursor.worldPos);
 
         if (Input.GetKeyDown(KeyCode.KeypadPlus))

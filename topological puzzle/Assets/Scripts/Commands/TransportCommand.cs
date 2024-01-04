@@ -10,38 +10,39 @@ public class TransportCommand : Command
     private Transporter transporter;
     private ItemController startingItemCont;
     private ItemController destItemCont;
+    private Item item;
+    private Vector3[] path;
     private Arrow arrow;
-    private GameObject itemObj;
+    private int nextInLine;
+    //private GameObject itemObj;
 
 
-    public delegate void OnExecuteDelegate(GameObject arrow);
+    public delegate void OnExecuteDelegate(GameObject item);
     public static event OnExecuteDelegate OnExecute;
 
-    public delegate void OnUndoDelegate(GameObject arrow);
+    public delegate void OnUndoDelegate(GameObject item);
     public static event OnUndoDelegate OnUndo;
 
     public TransportCommand(GameManager gameManager, Transporter transporter, 
-        ItemController startingItemCont, ItemController destItemCont, Arrow arrow, GameObject itemObj)
-    {
+        ItemController startingItemCont, ItemController destItemCont, Arrow arrow, Item item){
         this.gameManager = gameManager;
         this.transporter = transporter;
         this.startingItemCont = startingItemCont;
         this.destItemCont = destItemCont;
         this.arrow = arrow;
-        this.itemObj = itemObj;
+        this.item = item;
     }
-    public override void Execute(float dur, bool isRewinding = false)
-    {
-        if (itemObj.GetComponent<Item>().isPermanent && isRewinding) return;
+    public override void Execute(float dur, bool isRewinding = false){
+        if (item.isPermanent && isRewinding) return;
 
         executionTime = gameManager.timeID;
 
-        affectedObjects.Add(itemObj);
-        transporter.Transport(itemObj.transform, startingItemCont, destItemCont, arrow.linePoints, dur, -1);
-
-        if (OnExecute != null)
-        {
-            OnExecute(itemObj);
+        affectedObjects.Add(item.gameObject);
+        transporter.Transport(item, startingItemCont, destItemCont, arrow.linePoints, dur, -1);
+        //nextInLine = Transporter.nextInLine;
+        //Transporter.nextInLine++;
+        if (OnExecute != null){
+            OnExecute(item.gameObject);
         }
     }
 
@@ -61,8 +62,9 @@ public class TransportCommand : Command
         Vector3[] reversedPoints = (Vector3[])arrow.linePoints.Clone();
         Array.Reverse(reversedPoints);
 
-        transporter.Transport(affectedObjects[0].transform, destItemCont, startingItemCont, reversedPoints, dur, -1);
-        
+        transporter.Transport(item, destItemCont, startingItemCont, reversedPoints, dur, -1);
+        //Transporter.nextInLine = nextInLine;
+
         if (OnUndo != null)
         {
             OnUndo(affectedObjects[0]);

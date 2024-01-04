@@ -13,6 +13,7 @@ public class LevelEditor : MonoBehaviour{
     public BasicPanel gameplayPanel;
     public GameObject curLevelInEditing;
     public LevelProperty initialLevel;
+    public GameObject initialLevelObj;
     public DropdownHandler levelsDropdownHandler;
 
     public GameObject arrow;
@@ -20,7 +21,6 @@ public class LevelEditor : MonoBehaviour{
     public GameObject squareNode;
     public GameObject padLockPrefab;
     public GameObject keyPrefab;
-    public GameObject permanentKeyPrefab;
     public GameObject nodeSwapperPrefab;
 
     public RectTransform topPanel;
@@ -480,9 +480,19 @@ public class LevelEditor : MonoBehaviour{
 
         DestroyInactiveChildren(curLevelInEditing.transform);
 
-        //GameObject savedLevel = PrefabUtility.SaveAsPrefabAsset(curLevelInEditing, "Assets/Resources/Levels/" + levelNameField.text + ".prefab");
-        
         levelManager.SaveLevel(LevelManager.curLevel.transform);
+
+        levelsDropdownHandler.AddOptions(levelManager.GetCurLevelsNameList());
+
+        int index = 0;
+        for (int i = 0; i < levelManager.curLevelPool.Count; i++) {
+            if(levelManager.curLevelPool[i].levelName == curLevelInEditing.name) {
+                index = i;
+                break;
+            }
+        }
+        
+        levelsDropdownHandler.UpdateCurrentValue(index, false); //levelsDropdownHandler.dropdown.options.Count -1
     }
 
     public void SaveAsBackup()
@@ -604,25 +614,32 @@ public class LevelEditor : MonoBehaviour{
 
         enterTestButton.gameObject.SetActive(true);
 
-        HighlightManager.instance.SearchWithDelay(HighlightManager.instance.any, 0.1f);
+        HighlightManager.instance.SearchWithDelay(HighlightManager.instance.any, .5f);
         lastState = LeState.waiting;
         state = LeState.waiting;
         ResetCurLevelInEditing();
 
-        levelManager.OpenPlayerLevels();
+#if UNITY_EDITOR
+
+#else
+        if(levelManager.curPool != LevelPool.Player)
+            levelManager.OpenPlayerLevels();
+#endif 
         levelsDropdownHandler.AddOptions(levelManager.GetCurLevelsNameList());
         levelsDropdownHandler.UpdateCurrentValue(LevelManager.curLevelIndex, false);
         UpdateLevelPoolName();
+
+        if (wasGridActive)
+            toggleGridHandler.On();
     }   
 
     private void CloseLevelEditor(){
-        if(GameState.gameState == GameState_EN.testingLevel)
-        {
+        if(GameState.gameState == GameState_EN.testingLevel){
             ExitTesting();
             return;
         }
-        if (panelSequance != null)
-        {
+
+        if (panelSequance != null){
             panelSequance.Kill();
         }
         panelSequance = DOTween.Sequence();
@@ -648,9 +665,11 @@ public class LevelEditor : MonoBehaviour{
         gameManager.ChangeCommand(Commands.RemoveNode);
         enterTestButton.gameObject.SetActive(false);
         cursor.Disable();
-
-        if(grid.isActive)
-            grid.ToggleGrid(false);
+        
+        wasGridActive = grid.isActive;
+        if (grid.isActive) {
+            toggleGridHandler.Off();
+        }
 
         if (OnExit != null){
             OnExit();
@@ -680,45 +699,47 @@ public class LevelEditor : MonoBehaviour{
             OpenLevelEditor();
             GameState.ChangeGameState(GameState_EN.inLevelEditor);
         }
-
     }
 
-    public void EnterTesting()
-    {
+    public void EnterTesting(){
         CancelCurrentAction();
 
         initialLevel = levelManager.CreateLevelProperty(LevelManager.curLevel.transform);
-        
+        initialLevelObj = LevelManager.curLevel;
+        LevelManager.curLevel.SetActive(false);
+        levelManager.LoadLevelWithLevelProperty(initialLevel, levelManager.GenerateNewLevelHolder(initialLevel.levelName));
+
         CloseLevelEditor();
         gameplayPanel.Open();
         GameState.ChangeGameState(GameState_EN.testingLevel);
 
         exitTestButton.gameObject.SetActive(true);
-        wasGridActive = grid.isActive;
+        //wasGridActive = grid.isActive;
 
-        if (grid.isActive)
-        {
+        if (grid.isActive){
             grid.ToggleGrid(false);
         }
     }
 
-    public void ExitTesting()
-    {
+    public void ExitTesting(){
         if (GameState.gameState != GameState_EN.testingLevel) return;
 
+
         Destroy(LevelManager.curLevel);
-        string name = initialLevel.levelName;
-        levelManager.LoadLevelWithLevelProperty(initialLevel, levelManager.GenerateNewLevelHolder(name));
+        initialLevelObj.SetActive(true);
+        LevelManager.curLevel = initialLevelObj;
+        levelManager.UpdatePools();
+        //levelManager.LoadLevelWithLevelProperty(initialLevel, levelManager.GenerateNewLevelHolder(name));
+        GameState.ChangeGameState(GameState_EN.inLevelEditor);
         gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, 0.02f);
         OpenLevelEditor();
         gameplayPanel.Close();
         ResetCurLevelInEditing();
-        LevelManager.curLevel.SetActive(true);
+        //LevelManager.curLevel.SetActive(true);
         initialLevel = null;
-        GameState.ChangeGameState(GameState_EN.inLevelEditor);
 
         exitTestButton.gameObject.SetActive(false);
-        grid.ToggleGrid(wasGridActive);
+
     }
 
     private void ExitTestingWithDelay(float delay)

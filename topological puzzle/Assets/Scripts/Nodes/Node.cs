@@ -5,8 +5,7 @@ using DG.Tweening;
 using TMPro;
 using System;
 
-public class Node : MonoBehaviour
-{
+public class Node : MonoBehaviour{
     public SpriteRenderer nodeSprite;
     public Sprite basicSprite;  
     public TextMeshProUGUI indegree_text;
@@ -33,6 +32,7 @@ public class Node : MonoBehaviour
     private Tween disappearTween;
     protected Tween nodeTween;
     protected Color nonPermanentColor;
+    
 
     protected string defTag;
     private float initialTopPosY;
@@ -48,7 +48,12 @@ public class Node : MonoBehaviour
     public delegate void OnIndegreeChangeDelegate();
     public static event OnIndegreeChangeDelegate OnIndegreeChange;
 
-    // Start is called before the first frame update
+    public delegate void OnPointerEnterDelegate();
+    public static event OnPointerEnterDelegate OnPointerEnter;
+    
+    public delegate void OnPointerExitDelegate();
+    public static event OnPointerExitDelegate OnPointerExit;
+
     protected virtual void Awake(){
         gameManager = FindObjectOfType<GameManager>();
         initalScale = transform.localScale;
@@ -87,6 +92,14 @@ public class Node : MonoBehaviour
 
         nodeSprite.transform.DOScale(1.1f, 0.3f);
         nodeColorController.Highlight(nodeColorController.glowIntensityHigh, 0.3f);
+
+        if(gameManager.curCommand == Commands.RemoveNode 
+            && (GameState.gameState == GameState_EN.playing | GameState.gameState == GameState_EN.testingLevel)) {
+            
+            if(OnPointerEnter != null) {
+                OnPointerEnter();
+            }
+        }
     }
 
     void OnMouseExit(){
@@ -97,6 +110,13 @@ public class Node : MonoBehaviour
 
         nodeSprite.transform.DOScale(1f, 0.3f);
         nodeColorController.Highlight(nodeColorController.glowIntensityMedium, 0.3f);
+
+        if (GameState.gameState == GameState_EN.playing | GameState.gameState == GameState_EN.testingLevel) {
+
+            if (OnPointerExit != null) {
+                OnPointerExit();
+            }
+        }
     }
 
     protected virtual void OnMouseDown()
