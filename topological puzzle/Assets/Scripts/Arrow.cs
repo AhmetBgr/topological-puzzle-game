@@ -40,6 +40,7 @@ public class Arrow : MonoBehaviour {
     private float dur = 1f;
     float width = 0.15f;
     private bool isSelectable = false;
+    private bool isRemoving = false;
 
     public delegate void BeforeChangeDelegate();
     public event BeforeChangeDelegate BeforeChange;
@@ -98,6 +99,8 @@ public class Arrow : MonoBehaviour {
         LevelEditor.OnExit -= DisableArrowPoints;
     }
     void OnMouseEnter(){
+        
+
         isSelectable = false;
 
         //KillWidthCor();
@@ -339,6 +342,8 @@ public class Arrow : MonoBehaviour {
     }
     public void Check(MultipleComparison<Component> mp)
     {
+        if (isRemoving) return;
+ 
         if (mp.CompareAll(this))
         {
             //arrowColorController.Highlight(arrowColorController.glowIntensityHigh, 1f);
@@ -399,8 +404,10 @@ public class Arrow : MonoBehaviour {
     }
 
     private IEnumerator DisappearAnim(float duration, float delay = 0f, Action onCompleteCallBack = null){
-        yield return new WaitForSeconds(delay);
 
+
+        yield return new WaitForSeconds(delay);
+        isRemoving = true;
         int piece = (1*pointsCount - 1 );
         //piece =  (2*pointsCount - 3 );
         float segmentDuration = duration / piece ;
@@ -447,7 +454,10 @@ public class Arrow : MonoBehaviour {
                 yield return null ;
             }
         }
-        if(onCompleteCallBack != null)
+        isRemoving = false;
+
+
+        if (onCompleteCallBack != null)
             onCompleteCallBack();
     }
 

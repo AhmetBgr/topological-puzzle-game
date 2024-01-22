@@ -80,9 +80,9 @@ public class LevelManager : MonoBehaviour{
 
         LoadPlayerLevels();
 
+        // Load original levels pool
         originalLevelsNames.Clear();
-        for (int i = 0; i < levelTxts.Length; i++)
-        {
+        for (int i = 0; i < levelTxts.Length; i++){
             originalLevels.Add(JsonUtility.FromJson<LevelProperty>(levelTxts[i].text));
             originalLevelsNames.Add(originalLevels[i].levelName);
         }
@@ -97,7 +97,6 @@ public class LevelManager : MonoBehaviour{
         #if UNITY_EDITOR
         levelProgressIndex = originalLevels.Count - 1;
         #endif
-
 
         //LoadLevel(curLevelIndex);
         LoadLevelWithIndex(curLevelIndex); // "multiple square test"
@@ -120,26 +119,20 @@ public class LevelManager : MonoBehaviour{
         levelsDropdownHandler.OnValueChanged -= LoadLevelWithIndex;
     }
 
-    private void Update()
-    {
-
+    private void Update(){
         int amount;
-        if (startDecreasingLevelIndex)
-        {
+        if (startDecreasingLevelIndex){
             amount = -1;
         }
-        else if (startIncreasingLevelIndex)
-        {
+        else if (startIncreasingLevelIndex){
             amount = 1;
         }
-        else
-        {
+        else{
             return;
         }
 
         time += Time.deltaTime;
-        if (time >= changeLevelIndexDur)
-        {
+        if (time >= changeLevelIndexDur){
             ChangeCurLevelIndex(amount);
 
             changeLevelIndexDur = changeLevelIndexDur >= 0.05f ? changeLevelIndexDur / 1.5f : 0.05f;
@@ -147,20 +140,16 @@ public class LevelManager : MonoBehaviour{
         }
     }
 
-    public void SwitchLevelPool()
-    {
-        if(curPool == LevelPool.Original)
-        {
+    public void SwitchLevelPool(){
+        if(curPool == LevelPool.Original){
             OpenPlayerLevels();
         }
-        else
-        {
+        else{
             OpenOriginalLevels();
         }
     }
 
-    public void OpenPlayerLevels()
-    {
+    public void OpenPlayerLevels(){
         if (playerLevels.Count == 0) {
             DestroyCurLevel();
             GenerateNewLevelHolder("Empty Level");
@@ -177,8 +166,7 @@ public class LevelManager : MonoBehaviour{
         Debug.Log("cur level index: " + curLevelIndex);
     }
 
-    public void OpenOriginalLevels()
-    {
+    public void OpenOriginalLevels(){
         if (originalLevels.Count == 0 | curPool == LevelPool.Original) return;
 
         SetCurLevelPool(LevelPool.Original);
@@ -491,10 +479,10 @@ public class LevelManager : MonoBehaviour{
 
         for (int i = 0; i < objCount; i++){
             Transform obj = level.GetChild(i);
-            
-            if (((1 << obj.gameObject.layer) & LayerMask.GetMask("Node")) != 0 && obj.gameObject.activeSelf){
-                // Set and add new node property
 
+            if (((1 << obj.gameObject.layer) & LayerMask.GetMask("Node")) != 0 && 
+                obj.gameObject.activeSelf){
+                
                 Node node = obj.GetComponent<Node>();
                 NodeProperty nodeP = new NodeProperty();
 
@@ -516,9 +504,9 @@ public class LevelManager : MonoBehaviour{
                 levelProperty.nodes.Add(nodeP);
                 levelProperty.nodeCount++;
             }
-            else if (((1 << obj.gameObject.layer) & LayerMask.GetMask("Arrow")) != 0 && obj.gameObject.activeSelf){
-                // Set and add new arrow property
-
+            else if (((1 << obj.gameObject.layer) & LayerMask.GetMask("Arrow")) != 0 && 
+                obj.gameObject.activeSelf){
+                
                 Arrow arrow = obj.GetComponent<Arrow>();
                 LineRenderer lr = arrow.lr;
                 ArrowProperty arrowP = new ArrowProperty();
@@ -603,16 +591,21 @@ public class LevelManager : MonoBehaviour{
         }
     }
 
-    public void LoadLevelWithLevelProperty(LevelProperty levelProperty, Transform levelParent){
+    public void LoadLevelWithLevelProperty(LevelProperty levelProperty, 
+        Transform levelParent){
+        
         nodesPool.Clear();
         arrowsPool.Clear();
 
         // Instantiates nodes and set properties
         foreach (var nodeProperty in levelProperty.nodes){
 
-            PrefabAndPool prefabAndPool = GetPrefabAndPoolByTag(nodeProperty.tag.Replace("p,", ""));
+            PrefabAndPool prefabAndPool = 
+                GetPrefabAndPoolByTag(nodeProperty.tag.Replace("p,", ""));
             Vector3 pos = new Vector3(nodeProperty.posX, nodeProperty.posY, 0);
-            Transform obj = Instantiate(prefabAndPool.prefab, pos, Quaternion.identity).transform;
+            
+            Transform obj = Instantiate(prefabAndPool.prefab, pos, 
+                Quaternion.identity).transform;
             obj.name = nodeProperty.id.ToString();
             obj.SetParent(levelParent);
             Node node = obj.GetComponent<Node>();
@@ -626,7 +619,8 @@ public class LevelManager : MonoBehaviour{
                 string tag = nodeProperty.itemTags[i];
                 prefab = GetPrefabAndPoolByTag(tag.Replace("p,", "")).prefab;
 
-                GameObject itemObj = obj.GetComponent<ItemController>().GenerateItem(prefab);
+                GameObject itemObj = obj.GetComponent<ItemController>()
+                    .GenerateItem(prefab);
                 if (tag.Contains("p,")){
                     Item item = itemObj.GetComponent<Item>();
                     item.ChangePermanent(true);
@@ -638,9 +632,10 @@ public class LevelManager : MonoBehaviour{
 
         // Instantiates arrows and sets properties
         foreach (var arrowProperty in levelProperty.arrows){
-            PrefabAndPool prefabAndPool = GetPrefabAndPoolByTag(arrowProperty.tag.Replace("p,", ""));
-            Transform obj = Instantiate(prefabAndPool.prefab, Vector3.zero, Quaternion.identity).transform;
-            //obj.tag = arrowProperty.tag;    //.Split(",")[1];
+            PrefabAndPool prefabAndPool = 
+                GetPrefabAndPoolByTag(arrowProperty.tag.Replace("p,", ""));
+            Transform obj = Instantiate(prefabAndPool.prefab, Vector3.zero, 
+                Quaternion.identity).transform;
             obj.name = arrowProperty.id.ToString();
             obj.SetParent(levelParent);
             LineRenderer lr = obj.GetComponent<LineRenderer>();
@@ -648,7 +643,8 @@ public class LevelManager : MonoBehaviour{
             Vector3[] positions = new Vector3[arrowProperty.pointsX.Length];
 
             for (int i = 0; i < positions.Length; i++){
-                positions[i] = new Vector3(arrowProperty.pointsX[i], arrowProperty.pointsY[i], 0);
+                positions[i] = new Vector3(arrowProperty.pointsX[i], 
+                    arrowProperty.pointsY[i], 0);
             }
 
             lr.SetPositions(positions);
@@ -663,20 +659,20 @@ public class LevelManager : MonoBehaviour{
                 arrow.ChangePermanent(true);
 
             if (arrow.CompareTag("TransporterArrow")) {
-                //arrow.GetComponent<Transporter>().SetPriority(arrowProperty.priority, true);
                 arrow.GetComponent<Transporter>().priority = arrowProperty.priority;
             }
-                
-            
             arrowsPool.Add(arrow);
         }
 
         // Set links between objects
         foreach (var arrowProperty in levelProperty.arrows){
-            Arrow arrow = FindObjInArrowPool(arrowProperty.id.ToString(), arrowsPool);
+            Arrow arrow = FindObjInArrowPool(arrowProperty.id.ToString(), 
+                arrowsPool);
 
-            Node startingNode = FindObjInNodePool(arrowProperty.startingNodeID.ToString(), nodesPool);
-            Node destinationNode = FindObjInNodePool(arrowProperty.destinationNodeID.ToString(), nodesPool);
+            Node startingNode = FindObjInNodePool(
+                arrowProperty.startingNodeID.ToString(), nodesPool);
+            Node destinationNode = FindObjInNodePool(
+                arrowProperty.destinationNodeID.ToString(), nodesPool);
 
             arrow.startingNode = startingNode.gameObject;
             arrow.destinationNode = destinationNode.gameObject;
@@ -703,7 +699,8 @@ public class LevelManager : MonoBehaviour{
         // Deserializes json text to levelproperty object
         playerLevelsNames = new List<string>();
         for (int i = 0; i < playerLevelsPaths.Length; i++){
-            LevelProperty level = (LevelProperty)Utility.LoadLevePropertyFromJson(playerLevelsPaths[i]);
+            LevelProperty level = Utility.LoadLevePropertyFromJson(
+                playerLevelsPaths[i]);
             AddToPlayerLevels(level);
         }
     }

@@ -28,7 +28,7 @@ public class TransformToBasicNode : Command
         executionTime = gameManager.timeID;
         node.TransformIntoBasic(dur);
 
-        for (int i = affectedCommands.Count - 1; i >= 0; i--) {
+        for (int i = 0; i < affectedCommands.Count; i++) {
             affectedCommands[i].Undo(dur, isRewinding);
         }
 

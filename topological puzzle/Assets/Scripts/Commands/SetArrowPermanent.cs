@@ -30,13 +30,13 @@ public class SetArrowPermanent : Command
         if (useItem != null)
             useItem.Undo(dur, isRewinding);
 
-        if(arrow.isPermanent && isRewinding){
+        /*if(arrow.isPermanent && isRewinding){
             InvokeOnUndoSkipped(this);
             return true;
         }
         else if (gameManager.skippedOldCommands.Contains(this))
-                gameManager.RemoveFromSkippedOldCommands(this);
-
+            gameManager.RemoveFromSkippedOldCommands(this);
+        */
         arrow.ChangePermanent(false);
 
         if(isRewinding)

@@ -151,10 +151,10 @@ public class ItemController : MonoBehaviour
             if (!item.isObtainable) continue;
             Debug.Log("should get items");
             GetItem getItem = new GetItem(item, this, itemManager, gameManager, skipFix: true);
+            getItem.delay = delay;
             getItem.Execute(gameManager.commandDur);
             command.affectedCommands.Add(getItem);
             getItems.Add(getItem);
-            audioManager.PlaySoundWithDelay(audioManager.pickUp, delay);
             delay += 0.15f;
         }
         bool isMultiple = getItems.Count > 1 ? true : false;

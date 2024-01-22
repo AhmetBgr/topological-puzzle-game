@@ -28,9 +28,11 @@ public class RemoveArrow : Command
 
         if (!arrow.gameObject.activeSelf) return;
 
+        arrow.col.enabled = false;
+
         arrow.Remove(dur);
 
-        
+
         /*if(arrow.TryGetComponent(out transporter)) {
             transporter.PriorityObjDisappear(dur * 0.1f);
         }*/
@@ -58,6 +60,8 @@ public class RemoveArrow : Command
         }
 
         arrow.gameObject.SetActive(true);
+        arrow.col.enabled = true;
+
         arrow.Add(dur);
 
         /*if (transporter) {

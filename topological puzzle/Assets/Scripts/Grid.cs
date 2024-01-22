@@ -2,8 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Grid : MonoBehaviour
-{
+public class Grid : MonoBehaviour{
     public GameObject gridObj;
     public SpriteRenderer spriteRenderer;
 
@@ -21,7 +20,8 @@ public class Grid : MonoBehaviour
     public delegate void OnGridToggleDelegate(bool isActive);
     public static event OnGridToggleDelegate OnGridToggle;
 
-    public delegate void OnGridSizeChangedDelegate(float value, float minGridSize);
+    public delegate void OnGridSizeChangedDelegate(float value, 
+        float minGridSize);
     public static event OnGridSizeChangedDelegate OnGridSizeChanged;
 
     void Awake(){
@@ -36,9 +36,6 @@ public class Grid : MonoBehaviour
 
     void Update(){
         if (GameState.gameState != GameState_EN.inLevelEditor) return;
-
-        /*if (Input.GetKeyDown(KeyCode.G))
-            ToggleGrid(!isActive);*/
 
         if (!isActive) return;
 
@@ -75,7 +72,6 @@ public class Grid : MonoBehaviour
 
         if (value >= maxGridSize) return;
 
-        //OptionsMenu.SetGridSize(OptionsMenu.optionsData.gridSize + 1);
         SetGridSize(value);
     }
 
@@ -83,7 +79,6 @@ public class Grid : MonoBehaviour
         var value = gridSize - minGridSize;
 
         if (value < minGridSize) return;
-        //OptionsMenu.SetGridSize(OptionsMenu.optionsData.gridSize - 1);
 
         SetGridSize(value);
     }
@@ -92,6 +87,7 @@ public class Grid : MonoBehaviour
         gridSize = value;
         gridMat.SetVector(cellSizeName, Vector4.one * gridSize);
         Cursor.instance.gridSize = gridSize;
+
         if (OnGridSizeChanged != null)
             OnGridSizeChanged(value, minGridSize);
     }

@@ -15,10 +15,8 @@ public abstract class Command {
         return false; 
     } 
 
-    protected void InvokeOnUndoSkipped(Command command)
-    {
-        if (OnUndoSkipped != null)
-        {
+    protected void InvokeOnUndoSkipped(Command command){
+        if (OnUndoSkipped != null){
             OnUndoSkipped(command);
         }
     }

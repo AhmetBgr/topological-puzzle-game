@@ -28,8 +28,9 @@ public class ItemContainer : MonoBehaviour{
         containerPos = transform.parent.localPosition + transform.localPosition;
     }
 
-    public void AddItem(Item addedItem, int index, float dur, Vector3[] lastItemFixPath = null,
-        bool skipFix = false, bool setInstantAnim = false){
+    public void AddItem(Item addedItem, int index, float dur, 
+        Vector3[] lastItemFixPath = null, bool skipFix = false, 
+        bool setInstantAnim = false){
 
         if (items.Contains(addedItem)) return;
 
@@ -44,7 +45,8 @@ public class ItemContainer : MonoBehaviour{
 
         if (skipFix) return;
 
-        FixItemPositions(dur, lastItemFixPath, setInstantAnim: setInstantAnim);
+        FixItemPositions(dur, lastItemFixPath, 
+            setInstantAnim: setInstantAnim);
     }
 
     public void RemoveItem(Item item, float dur, 
@@ -80,7 +82,8 @@ public class ItemContainer : MonoBehaviour{
         return items[items.Count - 1];
     }
 
-    public void FixItemPositions(float dur, Vector3[] lastItemFixPath = null, bool setDelayBetweenFixes = false, 
+    public void FixItemPositions(float dur, Vector3[] lastItemFixPath = null, 
+        bool setDelayBetweenFixes = false, 
         bool setInstantAnim = false){
 
         //gap = style == Style.Main ? 0.15f : 0.3f;
@@ -98,17 +101,19 @@ public class ItemContainer : MonoBehaviour{
             if (setInstantAnim){
                 pos = containerPos + nextItemPos;
                 item.transform.position = pos;
-                item.transform.localScale = style == Style.Main ? Vector3.one * 2 : 
-                    Vector3.one;
+                item.transform.localScale = style == Style.Main ? 
+                    Vector3.one * 2 : Vector3.one;
                 item.transform.SetParent(
-                    style == Style.Main ? LevelManager.curLevel.transform : transform
+                    style == Style.Main ? LevelManager.curLevel.transform : 
+                    transform
                 );
                 nextItemPos += Vector3.right * gap;
                 continue;
             }
 
             dur = setInstantAnim ? 0f : dur;
-            setDelayBetweenFixes = setInstantAnim ? false : setDelayBetweenFixes;
+            setDelayBetweenFixes = setInstantAnim ? false : 
+                setDelayBetweenFixes;
             sequence = DOTween.Sequence();
             if (setDelayBetweenFixes){
                 sequence.SetDelay(delay);
@@ -121,7 +126,8 @@ public class ItemContainer : MonoBehaviour{
                 sequence.Append(item.transform.DOMove(pos, dur));
                 sequence.Append(item.transform.DOScale(scale, dur)
                     .OnComplete(() => 
-                        item.transform.SetParent(LevelManager.curLevel.transform))
+                        item.transform.
+                            SetParent(LevelManager.curLevel.transform))
                     .SetDelay(-dur));
             }
             else if (style == Style.Node){
@@ -130,7 +136,8 @@ public class ItemContainer : MonoBehaviour{
                 Tween moveTween;
 
                 if(i == items.Count - 1 && lastItemFixPath != null) {
-                    moveTween = item.transform.DOPath(lastItemFixPath, dur).SetEase(Ease.InCubic);
+                    moveTween = item.transform.DOPath(lastItemFixPath, dur)
+                        .SetEase(Ease.InCubic);
                 }
                 else {
                     moveTween = item.transform.DOMove(pos, dur);

@@ -20,7 +20,6 @@ public class AudioManager : MonoBehaviour{
     public static AudioManager instance;
 
     void Awake(){
-        // if the singleton hasn't been initialized yet
         if (instance != null && instance != this) {
             Destroy(this.gameObject);
         }
@@ -30,18 +29,9 @@ public class AudioManager : MonoBehaviour{
         DontDestroyOnLoad(this.gameObject);
     }
 
-    private void Start() {
-        
-    }
+    public void PlaySound(SoundEffect sound, 
+        bool playReverse = false){
 
-    void OnEnable(){
-    }
-
-    void OnDisable(){
-        
-    }
-
-    public void PlaySound(SoundEffect sound, bool playReverse = false){
         AudioSource audioSource = GetAudioSource();
 
         if (sound == null | audioSource == null) return;
@@ -61,15 +51,21 @@ public class AudioManager : MonoBehaviour{
         StartCoroutine(_FadeOut(sound.source, 0.3f));
     }
 
-    public void PlaySoundWithDelay(SoundEffect sound, float delay, bool playReverse = false){
-        StartCoroutine(_PlaySoundWithDelay(sound, delay));
+    public void PlaySoundWithDelay(SoundEffect sound, 
+        float delay, bool playReverse = false){
+
+        StartCoroutine(_PlaySoundWithDelay(sound, delay, playReverse));
     }
 
-    private IEnumerator _PlaySoundWithDelay(SoundEffect sound, float delay, bool playReverse = false) {
+    private IEnumerator _PlaySoundWithDelay(SoundEffect sound, 
+        float delay, bool playReverse = false) {
+
         yield return new WaitForSeconds(delay);
         PlaySound(sound, playReverse);
     }
-    public IEnumerator _FadeOut(AudioSource audioSource, float FadeTime) {
+    public IEnumerator _FadeOut(AudioSource audioSource, 
+        float FadeTime) {
+
         float startVolume = audioSource.volume;
 
         while (audioSource.volume > 0) {

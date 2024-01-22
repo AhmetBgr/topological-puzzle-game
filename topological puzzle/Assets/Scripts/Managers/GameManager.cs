@@ -32,12 +32,8 @@ public class GameManager : MonoBehaviour{
     private Commands prevCommand;
     public LayerMask targetLM;
 
-    //private UnlockPadlock unlockPadlock;
-
     public List<GameObject> selectedObjects = new List<GameObject>();
     public List<Node> nodesPool = new List<Node>();
-    public List<Transporter> transporters = new List<Transporter>();
-    public List<Transporter> workingTransporters = new List<Transporter>();
 
     private Node commandOwner;
     private bool isCommandOwnerPermanent = false;
@@ -52,30 +48,6 @@ public class GameManager : MonoBehaviour{
                 ChangeCommand(Commands.None);
             else
                 UpdateCommand();
-        }
-    }
-    private int _curPriority;
-    public int curPriority {
-        get { return _curPriority; }
-        set {
-            if (value >= Transporter.priorityNext)
-                _curPriority = 0;
-            else if (value < 0)
-                _curPriority = Transporter.priorityNext - 1;
-            else
-                _curPriority = value;
-        }
-    }
-    private int _curPriority2;
-    public int curPriority2 {
-        get { return _curPriority2; }
-        set {
-            if (value == Transporter.priorityNext)
-                _curPriority2 = 0;
-            else if (value < 0)
-                _curPriority2 = Transporter.priorityNext - 1;
-            else
-                _curPriority2 = value;
         }
     }
     public int[] curPriorities = new int[2];
@@ -145,11 +117,13 @@ public class GameManager : MonoBehaviour{
             }
         }*/
 
-        if (GameState.gameState != GameState_EN.playing & GameState.gameState != GameState_EN.testingLevel) return;
+        if (GameState.gameState != GameState_EN.playing & 
+            GameState.gameState != GameState_EN.testingLevel) return;
 
         if (Input.GetMouseButtonDown(0)){
             Vector2 ray = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero, distance: 100f, layerMask : targetLM);
+            RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero, distance: 100f, 
+                layerMask : targetLM);
             if (!hit) return;
 
             Command command = null;
@@ -172,21 +146,10 @@ public class GameManager : MonoBehaviour{
                     // if so transforms and get last item from the node(if it has any)
                     if (selectedObjects[0].CompareTag("SquareNode")){
                         isCommandOwnerPermanent = commandOwner.isPermanent;
-                    
-                        TransformToBasicNode transformToBasicNode = new TransformToBasicNode(this, 
-                            commandOwner);
-                        transformToBasicNode.Execute(commandDur);
 
-                        ItemController itemController = selectedObjects[0].GetComponent<Node>().itemController;
-                        Item item = itemController.itemContainer.GetLastItem();
-                        if (item) {
-                            GetItem getItem = new GetItem(item, itemController, itemManager, this);
+                        TransformToBasicNode transformToBasicNode = 
+                            ExecuteTransformToBasic(selectedObjects);
 
-                            getItem.Execute(commandDur);
-
-                            transformToBasicNode.affectedCommands.Add(getItem);
-                        }
-                        //changeCommand.affectedCommands.Add(transformToBasicNode);
                         itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
                         timeID++;
                         AddToOldCommands(transformToBasicNode);
@@ -199,51 +162,30 @@ public class GameManager : MonoBehaviour{
                     command = new RemoveNode(this, itemManager, selectedObjects[0]);
                     command.Execute(commandDur);
 
-                    foreach (var item in workingTransporters) {
-
-                    }
-
                     break;
                 }
                 case Commands.ChangeArrowDir:{
                     // Changes dir of selected arrow
                     timeID++;
-                    ChangeArrowDir changeArrowDir = new ChangeArrowDir(this, selectedObjects[0], false);
-                    changeArrowDir.Execute(commandDur);
-                    Item lastItem = itemManager.GetLastItem();
-                    if (lastItem && lastItem.isUsable) {
-                        UseItem useItem = new UseItem(lastItem, lastItem.transform.position + Vector3.up, itemManager, this);
-                        useItem.Execute(commandDur);
-                        changeArrowDir.affectedCommands.Add(useItem);
-                    }
-                    command = changeArrowDir;
+                    command = ExecuteChangeArrowDir(selectedObjects);
                     break;
                 }
                 case Commands.SwapNodes: {
                     if (selectedObjects.Count == 2){
                         // Swaps position of selected two nodes
-                        Node node = selectedObjects[0].GetComponent<Node>(); ;
-                        if (selectedObjects[0] == selectedObjects[1]){
-                            node.Deselect(0.2f);
-                            selectedObjects.Clear();
-                            return;
-                        }
-
-                        selectedObjects[1].GetComponent<Node>().Select(0.2f);
-
                         timeID++;
-                        MultipleComparison<Component> searchTarget = new MultipleComparison<Component>(new List<Comparison> { 
-                            new CompareNodeAdjecentNode(node) 
-                        });
-                        command = new SwapNodes(this, itemManager, itemManager.GetLastItem(), 
-                            selectedObjects, searchTarget);
-                        command.Execute(commandDur);
+                        SwapNodes swapNodes = ExecuteSwapNodes(selectedObjects);
+                        if (swapNodes == null) return;
+
+                        command = swapNodes;
                     }
                     else if (selectedObjects.Count == 1){
                         // Creates new highlight search
                         // so that only nodes adjacent to selected node will be selectable
                         Node node = selectedObjects[0].GetComponent<Node>();
-                        MultipleComparison<Component> searchTarget = new MultipleComparison<Component>(new List<Comparison> { 
+                        MultipleComparison<Component> searchTarget = 
+                            new MultipleComparison<Component>(
+                            new List<Comparison> { 
                             new CompareNodeAdjecentNode(node)
                         });
                         HighlightManager.instance.Search(searchTarget);
@@ -255,26 +197,13 @@ public class GameManager : MonoBehaviour{
                 case Commands.UnlockPadlock:{
                     // Unlocks selected locked node 
                     timeID++;
-                    commandOwner = selectedObjects[0].GetComponent<Node>();
-                    Key key = itemManager.itemContainer.GetLastItem().GetComponent<Key>();
-
-                    UnlockPadlock unlockPadlock = new UnlockPadlock(this, itemManager, 
-                        commandOwner, key);
-                    unlockPadlock.node = commandOwner;
-                    unlockPadlock.Execute(commandDur);
-                    command = unlockPadlock;
+                    command = ExecuteUnlockPadlock(selectedObjects);
                     break;
                 }
                 case Commands.SetArrowPermanent:{
                     // Sets selected arrow permanent 
                     timeID++;
-                    Arrow arrow = selectedObjects[0].GetComponent<Arrow>();
-                    Item item = itemManager.itemContainer.GetLastItem();
-                    SetArrowPermanent setArrowPermanent = new SetArrowPermanent(arrow, item, 
-                        this, itemManager);
-                    setArrowPermanent.Execute(commandDur);
-
-                    command = setArrowPermanent;
+                    command = ExecuteSetArrowPermanent(selectedObjects);
                     break;
                 }
             }
@@ -337,6 +266,85 @@ public class GameManager : MonoBehaviour{
 
         UpdateChangesCounter();
     }
+
+    /*private RemoveNode ExecuteRemoveNode() {
+
+        return RemoveNode;
+    }*/
+
+    private ChangeArrowDir ExecuteChangeArrowDir(List<GameObject> selectedObjects) {
+
+        ChangeArrowDir changeArrowDir = new ChangeArrowDir(this, selectedObjects[0],
+            false);
+        changeArrowDir.Execute(commandDur);
+        Item lastItem = itemManager.GetLastItem();
+        if (lastItem && lastItem.isUsable) {
+            UseItem useItem = new UseItem(lastItem, lastItem.transform.position +
+                Vector3.up, itemManager, this);
+            useItem.Execute(commandDur);
+            changeArrowDir.affectedCommands.Add(useItem);
+        }
+        return changeArrowDir;
+    }
+
+    private SetArrowPermanent ExecuteSetArrowPermanent(List<GameObject> selectedObjects) {
+        Arrow arrow = selectedObjects[0].GetComponent<Arrow>();
+        Item item = itemManager.itemContainer.GetLastItem();
+        SetArrowPermanent setArrowPermanent = new SetArrowPermanent(arrow, item,
+            this, itemManager);
+        setArrowPermanent.Execute(commandDur);
+        return setArrowPermanent;
+    }
+
+    private SwapNodes ExecuteSwapNodes(List<GameObject> selectedObjects) {
+        Node node = selectedObjects[0].GetComponent<Node>(); ;
+        if (selectedObjects[0] == selectedObjects[1]) {
+            node.Deselect(0.2f);
+            selectedObjects.Clear();
+            return null;
+        }
+
+        selectedObjects[1].GetComponent<Node>().Select(0.2f);
+
+        MultipleComparison<Component> searchTarget =
+            new MultipleComparison<Component>(
+            new List<Comparison> {
+            new CompareNodeAdjecentNode(node)
+        });
+        SwapNodes swapNodes = new SwapNodes(this, itemManager, itemManager.GetLastItem(),
+            selectedObjects, searchTarget);
+        swapNodes.Execute(commandDur);
+        return swapNodes;
+    }
+    private UnlockPadlock ExecuteUnlockPadlock(List<GameObject> selectedObjects) {
+        commandOwner = selectedObjects[0].GetComponent<Node>();
+        Key key = itemManager.itemContainer.GetLastItem().GetComponent<Key>();
+
+        UnlockPadlock unlockPadlock = new UnlockPadlock(this, itemManager,
+            commandOwner, key);
+        unlockPadlock.node = commandOwner;
+        unlockPadlock.Execute(commandDur);
+        return unlockPadlock;
+    }
+    private TransformToBasicNode ExecuteTransformToBasic(List<GameObject> selectedObjects) {
+        TransformToBasicNode transformToBasicNode = new TransformToBasicNode(
+            this, commandOwner);
+        transformToBasicNode.Execute(commandDur);
+
+        ItemController itemController = selectedObjects[0].GetComponent<Node>()
+            .itemController;
+        Item item = itemController.itemContainer.GetLastItem();
+        if (item) {
+            GetItem getItem = new GetItem(item, itemController, itemManager,
+                this);
+
+            getItem.Execute(commandDur);
+
+            transformToBasicNode.affectedCommands.Add(getItem);
+        }
+        return transformToBasicNode;
+    }
+
 
     public void UpdateCommand() {
 
@@ -410,8 +418,6 @@ public class GameManager : MonoBehaviour{
     }
     
     private void ResetData(){
-        curPriority = 0;
-        curPriority2 = 1;
         curPriorities = new int[]{0, 1};
         timeID = 0;
         selectedObjects.Clear();
@@ -470,7 +476,8 @@ public class GameManager : MonoBehaviour{
         
         DeselectObjects();
 
-        Rewind rewind = new Rewind(this, nonRewindCommands[nonRewindCommands.Count - 1]);
+        Rewind rewind = new Rewind(this, 
+            nonRewindCommands[nonRewindCommands.Count - 1]);
         rewind.Execute(commandDur, isRewinding: true);
 
         nonRewindCommands.Remove(nonRewindCommands[nonRewindCommands.Count - 1]);
@@ -558,7 +565,7 @@ public class GameManager : MonoBehaviour{
                 return;
             }
         }
-        AudioManager.instance.PlaySoundWithDelay(AudioManager.instance.levelComplete, 0.5f);
+        audioManager.PlaySoundWithDelay(audioManager.levelComplete, 0.5f);
 
         // Invoke level complete event
         if (OnLevelComplete != null)

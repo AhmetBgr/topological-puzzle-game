@@ -24,12 +24,12 @@ public class BrushA : Item
         InvokeOnUsabilityCheckEvent(isUsable);
     }
 
-    public override void Use()
-    {
-        ChangeCommand changeCommand = new ChangeCommand(gameManager, null, gameManager.curCommand, Commands.SetArrowPermanent);
+    public override void Use(){
+        /*ChangeCommand changeCommand = new ChangeCommand(gameManager, null, gameManager.curCommand, Commands.SetArrowPermanent);
         changeCommand.isPermanent = isPermanent;
-        changeCommand.Execute(gameManager.commandDur);
+        changeCommand.Execute(gameManager.commandDur);*/
         //HighlightManager.instance.Search(HighlightManager.instance.setArrowPermanentSearch);
+        gameManager.ChangeCommandWithDelay(Commands.SetArrowPermanent, 0.5f);
 
     }
 

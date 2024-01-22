@@ -28,13 +28,11 @@ public class Transporter : MonoBehaviour{
     private IEnumerator tryPrioritySwapCor;
     private IEnumerator transportCor;
 
-    //private Vector3 initPriorityObjScale;
     public Color priorityHighlightColor;
-    //public Color initPriorityHighlightColor;
     public Color red = new Color(0.8f, 0.38f, 0.38f, 1f);
     public Color redHighlight;
-
     private Color initColor;
+
     private float transportDelay = 0f;
     private static bool isPriorityTextActive = false;
     public bool canTransport = false;
@@ -45,7 +43,7 @@ public class Transporter : MonoBehaviour{
         set {
             _isNextToAStarNode = value;
 
-            priorityText.text = priority.ToString(); //value ? "x" :
+            priorityText.text = priority.ToString(); 
             priorityBCImage.color = value ? red : initColor;
         }
     }
@@ -57,14 +55,10 @@ public class Transporter : MonoBehaviour{
         priorityText.text = priority.ToString();
         priorityBCImage = priorityObj.GetComponent<Image>();
         initColor = priorityBCImage.color;
-        if (GameState.gameState == GameState_EN.playing)
-            CheckForStarNode();
+        //if (GameState.gameState == GameState_EN.playing)
+        CheckForStarNode();
 
-        //initPriorityObjScale = priorityObj.localScale;
-        priorityObj.gameObject.SetActive(true); //gameManager.isPriorityActive
-        //TryHighlight();
-        //nextInLine = 0;
-        gameManager.transporters.Add(this);
+        priorityObj.gameObject.SetActive(true); 
     }
 
     private void OnEnable(){
@@ -102,7 +96,6 @@ public class Transporter : MonoBehaviour{
         LevelEditor.OnExit -= CheckForStarNodeWithDelay;
 
         arrow.OnChanged -= FixPriorityTextPos;
-        //LevelManager.OnLevelLoad -= Reset;
         OnPriorirtySwap -= CheckForPrioritySwap;
         GameManager.OnPriorityToggle -= TogglePriorityObj;
         Node.OnPointerEnter -= TryHighlight;
@@ -132,7 +125,6 @@ public class Transporter : MonoBehaviour{
         if (command.isRewinding) return;
 
         workingTransporters.Add(this);
-        gameManager.workingTransporters.Add(this);
         canTransport = true;
     }
 
@@ -145,19 +137,10 @@ public class Transporter : MonoBehaviour{
 
         Node node = arrow.startingNode.GetComponent<Node>();
         ItemController startingItemCont = node.itemController;
-        /*foreach (var arrow in node.arrowsFromThisNode)
-        {
-            Transporter otherTransporter;
-            arrow.TryGetComponent(out otherTransporter);
-            if (arrow != arrow.gameObject && otherTransporter != null && otherTransporter.priority <= priority)
-            {
-                return;
-            }
-        }*/
 
         if(transportDelay == 0f) {
             GetTransportDelay(gameManager.commandDur / 2 + 0.04f);
-            float biggestDelay = workingTransporters.Count * gameManager.commandDur / 2; //GetTransportDelay(gameManager.commandDur/2);
+            float biggestDelay = workingTransporters.Count * gameManager.commandDur / 2; 
             GameState.OnAnimationStartEvent(biggestDelay);
             gameManager.ChangeCommandWithDelay(Commands.None, 0.02f);
             gameManager.UpdateCommandWithDelay(biggestDelay);
@@ -200,9 +183,6 @@ public class Transporter : MonoBehaviour{
 
     public void Transport(Item item, ItemController startingItemCont, 
         ItemController destItemCont, Vector3[] lrPoints, float dur, int destContainerIndex = 0){
-
-        /*if (transportCor != null)
-            StopCoroutine(transportCor);*/
 
         item.transform.SetParent(LevelManager.curLevel.transform);
         //Item item = itemT.GetComponent<Item>();
@@ -315,16 +295,8 @@ public class Transporter : MonoBehaviour{
     private void TryDefaultHighlight() {
         priorityBCImage.color = isNextToAStarNode ? red : initColor;
 
-        //TogglePriorityObj(gameManager.isPriorityActive);
         priorityObj.localScale = Vector3.one * 0.25f;
-        /*if (priority == GameManager.curPriority) {
-
-        }*/
     }
-
-    /*private void Reset() {
-        nextInLine = 0;
-    }*/
 
     private void CheckForPrioritySwap(int value, Transporter owner) {
         if(value == priority && this != owner) {
@@ -333,16 +305,9 @@ public class Transporter : MonoBehaviour{
     }
 
     private void TogglePriorityObj(bool isActive) {
-        if (priority == gameManager.curPriority && !isActive) return;
+        if (!isActive) return;
 
         priorityObj.gameObject.SetActive(isActive);
         CheckForStarNode();
     }
-
-    /*public void PriorityObjDisappear(float dur) {
-        //priorityObj.DOScale(0f, dur);
-    }
-    public void PriorityObjAppear(float dur, float delay = 0f) {
-        //priorityObj.DOScale(initPriorityObjScale, dur).SetDelay(delay);
-    }*/
 }

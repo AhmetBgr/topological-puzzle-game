@@ -1,8 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using System;
-//using System.Numerics;
 using SerializableTypes;
 
 [Serializable]
@@ -19,10 +16,7 @@ public class NodeProperty{
     public string tag;
     public int id;
 
-    public List<string> itemTags = new List<string>(); // items that this node have
-
-    //public List<int> arrowsIDFromThisNode = new List<int>();
-    //public List<int> arrowsIDToThisNode = new List<int>();
+    public List<string> itemTags = new List<string>();
 }
 
 [Serializable]
@@ -35,5 +29,4 @@ public class ArrowProperty{
     public float[] pointsX;
     public float[] pointsY;
     public int priority; // for transporter arrow
-    //public List<Vector3> points = new List<Vector3>();
 }

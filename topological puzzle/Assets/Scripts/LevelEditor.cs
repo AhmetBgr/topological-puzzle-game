@@ -492,7 +492,7 @@ public class LevelEditor : MonoBehaviour{
             }
         }
         
-        levelsDropdownHandler.UpdateCurrentValue(index, false); //levelsDropdownHandler.dropdown.options.Count -1
+        levelsDropdownHandler.UpdateCurrentValue(index, false);
     }
 
     public void SaveAsBackup()
@@ -506,29 +506,14 @@ public class LevelEditor : MonoBehaviour{
         levelManager.SaveLevel(curLevelInEditing.transform, true);
     }
 
-    /*public void UpdateLevelPrefab()
-    {
-        // save level to backup
-        SaveAsBackup();
-
-        // binary save
-        levelManager.SaveLevelProperty(LevelManager.curLevel.transform);
-
-        // binary load
-        levelManager.LoadLevelProperty(LevelManager.curLevel.name, LevelManager.curLevel.transform);
-
-       
-        // prefab save
-        SaveLevelAsNew();
-    }*/
-
-    public void UpdateEncodedLevelText()
-    {
-        string levelJson = levelManager.SerializeLevelAsJson(curLevelInEditing.transform);
+    public void UpdateEncodedLevelText(){
+        string levelJson = levelManager
+            .SerializeLevelAsJson(curLevelInEditing.transform);
 
         byte[] bytesToEncode = Utility.Zip(levelJson);
 
-        Debug.Log( System.Text.Encoding.Default.GetString(bytesToEncode));
+        Debug.Log( System.Text.Encoding.Default
+            .GetString(bytesToEncode));
 
         encodedLevelText.text = Utility.EncodeBase64FromBytes(bytesToEncode);
     }
@@ -549,28 +534,32 @@ public class LevelEditor : MonoBehaviour{
         encodedLevelTextField.text = GUIUtility.systemCopyBuffer;
     }
 
-    public void GenerateLevelFromLevelCode()
-    {
-        if (encodedLevelTextField.text == "" | encodedLevelTextField.text == "PASTE YOUR LEVEL CODE HERE.") return;
+    public void GenerateLevelFromLevelCode(){
+        if (encodedLevelTextField.text == "" | 
+            encodedLevelTextField.text == "PASTE YOUR LEVEL CODE HERE.") 
+            return;
 
         string encodedText = encodedLevelTextField.text;
         byte[] decodedBytes;
-        try
-        {
+        try{
             decodedBytes = Utility.DecodeBase64ToBytes(encodedText);
         }
-        catch(System.Exception)
-        {
+        catch(System.Exception){
             return;
         }
 
         string unzippedText = Utility.Unzip(decodedBytes);
-        LevelProperty levelProperty = JsonUtility.FromJson<LevelProperty>(unzippedText);
+
+        LevelProperty levelProperty = JsonUtility.
+            FromJson<LevelProperty>(unzippedText);
+        
         levelManager.DestroyCurLevel();
-        Transform levelHolder = levelManager.GenerateNewLevelHolder(levelProperty.levelName);
+        Transform levelHolder = levelManager
+            .GenerateNewLevelHolder(levelProperty.levelName);
+        
         ResetCurLevelInEditing();
+        
         levelManager.LoadLevelWithLevelProperty(levelProperty, levelHolder);
-        //ToggleGetLevelPanel();
         curLevelInEditing.SetActive(true);
     }
 
