@@ -63,8 +63,10 @@ public class GameManager : MonoBehaviour{
     private bool rewindStarted = false;
     private bool rewindFinished = false;
     public bool isPriorityActive = false;
+    private bool isPlayingAction = false;
     private Sequence rewindSequence;
     public Transform rewindImageParent;
+    private IEnumerator setIsActionplayingCor;
         
     public delegate void OnLevelCompleteDelegate(float delay);
     public static OnLevelCompleteDelegate OnLevelComplete;
@@ -131,8 +133,8 @@ public class GameManager : MonoBehaviour{
 
             // Invokes animation start event 
             // so that buttons like undo will be blocked during animation
-            GameState.OnAnimationStartEvent(commandDur); 
-
+            GameState.OnAnimationStartEvent(commandDur);
+            SetPlayingAction();
             switch (curCommand){
                 case Commands.RemoveNode:{
                     commandOwner = selectedObjects[0].GetComponent<Node>();
@@ -232,9 +234,6 @@ public class GameManager : MonoBehaviour{
             if (time >= maxUndoDur){
                 Rewind();
                 time = 0;
-
-
-
             }
 
             if ( ( rewindFinished || (rewindStarted && Input.GetMouseButtonUp(1)) ) && 
@@ -251,7 +250,7 @@ public class GameManager : MonoBehaviour{
 
                 paletteSwapper.ChangePalette(palette, 0.62f);*/
 
-                time = maxUndoDur;
+                time = 0;
                 rewindStarted = false;
                 RewindBPointerUp(rewindImageParent.GetComponent<CanvasGroup>());
 
@@ -261,16 +260,33 @@ public class GameManager : MonoBehaviour{
             
         }
 
-        if (Input.GetKeyDown(KeyCode.Z))
+        if ((Input.GetKeyDown(KeyCode.Z) |  Input.GetMouseButtonDown(2)) && !isPlayingAction)
             Undo();
 
         UpdateChangesCounter();
+    }
+
+    private void SetPlayingAction() {
+        isPlayingAction = true;
+
+        if (setIsActionplayingCor != null)
+            StopCoroutine(setIsActionplayingCor);
+
+        setIsActionplayingCor = SetIsActionPlaying(false, commandDur);
+
+        StartCoroutine(setIsActionplayingCor);
+    }
+    
+    private IEnumerator SetIsActionPlaying(bool value, float delay) {
+        yield return new WaitForSeconds(delay);
+        isPlayingAction = value;
     }
 
     /*private RemoveNode ExecuteRemoveNode() {
 
         return RemoveNode;
     }*/
+
 
     private ChangeArrowDir ExecuteChangeArrowDir(List<GameObject> selectedObjects) {
 

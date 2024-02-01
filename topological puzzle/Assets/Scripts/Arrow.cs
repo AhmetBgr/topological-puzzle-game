@@ -40,7 +40,7 @@ public class Arrow : MonoBehaviour {
     private float dur = 1f;
     float width = 0.15f;
     private bool isSelectable = false;
-    private bool isRemoving = false;
+    private bool isRemoved = false;
 
     public delegate void BeforeChangeDelegate();
     public event BeforeChangeDelegate BeforeChange;
@@ -106,7 +106,8 @@ public class Arrow : MonoBehaviour {
         //KillWidthCor();
 
         KillHighlightCor();
-        StopAllCoroutines();
+        KillWidthCor();
+        //StopAllCoroutines();
 
         widthAnim = ChangeWidth(defWidth + 0.1f, 0.1f);
         StartCoroutine(widthAnim);
@@ -245,6 +246,7 @@ public class Arrow : MonoBehaviour {
     }*/
     
     public void Remove(float dur){ //GameObject node
+        isRemoved = true;
         LevelManager.ChangeArrowCount(-1);
         destinationNode.GetComponent<Node>().RemoveFromArrowsToThisNodeList(gameObject);
         startingNode.GetComponent<Node>().RemoveFromArrowsFromThisNodeList(gameObject);
@@ -271,13 +273,14 @@ public class Arrow : MonoBehaviour {
     }
 
     public void Add(float dur){//GameObject node
-        
+
         /*if(node == startingNode && isPermanent){ 
             gameObject.SetActive(false);
             return; 
         }
         */
-        if(RemoveCor != null)
+        isRemoved = false;
+        if (RemoveCor != null)
             StopCoroutine(RemoveCor);
         destinationNode.GetComponent<Node>().AddToArrowsToThisNodeList(gameObject);
         startingNode.GetComponent<Node>().AddToArrowsFromThisNodeList(gameObject);
@@ -342,7 +345,7 @@ public class Arrow : MonoBehaviour {
     }
     public void Check(MultipleComparison<Component> mp)
     {
-        if (isRemoving) return;
+        if (isRemoved) return;
  
         if (mp.CompareAll(this))
         {
@@ -407,11 +410,11 @@ public class Arrow : MonoBehaviour {
 
 
         yield return new WaitForSeconds(delay);
-        isRemoving = true;
         int piece = (1*pointsCount - 1 );
         //piece =  (2*pointsCount - 3 );
         float segmentDuration = duration / piece ;
         //Debug.Log("here1");
+
 
         for (int i = pointsCount - 1; i >= 1 ; i--) {
             //Debug.Log("here2");
@@ -454,8 +457,6 @@ public class Arrow : MonoBehaviour {
                 yield return null ;
             }
         }
-        isRemoving = false;
-
 
         if (onCompleteCallBack != null)
             onCompleteCallBack();
@@ -471,6 +472,7 @@ public class Arrow : MonoBehaviour {
         head.transform.DOScale(Vector3.one, dur).SetDelay(delay);
         
         lr.enabled = false;
+
 
         yield return new WaitForSeconds(delay);
 

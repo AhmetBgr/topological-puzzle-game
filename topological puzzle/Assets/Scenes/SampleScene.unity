@@ -30361,6 +30361,7 @@ GameObject:
   - component: {fileID: 2007053509}
   - component: {fileID: 2007053511}
   - component: {fileID: 2007053510}
+  - component: {fileID: 2007053512}
   m_Layer: 2
   m_Name: BC
   m_TagString: Untagged
@@ -30426,6 +30427,32 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2007053508}
   m_CullTransparentMesh: 1
+--- !u!114 &2007053512
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2007053508}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8eae196ac4c6c664c82f7e559d4e92ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelManager: {fileID: 195511187}
+  defaultBG: {fileID: 11400000, guid: 7492221f5a9fb4e49903e39f004a0030, type: 2}
+  levelBGs:
+  - {fileID: 11400000, guid: ae142ce79adba6244b228dd492e8894c, type: 2}
+  - {fileID: 11400000, guid: 7492221f5a9fb4e49903e39f004a0030, type: 2}
+  - {fileID: 11400000, guid: 4f76ce4209a5e6047b246939ac1049c3, type: 2}
+  - {fileID: 11400000, guid: 07fc2828ee3568b40aac95d4a7264268, type: 2}
+  - {fileID: 11400000, guid: 97e29951c3430774db54c47e8dd62abc, type: 2}
+  - {fileID: 11400000, guid: 16b1e54deb51ec24ea11d8d70adbb63d, type: 2}
+  - {fileID: 11400000, guid: d0949e9e656a655429bae2bd8715bd6a, type: 2}
+  levelEditorBG: {fileID: 0}
+  myLevelsBG: {fileID: 0}
+  image: {fileID: 2007053510}
+  mat: {fileID: 2100000, guid: 9a513248eb0ef0f46a08e6608745bf25, type: 2}
 --- !u!1 &2012552617
 GameObject:
   m_ObjectHideFlags: 0

@@ -25,11 +25,8 @@ public class BrushA : Item
     }
 
     public override void Use(){
-        /*ChangeCommand changeCommand = new ChangeCommand(gameManager, null, gameManager.curCommand, Commands.SetArrowPermanent);
-        changeCommand.isPermanent = isPermanent;
-        changeCommand.Execute(gameManager.commandDur);*/
-        //HighlightManager.instance.Search(HighlightManager.instance.setArrowPermanentSearch);
-        gameManager.ChangeCommandWithDelay(Commands.SetArrowPermanent, 0.5f);
+        //gameManager.ChangeCommandWithDelay(Commands.SetArrowPermanent, 0.1f);
+        gameManager.ChangeCommand(Commands.SetArrowPermanent);
 
     }
 

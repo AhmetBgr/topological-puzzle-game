@@ -49,7 +49,7 @@ public class ChangeArrowDir : Command
         //AudioManager.instance.PlaySoundWithDelay(AudioManager.instance.changeArrowDir, dur / 2, true);
 
         for (int i = 0; i < affectedCommands.Count; i++) {
-            affectedCommands[i].Undo(dur, isRewinding);
+            affectedCommands[i].Execute(dur, isRewinding);
         }
 
         if (OnExecute != null)

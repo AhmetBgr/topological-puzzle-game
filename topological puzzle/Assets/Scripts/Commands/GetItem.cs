@@ -31,11 +31,16 @@ public class GetItem : Command{
     }
 
     public override void Execute(float dur, bool isRewinding = false){
+        Debug.Log("here1");
         if (item.owner == null) return;
-        
+
+
+        Debug.Log("here2");
+
         executionTime = gameManager.timeID;
-        
-        if (!item.gameObject.activeSelf) return;
+
+        //if (!item.gameObject.activeSelf) return;
+        item.gameObject.SetActive(true);
 
         int addIndex = isRewinding ? mainIndex : -1;
         nodeIndex = isRewinding ? nodeIndex : 
