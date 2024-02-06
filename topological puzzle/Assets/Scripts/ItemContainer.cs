@@ -66,6 +66,12 @@ public class ItemContainer : MonoBehaviour{
         FixItemPositions(dur);
     }
 
+    public void SwapItems(int index1, int index2,  float itemFixDur = 0.1f) {
+        Utility.Swap(items, index1, index2);
+
+        FixItemPositions(itemFixDur);
+    }
+
     public void ClearAll() {
         items.Clear();
 

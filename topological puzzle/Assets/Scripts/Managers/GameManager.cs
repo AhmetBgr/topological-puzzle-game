@@ -438,7 +438,7 @@ public class GameManager : MonoBehaviour{
                 break;
             }
             case Commands.TransportItem: {
-                highlightManager.Search(highlightManager.onlyArrow);
+                highlightManager.Search(highlightManager.arrowsWhoCanTransport);
                 paletteSwapper.ChangePalette(changeArrowDirPalette, 0.5f);
                 targetLM = LayerMask.GetMask("Arrow");
 

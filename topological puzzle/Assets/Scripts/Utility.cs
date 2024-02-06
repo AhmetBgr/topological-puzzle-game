@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -201,7 +202,15 @@ public static class Utility
             }
 
             return Encoding.UTF8.GetString(mso.ToArray());
+            
         }
+    }
+
+    public static IList<T> Swap<T>(IList<T> list, int indexA, int indexB) {
+        T tmp = list[indexA];
+        list[indexA] = list[indexB];
+        list[indexB] = tmp;
+        return list;
     }
 
     public static Vector3 DirToVectorDir(Direction dir)

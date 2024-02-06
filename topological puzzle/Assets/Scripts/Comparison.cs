@@ -215,3 +215,16 @@ public class CompareExcludeLinkless : Comparison {
         return node.arrowsFromThisNode.Count > 0 | node.arrowsToThisNode.Count > 0;
     }
 }
+
+public class ArrowWithItemInStartingNode : Comparison {
+
+    public override bool Compare(Component obj) {
+        Arrow arrow = obj as Arrow;
+
+        Node startingNode = arrow.startingNode.GetComponent<Node>();
+
+        if (startingNode.itemController.itemContainer.items.Count == 0) return false;
+
+        return true;
+    }
+}

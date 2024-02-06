@@ -5,7 +5,7 @@ using DG.Tweening;
 using TMPro;
 
 public enum LeState{
-    placingNode, drawingArrow, closed, waiting, movingNode, addingItem, movingArrowPoint
+    placingNode, drawingArrow, closed, waiting, movingNode, addingItem, movingArrowPoint, swappingItems
 }
 public class LevelEditor : MonoBehaviour{
     public LevelManager levelManager;
@@ -70,10 +70,12 @@ public class LevelEditor : MonoBehaviour{
     MoveNode moveNode = null;
     MoveArrowPoint moveArrowPoint = null;
     Transform objToMove = null;
+    ItemContainer swapItemContainer;
 
     private Vector3 initialPos;
     private Vector3 initialPos2;
     private Vector3 rightPInitialPos;
+    private Vector3 dragStartPos;
     private int clickCount = 0;
     private float minDragTime = 0.1f;
     private float t = 0;
@@ -195,6 +197,8 @@ public class LevelEditor : MonoBehaviour{
                 t = 0;
             }
             if (t >= minDragTime) { // Enough hold time for dragging, So changes level editor state to moving object
+                dragStartPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
                 if (((1 << objToMove.gameObject.layer) & LayerMask.GetMask("Node")) != 0)
                 {
                     moveNode = new MoveNode(objToMove, curLevelInEditing.transform);
@@ -211,7 +215,14 @@ public class LevelEditor : MonoBehaviour{
                     lastState = state;
                     state = LeState.movingArrowPoint;
                 }
-
+                else if (((1 << objToMove.gameObject.layer) & LayerMask.GetMask("Item")) != 0) {
+                    //ArrowPoint arrowPoint = objToMove.GetComponent<ArrowPoint>();
+                    //moveArrowPoint = new MoveArrowPoint(arrowPoint.arrow, arrowPoint.index);
+                    //oldCommands.Add(moveArrowPoint);
+                    swapItemContainer = objToMove.GetComponent<Item>().owner.itemController.itemContainer;
+                    lastState = state;
+                    state = LeState.swappingItems;
+                }
                 t = 0;
                 isButtonDown = false;
             }
@@ -319,6 +330,34 @@ public class LevelEditor : MonoBehaviour{
                 moveArrowPoint.arrow.FixHeadPos();
                 state = lastState;
             }
+            return;
+        }
+        else if (state == LeState.swappingItems) {
+            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            float distance = (mousePos.x - dragStartPos.x);
+
+            if(Mathf.Abs(distance) > swapItemContainer.gap) {
+                int itemIndex = swapItemContainer.items.IndexOf(objToMove.GetComponent<Item>());
+                int otherIndex = itemIndex + (int)Mathf.Sign(distance);
+
+                int itemCount = swapItemContainer.items.Count;
+
+                // makes sures inde not out of bounds
+                if (itemIndex < 0 | otherIndex < 0) return;
+                if (itemIndex >  itemCount - 2 | otherIndex > itemCount - 2) return;
+
+
+                SwapItemsInNode swapItemsInNode = new SwapItemsInNode(swapItemContainer, itemIndex, otherIndex);
+                swapItemsInNode.Execute(null);
+                oldCommands.Add(swapItemsInNode);
+
+                dragStartPos = mousePos;
+            }
+
+            if (Input.GetMouseButtonUp(0)) {
+                state = lastState;
+            }
+
             return;
         }
 

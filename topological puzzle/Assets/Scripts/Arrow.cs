@@ -111,6 +111,7 @@ public class Arrow : MonoBehaviour {
 
         //GameManager.OnCurCommandChange += CheckIfSuitable;
         HighlightManager.OnSearch += Check;
+        HighlightManager.OnAvailibilityCheck += CheckAvailibility;
         LevelManager.OnLevelLoad += GetOnTheLevel;
         LevelEditor.OnEnter += EnableArrowPoints;
         LevelEditor.OnExit += DisableArrowPoints;
@@ -123,6 +124,7 @@ public class Arrow : MonoBehaviour {
 
         //GameManager.OnCurCommandChange -= CheckIfSuitable;
         HighlightManager.OnSearch -= Check;
+        HighlightManager.OnAvailibilityCheck -= CheckAvailibility;
         LevelManager.OnLevelLoad -= GetOnTheLevel;
         LevelEditor.OnEnter -= EnableArrowPoints;
         LevelEditor.OnExit -= DisableArrowPoints;
@@ -372,6 +374,15 @@ public class Arrow : MonoBehaviour {
         ChangeDir(0.5f); //arrow
 
     }
+
+    public void CheckAvailibility(MultipleComparison<Component> mp) {
+        if (isRemoved) return;
+
+        if (mp.CompareAll(this)) {
+            HighlightManager.instance.availibleItemCount++;
+        }
+    }
+
     public void Check(MultipleComparison<Component> mp)
     {
         if (isRemoved) return;

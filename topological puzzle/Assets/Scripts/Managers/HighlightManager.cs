@@ -16,11 +16,18 @@ public class HighlightManager : MonoBehaviour
     public MultipleComparison<Component> onlyItem;
     public MultipleComparison<Component> onlyBlocked;
     public MultipleComparison<Component> onlyLinkedNodes;
+    public MultipleComparison<Component> arrowsWhoCanTransport;
+
+    public int availibleItemCount = 0;
+
 
     public static HighlightManager instance;
 
     public delegate void OnSearchDelegate(MultipleComparison<Component> mp);
     public static event OnSearchDelegate OnSearch;
+
+    public delegate void OnAvailibilityCheckDelegate(MultipleComparison<Component> mp);
+    public static event OnAvailibilityCheckDelegate OnAvailibilityCheck;
     private void Awake(){
         if (instance != null && instance != this)
             Destroy(this.gameObject);
@@ -76,6 +83,20 @@ public class HighlightManager : MonoBehaviour
         onlyLinkedNodes = new MultipleComparison<Component>(new List<Comparison> {
             new CompareExcludeLinkless()});
 
+
+        arrowsWhoCanTransport = new MultipleComparison<Component>(new List<Comparison> {
+            arrowLayer,
+            new ArrowWithItemInStartingNode()});
+    }
+
+    public bool CheckAvailibility(MultipleComparison<Component> mp) {
+        availibleItemCount = 0;
+
+        if(OnAvailibilityCheck != null) {
+            OnAvailibilityCheck(mp);
+        }
+
+        return availibleItemCount > 0;
     }
 
     public void Search(MultipleComparison<Component> mp){

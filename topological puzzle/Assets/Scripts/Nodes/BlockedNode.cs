@@ -20,6 +20,12 @@ public class BlockedNode : Node
         blockedNodeCount++;
     }
 
+    protected override void CheckIfSuitableForKey() {
+        if (blocked) return;
+
+        base.CheckIfSuitableForKey();
+    }
+
     private void UpdateBLockStatus(){
         if (levelManager == null)
             levelManager = FindObjectOfType<LevelManager>();
