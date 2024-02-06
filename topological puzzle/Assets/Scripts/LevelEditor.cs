@@ -22,6 +22,7 @@ public class LevelEditor : MonoBehaviour{
     public GameObject padLockPrefab;
     public GameObject keyPrefab;
     public GameObject nodeSwapperPrefab;
+    public GameObject itemTransporterPrefab;
 
     public RectTransform topPanel;
     public RectTransform bottomPanel;

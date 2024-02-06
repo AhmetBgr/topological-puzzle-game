@@ -13,8 +13,12 @@ public class Arrow : MonoBehaviour {
     public ArrowCC arrowColorController;
     public RandomLRColor randomLRColor;
     public RandomSpriteColor randomSprite;
+    public GameObject blockerPrefab;
+    private List<Transform> blockers;
+
     public bool isPermanent = false;
 
+    public Transporter transporter;
     private GameManager gameManager;
     public LineRenderer lr;
     private Transform head;
@@ -41,6 +45,17 @@ public class Arrow : MonoBehaviour {
     float width = 0.15f;
     private bool isSelectable = false;
     private bool isRemoved = false;
+    /*private bool _isBlocked = false;
+    public bool isBlocked {
+        get { return _isBlocked; }
+        set {
+            _isBlocked = value;
+
+            
+            //arrowBlocker.gameObject.SetActive(value);
+        }
+    }*/
+
 
     public delegate void BeforeChangeDelegate();
     public event BeforeChangeDelegate BeforeChange;
@@ -59,6 +74,7 @@ public class Arrow : MonoBehaviour {
         lr.startWidth = defWidth;
         SavePoints();
         gameManager = FindObjectOfType<GameManager>();
+        col.enabled = true;
     }
 
     private void Start()
@@ -73,6 +89,19 @@ public class Arrow : MonoBehaviour {
             if (GameState.gameState == GameState_EN.inLevelEditor) continue;
             arrowPoint.gameObject.SetActive(false);
         }
+
+        /*for (int i = 0; i < lr.positionCount -1; i++) {
+            Vector3 point1 = lr.GetPosition(i);
+            Vector3 point2 = lr.GetPosition(i + 1);
+
+            Vector2 origin = point1;
+            RaycastHit2D hit = Physics2D.Raycast(origin, (point2-point1).normalized, (point2 - point1).magnitude,
+                layerMask: LayerMask.GetMask("Arrow"));
+
+            if (hit && !isBlocked) {
+                Transform blocker = Instantiate(blockerPrefab, position: hit.transform.position, Quaternion.identity).transform;
+            }
+        }*/
     }
 
     void OnEnable(){
@@ -450,7 +479,7 @@ public class Arrow : MonoBehaviour {
                     head.position = pos;
 
                     Transporter transporter;
-                    if (j == 1 && TryGetComponent(out transporter)) {
+                    if (j == 1 && transform.CompareTag("TransporterArrow") && TryGetComponent(out transporter)) {
                         transporter.priorityObj.position = FindCenter();
                     }
                 }
@@ -510,7 +539,7 @@ public class Arrow : MonoBehaviour {
                     lr.SetPosition (j, pos) ;
 
                     Transporter transporter;
-                    if(j == 1 && TryGetComponent(out transporter)) {
+                    if(j == 1 && transform.CompareTag("TransporterArrow") && TryGetComponent(out transporter)) {
                         transporter.priorityObj.position = FindCenter();
                     }
                 }

@@ -22,6 +22,7 @@ public class LevelManager : MonoBehaviour{
     public GameObject nodeSwapperPrefab;
     public GameObject brushAPrefab;
     public GameObject reverseArrowPrefab;
+    public GameObject itemTransporterPrefab;
 
     public GameObject[] levelPrefabs;
     public TextAsset[] levelTxts;
@@ -781,6 +782,10 @@ public class LevelManager : MonoBehaviour{
         else if(tag == "ReverseArrow") {
             prefabAndPool.prefab = reverseArrowPrefab;
         }
+        else if (tag == "TransporterItem") {
+            prefabAndPool.prefab = itemTransporterPrefab;
+        }
+        
         return prefabAndPool;
     }
 

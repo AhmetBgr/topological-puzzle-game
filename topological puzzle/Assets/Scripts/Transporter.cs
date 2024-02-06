@@ -35,6 +35,7 @@ public class Transporter : MonoBehaviour{
 
     private float transportDelay = 0f;
     private static bool isPriorityTextActive = false;
+    public bool transportOnNodeRemove = false;
     public bool canTransport = false;
     public bool isCanceled = false;
     private bool _isNextToAStarNode;
@@ -52,6 +53,8 @@ public class Transporter : MonoBehaviour{
     public static event OnPriorirtySwapDelegate OnPriorirtySwap;
 
     private void Start(){
+        if (!transportOnNodeRemove) return;
+
         priorityText.text = priority.ToString();
         priorityBCImage = priorityObj.GetComponent<Image>();
         initColor = priorityBCImage.color;
@@ -66,6 +69,8 @@ public class Transporter : MonoBehaviour{
             gameManager = FindObjectOfType<GameManager>();
 
         //if (GameState.gameState == GameState_EN.inLevelEditor)
+
+        if (!transportOnNodeRemove) return;
 
         RemoveNode.PreExecute += CheckTransport;
         RemoveNode.OnExecute += InstantiateTransportCommand;
@@ -89,6 +94,8 @@ public class Transporter : MonoBehaviour{
     }
 
     private void OnDisable(){
+        if (!transportOnNodeRemove) return;
+
         RemoveNode.PreExecute -= CheckTransport;
         RemoveNode.OnExecute -= InstantiateTransportCommand;
         SwapNodes.PostExecute -= CheckForStarNode;
@@ -166,8 +173,7 @@ public class Transporter : MonoBehaviour{
 
             ItemController destLockCont = destNode.itemController;
 
-            transportCommand = new TransportCommand(gameManager, this, startingItemCont,
-                destLockCont, arrow, item);
+            transportCommand = new TransportCommand(gameManager, arrow);
             
             command.affectedCommands.Add(transportCommand);
         }

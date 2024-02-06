@@ -6,7 +6,7 @@ using UnityEngine;
 using TMPro;
 
 public enum Commands{
-    None, RemoveNode, SwapNodes, ChangeArrowDir, TransformNode, UnlockPadlock, SetArrowPermanent, SetNodePermanent, SetItemPermanent
+    None, RemoveNode, SwapNodes, ChangeArrowDir, TransformNode, UnlockPadlock, SetArrowPermanent, SetNodePermanent, SetItemPermanent, TransportItem
 }
 
 public class GameManager : MonoBehaviour{
@@ -206,6 +206,23 @@ public class GameManager : MonoBehaviour{
                     // Sets selected arrow permanent 
                     timeID++;
                     command = ExecuteSetArrowPermanent(selectedObjects);
+                    break;
+                }
+                case Commands.TransportItem: {
+                    // Sets selected arrow permanent 
+                    timeID++;
+                    TransportCommand transportCommand = new TransportCommand(this, selectedObjects[0].GetComponent<Arrow>());
+                    transportCommand.Execute(commandDur);
+
+                    Item lastItem = itemManager.GetLastItem();
+                    if (lastItem && lastItem.isUsable) {
+                        UseItem useItem = new UseItem(lastItem, lastItem.transform.position +
+                            Vector3.up, itemManager, this);
+                        useItem.Execute(commandDur);
+                        transportCommand.affectedCommands.Add(useItem);
+                    }
+
+                    command = transportCommand;
                     break;
                 }
             }
@@ -418,6 +435,14 @@ public class GameManager : MonoBehaviour{
                 targetLM = LayerMask.GetMask("Arrow");
 
                 infoIndicator.ShowInfoText(infoIndicator.changeArrowDirText);
+                break;
+            }
+            case Commands.TransportItem: {
+                highlightManager.Search(highlightManager.onlyArrow);
+                paletteSwapper.ChangePalette(changeArrowDirPalette, 0.5f);
+                targetLM = LayerMask.GetMask("Arrow");
+
+                infoIndicator.ShowInfoText("");
                 break;
             }
         }

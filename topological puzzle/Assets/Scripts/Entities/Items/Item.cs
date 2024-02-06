@@ -6,7 +6,7 @@ using System;
 
 public enum ItemType
 {
-    None, Key, Padlock, NodeSwapper, AddNewItem, ReverseArrow
+    None, Key, Padlock, NodeSwapper, AddNewItem, ReverseArrow, ItemTransporter
 }
 
 public abstract class Item : MonoBehaviour
