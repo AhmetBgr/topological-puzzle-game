@@ -32,15 +32,23 @@ public class BackgroundController : MonoBehaviour {
         LevelManager.OnLevelLoad += UpdateBackground;
         LevelEditor.OnEnter += UpdateBackground;
         LevelEditor.OnExit += UpdateBackground;
+        //GameManager.OnRewind += SetBW;
+        //GameManager.PostRewind += RevertSaturation;
 
     }
+
+
 
     private void OnDisable() {
         LevelManager.OnLevelLoad -= UpdateBackground;
         LevelEditor.OnEnter -= UpdateBackground;
         LevelEditor.OnExit -= UpdateBackground;
+        //GameManager.OnRewind -= SetBW;
+        //GameManager.PostRewind += RevertSaturation;
 
     }
+
+
 
     private void UpdateBackground() {
         //int index = Mathf.FloorToInt((LevelManager.curLevelIndex + 1) / 3);
@@ -50,7 +58,7 @@ public class BackgroundController : MonoBehaviour {
 
         if (GameState.gameState == GameState_EN.inLevelEditor)
             index = 1;
-        else if (levelManager.curPool == LevelPool.Player)
+        else if (levelManager.curPool == LevelPool.Player && GameState.gameState != GameState_EN.testingLevel)
             index = 0;
         else if (levelIndex >= 20)
             index = 6;
@@ -62,7 +70,6 @@ public class BackgroundController : MonoBehaviour {
             index = 3;
         else if (levelIndex >= 4)
             index = 2;
-
 
 
         index = index > levelBGs.Length - 1 ? levelBGs.Length - 1 : index;
@@ -186,6 +193,19 @@ public class BackgroundController : MonoBehaviour {
         }*/
 
         OnComplete?.Invoke();
+    }
+
+    private void RevertSaturation() {
+        //mat.SetFloat("_Saturation", levelBGs[curIndex].saturation);
+
+        StartCoroutine(_LerpMatVar("_Saturation", levelBGs[curIndex].saturation, 0.3f, ease: Ease.OutSine));
+    }
+
+    private void SetBW() {
+        //mat.SetFloat("_Saturation", 0);
+        StartCoroutine(_LerpMatVar("_Saturation", 1f, 0.3f, ease: Ease.InCubic));
+
+
     }
 
     public float EaseOutCubic(float t) {

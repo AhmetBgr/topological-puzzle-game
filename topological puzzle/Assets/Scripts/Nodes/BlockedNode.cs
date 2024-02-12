@@ -39,7 +39,7 @@ public class BlockedNode : Node
             indegree_text.gameObject.SetActive(true);
             blocked = false;
         }
-        else if (gameManager.curCommand == Commands.SwapNodes)
+        else if (gameManager.curCommand == Commands.SwapNodes | hasShell)
         {
             blocked = false;
         }
@@ -52,7 +52,9 @@ public class BlockedNode : Node
 
     protected override void UpdateHighlight(MultipleComparison<Component> mp)
     {
-        UpdateBLockStatus();
+        if(GameState.gameState == GameState_EN.playing | GameState.gameState == GameState_EN.testingLevel)
+            UpdateBLockStatus();
+
         if (blocked && (GameState.gameState == GameState_EN.playing | GameState.gameState == GameState_EN.testingLevel))
         {
             SetNotSelectable();

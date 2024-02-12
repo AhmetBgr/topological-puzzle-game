@@ -666,3 +666,39 @@ public class SwapPriority : LeCommand {
         return null;
     }
 }
+public class AddShell : LeCommand {
+    private GameObject affectedObject;
+    private Node node;
+
+    public AddShell(Node node) {
+        this.node = node;
+    }
+
+    public override int Execute(GameObject selectedObject) {
+        node.AddShell(0f);
+        return 1;
+    }
+
+    public override GameObject Undo() {
+        node.RemoveShell(0f);
+        return affectedObject;
+    }
+}
+public class RemoveShell : LeCommand {
+    private GameObject affectedObject;
+    private Node node;
+
+    public RemoveShell(Node node) {
+        this.node = node;
+    }
+
+    public override int Execute(GameObject selectedObject) {
+        node.RemoveShell(0f);
+        return 1;
+    }
+
+    public override GameObject Undo() {
+        node.AddShell(0f);
+        return affectedObject;
+    }
+}

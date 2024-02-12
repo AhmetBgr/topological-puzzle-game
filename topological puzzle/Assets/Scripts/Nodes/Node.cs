@@ -9,8 +9,12 @@ public class Node : MonoBehaviour{
     public SpriteRenderer nodeSprite;
     public Sprite basicSprite;  
     public TextMeshProUGUI indegree_text;
+
+    public SpriteRenderer _squareSprite;
+    public SpriteRenderer _baseSprite;
+
     //public Material defaultMaterial;
-    
+
     public NodeCC nodeColorController;
     public ItemController itemController;
     public RandomSpriteColor randomSpriteColor;
@@ -22,6 +26,7 @@ public class Node : MonoBehaviour{
     public bool isSelected = false;
     public bool isPermanent = false;
     public bool isRemoved = false;
+    public bool hasShell = false;
 
     private Vector3 initalScale;
     //private Color initialColor;
@@ -31,10 +36,10 @@ public class Node : MonoBehaviour{
     public Collider2D col;
     private Tween disappearTween;
     protected Tween nodeTween;
+    protected Tween scaleTween;
     protected Color nonPermanentColor;
-    
 
-    protected string defTag;
+    public string defTag;
     private float initialTopPosY;
     
     public int indegree = 0;
@@ -67,6 +72,11 @@ public class Node : MonoBehaviour{
         nonPermanentColor = nodeSprite.color;
         //initialColor = material.GetColor("_Color");
         UpdateIndegree(indegree);
+
+        /*if (hasShell)
+            AddShell(0f);
+        else
+            RemoveShell(0f);*/
     }
 
     void OnEnable(){
@@ -86,12 +96,12 @@ public class Node : MonoBehaviour{
     void OnMouseEnter(){
         if (isSelected)
         {
-            nodeSprite.transform.DOScale(1.05f, 0.2f);
+            scaleTween = nodeSprite.transform.DOScale(1.05f, 0.1f);
             return;
         }
 
-        nodeSprite.transform.DOScale(1.1f, 0.3f);
-        nodeColorController.Highlight(nodeColorController.glowIntensityHigh, 0.3f);
+        scaleTween = nodeSprite.transform.DOScale(1.1f, 0.1f);
+        nodeColorController.Highlight(nodeColorController.glowIntensityHigh, 0.1f);
 
         if(gameManager.curCommand == Commands.RemoveNode 
             && (GameState.gameState == GameState_EN.playing | GameState.gameState == GameState_EN.testingLevel)) {
@@ -108,8 +118,8 @@ public class Node : MonoBehaviour{
             return;
         }
 
-        nodeSprite.transform.DOScale(1f, 0.3f);
-        nodeColorController.Highlight(nodeColorController.glowIntensityMedium, 0.3f);
+        scaleTween = nodeSprite.transform.DOScale(1f, 0.1f);
+        nodeColorController.Highlight(nodeColorController.glowIntensityMedium, 0.1f);
 
         if (GameState.gameState == GameState_EN.playing | GameState.gameState == GameState_EN.testingLevel) {
 
@@ -136,6 +146,44 @@ public class Node : MonoBehaviour{
                 nodeTween.Play();
             });
         }
+    }
+
+    public virtual void RemoveShell(float dur = 0f) {
+        nodeColorController.secondarySprite = null;
+        randomSpriteColor.secondarySprite = null;
+
+        if (_squareSprite) {
+            _squareSprite.transform.DOScale(2f, dur);
+            _squareSprite.DOFade(0f, dur); //.SetDelay(0.25f);
+        }
+
+        nodeSprite = _baseSprite;
+        nodeSprite.transform.DOScale(1f, dur);
+        hasShell = false;
+        gameObject.tag = defTag;
+    }
+
+    public IEnumerator AddShellWithDelay(float delay) {
+        yield return new WaitForSeconds(delay);
+
+        AddShell();
+    }
+
+    public virtual void AddShell(float dur = 0f) {
+        _squareSprite.gameObject.SetActive(true);
+        _squareSprite.transform.localPosition = Vector3.zero;
+        nodeColorController.secondarySprite = _squareSprite;
+        randomSpriteColor.secondarySprite = _squareSprite;
+        nodeSprite = _squareSprite;
+
+        if (scaleTween != null && scaleTween.active)
+            scaleTween.Kill();
+
+        nodeSprite.transform.DOScale(Vector3.one * 1.03f, dur);
+        _baseSprite.transform.DOScale(Vector3.one * 0.8f, dur);
+        nodeSprite.DOFade(1f, dur);
+        hasShell = true;
+        gameObject.tag = "BasicNode";
     }
 
     public void RemoveFromGraph( GameObject nodeToRemove, float dur, float delay = 0f){

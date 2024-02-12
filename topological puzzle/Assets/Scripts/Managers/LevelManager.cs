@@ -32,6 +32,8 @@ public class LevelManager : MonoBehaviour{
     public List<LevelProperty> curLevelPool = new List<LevelProperty>();
     //public PlayerLevelsMetaData playerLevelsMetaData;
     public static GameObject curLevel;
+    public static LevelProperty curLevelProperty;
+
     public LevelPool curPool;
     //public GameObject levelContainer;
 
@@ -71,10 +73,8 @@ public class LevelManager : MonoBehaviour{
     public delegate void OnLevelPoolChangedDelegate(List<string> levelNames);
     public static OnLevelPoolChangedDelegate OnLevelPoolChanged;
 
-    private void Awake()
-    {
-        if (!Directory.Exists(Application.persistentDataPath))
-        {
+    private void Awake(){
+        if (!Directory.Exists(Application.persistentDataPath)){
             Debug.Log("path created : " + path);
             Directory.CreateDirectory(path);
         }
@@ -177,29 +177,24 @@ public class LevelManager : MonoBehaviour{
         Debug.Log("cur level index: " + curLevelIndex);
     }
 
-    private void LoadProgressionData()
-    {
+    private void LoadProgressionData(){
         SaveData saveData = (SaveData)Utility.BinaryDeserialization("/", saveName);
         levelProgressIndex = saveData.levelProgressIndex;
         SetCurLevelIndex(levelProgressIndex);
     }
 
-    private void SaveProgressionData()
-    {
+    private void SaveProgressionData(){
         SaveData saveData = new SaveData();
         saveData.levelProgressIndex = curLevelIndex;
         levelProgressIndex = curLevelIndex;
         Utility.BinarySerialization("", saveName, saveData);
     }
-    private void GetAndSetProgressionData()
-    {
-        if (File.Exists(Application.persistentDataPath + "/" + saveName))
-        {
+    private void GetAndSetProgressionData(){
+        if (File.Exists(Application.persistentDataPath + "/" + saveName)){
             LoadProgressionData();
             Debug.Log("save data loaded");
         }
-        else
-        {
+        else{
             // Create default level data
             curLevelIndex = 0;
             levelProgressIndex = 0;
@@ -247,17 +242,14 @@ public class LevelManager : MonoBehaviour{
     private void LoadLevelWithPrefab(string name){
 
         int index = -1;
-        for (int i = 0; i < curLevelPool.Count; i++)
-        {
+        for (int i = 0; i < curLevelPool.Count; i++){
             LevelProperty level = curLevelPool[i];
-            if (level.levelName == name)
-            {
+            if (level.levelName == name){
                 index = i;
                 break;
             }
         }
-        if(index == -1)
-        {
+        if(index == -1){
             Debug.Log("Level couldn't found, name: " + name);
             return;
         }
@@ -274,46 +266,27 @@ public class LevelManager : MonoBehaviour{
             
             OnLevelLoad();
         }
-        
     }
 
     public void RestartCurLevel(){
-        LoadLevelWithIndex(curLevelIndex);
-        
+        //LoadLevelWithIndex(curLevelIndex);
+        DestroyCurLevel();
+        if (curLevelProperty != null)
+            LoadLevelWithLevelProperty(curLevelProperty, GenerateNewLevelHolder(curLevelProperty.levelName));
         //LoadLevel(curLevelIndex);
     }
 
-    public void LoadLevelWithIndex(int index = 0)
-    {
+    public void LoadLevelWithIndex(int index = 0){
         DestroyCurLevel();
         string levelName = curLevelPool[index].levelName;
         Transform levelHolder = GenerateNewLevelHolder(levelName);
 
-        try
-        {
-            LoadLevelProperty(levelName, levelHolder);
-            curLevel = levelHolder.gameObject;
-            Debug.Log("level loaded with Deserialization");
-        }
-        catch (System.Exception)
-        {
-            LoadLevelWithPrefab(levelName);
-            //SaveLevelProperty(curLevel.transform);
-            //Destroy(curLevel);
-            //levelContainer = new GameObject("level").transform;
-            //LoadLevelProperty(levelName, level);
-            Debug.Log("level loaded with prefab");
-            throw;
-        }
-
-        if (OnLevelLoad != null)
-        {
-            OnLevelLoad();
-        }
+        LoadLevelProperty(levelName, levelHolder);
+        curLevel = levelHolder.gameObject;
+        Debug.Log("level loaded with Deserialization");
     }
 
-    public void LoadCurLevelWithDeserialization()
-    {
+    public void LoadCurLevelWithDeserialization(){
         if (loadLevelCor != null)
             StopCoroutine(loadLevelCor);
 
@@ -488,10 +461,11 @@ public class LevelManager : MonoBehaviour{
                 NodeProperty nodeP = new NodeProperty();
 
                 // Set node properties
-                nodeP.tag = node.isPermanent ? "p," + obj.tag : obj.tag;
+                nodeP.tag = node.isPermanent ? "p," + node.defTag : node.defTag;
                 nodeP.posX = obj.position.x;
                 nodeP.posY = obj.position.y;
                 nodeP.id = obj.gameObject.GetInstanceID();
+                nodeP.hasShell = node.hasShell;
 
                 // Adds items
                 foreach (var item in node.itemController.itemContainer.items){
@@ -614,6 +588,9 @@ public class LevelManager : MonoBehaviour{
             if (nodeProperty.tag.Contains("p,"))
                 node.ChangePermanent(true);
 
+            if (nodeProperty.hasShell)
+                node.AddShell();
+            
             GameObject prefab;
             // Instantiates items that this node have
             for (int i = 0; i < nodeProperty.itemTags.Count; i++){
@@ -683,6 +660,11 @@ public class LevelManager : MonoBehaviour{
 
         nodecount = levelProperty.nodeCount;
         arrowCount = levelProperty.arrowCount;
+
+        curLevelProperty = levelProperty;
+        if (OnLevelLoad != null) {
+            OnLevelLoad();
+        }
     }
 
     public void LoadPlayerLevels(){

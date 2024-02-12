@@ -15,6 +15,7 @@ public class NodeProperty{
     public float posY;
     public string tag;
     public int id;
+    public bool hasShell;
 
     public List<string> itemTags = new List<string>();
 }

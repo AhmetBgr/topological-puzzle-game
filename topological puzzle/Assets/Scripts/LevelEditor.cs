@@ -5,7 +5,7 @@ using DG.Tweening;
 using TMPro;
 
 public enum LeState{
-    placingNode, drawingArrow, closed, waiting, movingNode, addingItem, movingArrowPoint, swappingItems
+    placingNode, drawingArrow, closed, waiting, movingNode, addingItem, movingArrowPoint, swappingItems, addingShell
 }
 public class LevelEditor : MonoBehaviour{
     public LevelManager levelManager;
@@ -125,6 +125,8 @@ public class LevelEditor : MonoBehaviour{
     }
 
     void Update(){
+        //Debug.Log("cur level editor state: " + state);
+
         if (Input.GetKeyUp(KeyCode.Escape) && GameState.gameState == GameState_EN.testingLevel){
             Invoke("ExitTesting", 0.02f);
             return;
@@ -216,9 +218,6 @@ public class LevelEditor : MonoBehaviour{
                     state = LeState.movingArrowPoint;
                 }
                 else if (((1 << objToMove.gameObject.layer) & LayerMask.GetMask("Item")) != 0) {
-                    //ArrowPoint arrowPoint = objToMove.GetComponent<ArrowPoint>();
-                    //moveArrowPoint = new MoveArrowPoint(arrowPoint.arrow, arrowPoint.index);
-                    //oldCommands.Add(moveArrowPoint);
                     swapItemContainer = objToMove.GetComponent<Item>().owner.itemController.itemContainer;
                     lastState = state;
                     state = LeState.swappingItems;
@@ -333,6 +332,10 @@ public class LevelEditor : MonoBehaviour{
             return;
         }
         else if (state == LeState.swappingItems) {
+            if (Input.GetMouseButtonUp(0)) {
+                state = lastState;
+            }
+
             Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             float distance = (mousePos.x - dragStartPos.x);
 
@@ -353,12 +356,43 @@ public class LevelEditor : MonoBehaviour{
 
                 dragStartPos = mousePos;
             }
-
-            if (Input.GetMouseButtonUp(0)) {
-                state = lastState;
-            }
-
             return;
+        }
+        else if (state == LeState.addingShell) {
+            /*curObj.position = cursor.worldPos;
+            if (!cursor.isHoveringUI && !curObj.gameObject.activeSelf) {
+                curObj.gameObject.SetActive(true);
+            }
+            else if (cursor.isHoveringUI && curObj.gameObject.activeSelf) {
+                curObj.gameObject.SetActive(false);
+            }*/
+
+            if (Input.GetMouseButtonDown(0)) { // && curObj.gameObject.activeSelf
+                // place the node
+                RaycastHit2D hit = Physics2D.Raycast(cursor.worldPos, Vector2.zero, LayerMask.GetMask("Node"));
+                if (hit) {
+                    /*LeCommand command = new PlaceNode();
+                    command.Execute(curObj.gameObject);
+
+                    oldCommands.Add(command);
+                    curObj.GetComponent<Collider2D>().enabled = true;
+                    curObj.GetComponent<ItemController>().EnableAddNewItemWithDelay(0.5f);
+                    curObj = null;
+                    InstantiateObject(lastPrefab);*/
+
+                    Node node = hit.transform.GetComponent<Node>();
+                    if (node.hasShell) {
+                        RemoveShell removeShell = new RemoveShell(node);
+                        removeShell.Execute(null);
+                        oldCommands.Add(removeShell);
+                    }
+                    else {
+                        AddShell addShell = new AddShell(node);
+                        addShell.Execute(null);
+                        oldCommands.Add(addShell);
+                    }
+                }
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.P))
@@ -468,6 +502,9 @@ public class LevelEditor : MonoBehaviour{
             highlightManager.Search(highlightManager.onlyNode);
             obj.GetComponent<Collider2D>().enabled = false;
             obj.gameObject.SetActive(false);
+        }
+        else if (state == LeState.addingShell) {
+            highlightManager.Search(highlightManager.onlyNode);
         }
 
         curObj = obj;

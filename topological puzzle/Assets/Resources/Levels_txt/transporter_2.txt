@@ -5,7 +5,8 @@
             "posX": -0.5971480011940002,
             "posY": -0.6149733066558838,
             "tag": "BasicNode",
-            "id": -579736,
+            "id": -169302,
+            "hasShell": false,
             "itemTags": [
                 "p,Key",
                 "p,Key",
@@ -13,26 +14,19 @@
             ]
         },
         {
-            "posX": 0.16934077441692353,
-            "posY": 1.3814616203308106,
-            "tag": "SquareNode",
-            "id": -579856,
-            "itemTags": [
-                "ReverseArrow"
-            ]
-        },
-        {
             "posX": 4.536543369293213,
             "posY": 0.3119426965713501,
             "tag": "BasicNode",
-            "id": -579946,
+            "id": -169516,
+            "hasShell": false,
             "itemTags": []
         },
         {
             "posX": -2.914438247680664,
             "posY": -1.595365047454834,
             "tag": "BasicNode",
-            "id": -580000,
+            "id": -169574,
+            "hasShell": false,
             "itemTags": [
                 "p,Padlock",
                 "p,Padlock",
@@ -44,30 +38,43 @@
             "posX": -3.1818177700042726,
             "posY": 0.6684494018554688,
             "tag": "BasicNode",
-            "id": -580142,
+            "id": -169720,
+            "hasShell": false,
             "itemTags": []
         },
         {
             "posX": 2.7005343437194826,
             "posY": 1.8983960151672364,
             "tag": "BasicNode",
-            "id": -580196,
+            "id": -169778,
+            "hasShell": false,
             "itemTags": []
         },
         {
             "posX": 1.61319100856781,
             "posY": 0.08021414279937744,
             "tag": "StarNode",
-            "id": -580250,
+            "id": -169836,
+            "hasShell": false,
             "itemTags": []
+        },
+        {
+            "posX": 0.16934077441692353,
+            "posY": 1.3814616203308106,
+            "tag": "BasicNode",
+            "id": -170232,
+            "hasShell": true,
+            "itemTags": [
+                "ReverseArrow"
+            ]
         }
     ],
     "arrows": [
         {
             "tag": "TransporterArrow",
-            "id": -580302,
-            "startingNodeID": -579736,
-            "destinationNodeID": -580142,
+            "id": -169894,
+            "startingNodeID": -169302,
+            "destinationNodeID": -169720,
             "pointsX": [
                 -0.9554116725921631,
                 -2.680248737335205
@@ -80,9 +87,9 @@
         },
         {
             "tag": "Arrow",
-            "id": -580358,
-            "startingNodeID": -580250,
-            "destinationNodeID": -579736,
+            "id": -169950,
+            "startingNodeID": -169836,
+            "destinationNodeID": -169302,
             "pointsX": [
                 1.2316186428070069,
                 -0.06294679641723633
@@ -95,9 +102,9 @@
         },
         {
             "tag": "Arrow",
-            "id": -580384,
-            "startingNodeID": -579946,
-            "destinationNodeID": -580196,
+            "id": -169992,
+            "startingNodeID": -169516,
+            "destinationNodeID": -169778,
             "pointsX": [
                 4.233880043029785,
                 3.124262809753418
@@ -110,9 +117,9 @@
         },
         {
             "tag": "Arrow",
-            "id": -580410,
-            "startingNodeID": -580196,
-            "destinationNodeID": -579856,
+            "id": -170034,
+            "startingNodeID": -169778,
+            "destinationNodeID": -170232,
             "pointsX": [
                 2.308623790740967,
                 0.8159933090209961

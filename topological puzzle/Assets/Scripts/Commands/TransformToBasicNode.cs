@@ -26,8 +26,8 @@ public class TransformToBasicNode : Command
     public override void Execute(float dur, bool isRewinding = false)
     {
         executionTime = gameManager.timeID;
-        node.TransformIntoBasic(dur);
-
+        //node.TransformIntoBasic(dur);
+        node.RemoveShell(dur);
         if (isRewinding)
             Debug.Log("affected command count: " + affectedCommands.Count);
          
@@ -67,8 +67,8 @@ public class TransformToBasicNode : Command
           
         gameManager.ChangeCommand(Commands.RemoveNode);
 
-        node.TransformBackToDef(dur);
-
+        //node.TransformBackToDef(dur);
+        node.AddShell(dur);
         if (OnUndo != null)
         {
             OnUndo();

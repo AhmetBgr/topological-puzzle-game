@@ -77,6 +77,12 @@ public class GameManager : MonoBehaviour{
     public delegate void OnPriorityToggleDelegate(bool isActive);
     public static OnPriorityToggleDelegate OnPriorityToggle;
 
+    public delegate void OnRewindDelegate();
+    public static OnRewindDelegate OnRewind;
+
+    public delegate void PostRewindDelegate();
+    public static PostRewindDelegate PostRewind;
+
     public int skippedOldCommandCount = 0;
     public int oldCommandCount = 0;
 
@@ -146,15 +152,16 @@ public class GameManager : MonoBehaviour{
 
                     // Checks if player intents to remove Square Node,
                     // if so transforms and get last item from the node(if it has any)
-                    if (selectedObjects[0].CompareTag("SquareNode")){
+                    if (commandOwner.hasShell) { //selectedObjects[0].CompareTag("SquareNode")
                         isCommandOwnerPermanent = commandOwner.isPermanent;
 
                         TransformToBasicNode transformToBasicNode = 
                             ExecuteTransformToBasic(selectedObjects);
 
-                        itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
+                        //itemManager.CheckAndUseLastItem(itemManager.itemContainer.items);
                         timeID++;
                         AddToOldCommands(transformToBasicNode);
+                        UpdateCommand();
                         selectedObjects.Clear();
                         return;
                     }
@@ -245,6 +252,9 @@ public class GameManager : MonoBehaviour{
                 //audioManager.PlaySound(audioManager.rewind);
                 if(selectedObjects.Count == 1)
                     DeselectObjects();
+
+                if (OnRewind != null)
+                    OnRewind();
             }
             
             time += Time.deltaTime;
@@ -273,6 +283,8 @@ public class GameManager : MonoBehaviour{
 
                 UpdateCommand();
                 //audioManager.StartFadeOut(audioManager.rewind);
+                if (PostRewind != null)
+                    PostRewind();
             }
             
         }
