@@ -9,17 +9,23 @@ public class RandomSpriteColor : MonoBehaviour
     private Tween colorTween;
     private float duration = 0.7f;
     private float t = 2f;
+    private Color grey = new Color(0.5f, 0.5f, 0.5f, 1f);
+
 
     private void OnEnable() {
         t = duration;
+        sr.color = grey;
+        sr.material.SetInt("_Enable", 1);
     }
 
     private void OnDisable()
     {
         colorTween.Kill();
+        sr.material.SetInt("_Enable", 0);
+
     }
 
-    void Update()
+    /*void Update()
     {
         if (!sr) return;
 
@@ -34,5 +40,5 @@ public class RandomSpriteColor : MonoBehaviour
                 secondarySprite.DOColor(color, duration);
             }
         }
-    }
+    }*/
 }

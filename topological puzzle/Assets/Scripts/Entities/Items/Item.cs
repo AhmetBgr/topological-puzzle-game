@@ -57,7 +57,7 @@ public abstract class Item : MonoBehaviour
                 randomSpriteColor.sr = itemSR;
             }
         }
-        nonPermanentColor = new Color(0.71f, 0.71f, 0.71f, 1f); 
+        nonPermanentColor = new Color(0.41f, 0.41f, 0.41f, 1f); 
         ChangePermanent(isPermanent);
 
 

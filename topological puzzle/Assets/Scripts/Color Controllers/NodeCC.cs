@@ -23,10 +23,10 @@ public class NodeCC : ColorController
 
     private void Awake()
     {
-        glowIntensityVeryLow = -8f;
-        glowIntensityLow = -3f;
-        glowIntensityMedium = 1f;
-        glowIntensityHigh = 6f;
+        glowIntensityVeryLow = 0f; //-8f
+        glowIntensityLow = .2f; //-3f
+        glowIntensityMedium = 1f; //1f
+        glowIntensityHigh = 3f; //6f
         if (defMaterial != null)
         {
             nodeSprite.material = defMaterial;
@@ -39,10 +39,11 @@ public class NodeCC : ColorController
 
     protected override void ChangeColorsOnPaletteSwap(Palette palette, float duration)
     {
-        if(nodeSprite != null) 
+        bool isPermanent = nodeSprite.material.GetFloat("_Enable") == 1f;
+        if(nodeSprite != null && !isPermanent) 
             nodeSprite.DOColor(palette.nodeColor, duration);
 
-        if (secondarySprite != null)
+        if (secondarySprite != null && !isPermanent)
             secondarySprite.DOColor(palette.nodeColor, duration);
 
         if (indegreeText != null)
@@ -58,6 +59,21 @@ public class NodeCC : ColorController
         //yield return new WaitForSeconds(delay);
 
         float initialTime = Time.time;
+        float curGlow = material.GetFloat("_Glow"); 
+
+        while (curGlow != glowIntensity) {
+            float t = (Time.time - initialTime) / duration;
+            float glow = Mathf.Lerp(curGlow, glowIntensity, t);
+            material.SetFloat("_Glow", glow);
+            curGlow = glow;
+            if (secondaryMaterial)
+                secondaryMaterial.SetFloat("_Glow", glow);
+
+            yield return null;
+        }
+
+
+        /*float initialTime = Time.time;
         Color curColor = material.GetColor("_Color");
 
         float factor = Mathf.Pow(2, glowIntensity);
@@ -71,7 +87,7 @@ public class NodeCC : ColorController
             if (secondaryMaterial)
                 secondaryMaterial.SetColor("_Color", color);
             yield return null;
-        }
+        }*/
         //Debug.Log("cur mat color: " + material.GetColor("_Color"));
 
         OnComplete?.Invoke();

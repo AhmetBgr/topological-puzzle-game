@@ -69,16 +69,23 @@ MonoBehaviour:
   nodeSprite: {fileID: 4648395756299673432}
   basicSprite: {fileID: 21300000, guid: 91afd2c71a714974e91a08b32652ab0c, type: 3}
   indegree_text: {fileID: 1176280818127037673}
+  _squareSprite: {fileID: 0}
+  _baseSprite: {fileID: 0}
   nodeColorController: {fileID: 4921660421646465019}
   itemController: {fileID: 7837625429912166323}
+  randomSpriteColor: {fileID: 0}
   arrowsFromThisNode: []
   arrowsToThisNode:
   - {fileID: 4728352861918190276}
   - {fileID: 1087615723210247405}
   selectable: 0
+  isSelected: 0
   isPermanent: 0
   isRemoved: 0
+  hasShell: 0
   defSprite: {fileID: 21300000, guid: 91afd2c71a714974e91a08b32652ab0c, type: 3}
+  col: {fileID: 0}
+  defTag: 
   indegree: 2
 --- !u!114 &4921660421646465019
 MonoBehaviour:
@@ -93,6 +100,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nodeSprite: {fileID: 4648395756299673432}
+  secondarySprite: {fileID: 0}
   indegreeText: {fileID: 1176280818127037673}
   defMaterial: {fileID: 2100000, guid: 4394f7e321b2ee3499b14fcf54920593, type: 2}
   glowIntensityVeryLow: -8
@@ -114,14 +122,7 @@ MonoBehaviour:
   itemContainer: {fileID: 3183051479233437011}
   padlocks:
   - {fileID: 5730135425410398454}
-  key: {fileID: 0}
-  padLock: {fileID: 0}
   hasPadLock: 1
-  hasKey: 0
-  padLockImage: {fileID: 0}
-  keyImage: {fileID: 0}
-  padLockPos: {x: 0.24, y: -0.2, z: 0}
-  keyPos: {x: -0.24, y: -0.2, z: 0}
 --- !u!1 &264518200223208158
 GameObject:
   m_ObjectHideFlags: 0
@@ -297,12 +298,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startingNode: {fileID: 7188281294754668702}
   destinationNode: {fileID: 4891979468586338474}
+  arrowPointPrefab: {fileID: 0}
   arrowColorController: {fileID: 7888629132132604179}
+  randomLRColor: {fileID: 0}
+  randomSprite: {fileID: 0}
+  blockerPrefab: {fileID: 0}
   isPermanent: 0
+  transporter: {fileID: 0}
   lr: {fileID: 2894038671029252079}
+  col: {fileID: 0}
   linePoints:
   - {x: -2.8628876, y: -0.106150866, z: 0}
   - {x: -0.3864522, y: -1.3079449, z: 0}
+  arrowPoints: []
+  gapForArrowHead: 0.16
 --- !u!114 &7888629132132604179
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -321,6 +330,7 @@ MonoBehaviour:
   defHeadMaterial: {fileID: 2100000, guid: 29e20bb0e8f533d4da2d2eeb5982cf97, type: 2}
   glowIntensityMedium: 0
   glowIntensityHigh: 5
+  curGlowIntensity: 0
 --- !u!1 &359763970559943994
 GameObject:
   m_ObjectHideFlags: 0
@@ -538,6 +548,7 @@ MonoBehaviour:
   style: 0
   items:
   - {fileID: 3208729724421955305}
+  containerPos: {x: 0, y: 0, z: 0}
   gap: 0.3
 --- !u!1 &492320707563016874
 GameObject:
@@ -959,12 +970,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startingNode: {fileID: 9004568667862687378}
   destinationNode: {fileID: 32001742412655660}
+  arrowPointPrefab: {fileID: 0}
   arrowColorController: {fileID: 2355687939068235361}
+  randomLRColor: {fileID: 0}
+  randomSprite: {fileID: 0}
+  blockerPrefab: {fileID: 0}
   isPermanent: 0
+  transporter: {fileID: 0}
   lr: {fileID: 1906705579754088920}
+  col: {fileID: 0}
   linePoints:
   - {x: 3.1205516, y: 0.3787608, z: 0}
   - {x: 0.70778537, y: 1.6672513, z: 0}
+  arrowPoints: []
+  gapForArrowHead: 0.16
 --- !u!114 &2355687939068235361
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -983,6 +1002,7 @@ MonoBehaviour:
   defHeadMaterial: {fileID: 2100000, guid: 29e20bb0e8f533d4da2d2eeb5982cf97, type: 2}
   glowIntensityMedium: 0
   glowIntensityHigh: 5
+  curGlowIntensity: 0
 --- !u!1 &1113354373585050160
 GameObject:
   m_ObjectHideFlags: 0
@@ -1199,6 +1219,7 @@ MonoBehaviour:
   pivot: 0
   style: 0
   items: []
+  containerPos: {x: 0, y: 0, z: 0}
   gap: 0.3
 --- !u!1 &2572824591434859903
 GameObject:
@@ -1333,6 +1354,7 @@ MonoBehaviour:
   style: 0
   items:
   - {fileID: 5730135425410398454}
+  containerPos: {x: 0, y: 0, z: 0}
   gap: 0.3
 --- !u!1 &2861367058290180900
 GameObject:
@@ -1687,6 +1709,7 @@ MonoBehaviour:
   style: 0
   items:
   - {fileID: 8783824309063729763}
+  containerPos: {x: 0, y: 0, z: 0}
   gap: 0.3
 --- !u!1 &3271997557761882787
 GameObject:
@@ -1736,11 +1759,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 1
+  itemSR: {fileID: 0}
+  randomSpriteColor: {fileID: 3444940394559677639}
+  owner: {fileID: 0}
+  nonPermanentColor: {r: 0, g: 0, b: 0, a: 0}
+  isUsable: 0
   isObtainable: 1
   isTransportable: 1
   isPermanent: 0
-  keySR: {fileID: 1054244836877065038}
-  randomSpriteColor: {fileID: 3444940394559677639}
 --- !u!114 &3444940394559677639
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1754,6 +1780,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sr: {fileID: 1054244836877065038}
+  secondarySprite: {fileID: 0}
 --- !u!1 &3273461756842961582
 GameObject:
   m_ObjectHideFlags: 0
@@ -1832,7 +1859,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.2777778, y: 0.2777778}
+  m_Size: {x: 0.2647059, y: 0.2647059}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -2013,12 +2040,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startingNode: {fileID: 7697238041078425223}
   destinationNode: {fileID: 7188281294754668702}
+  arrowPointPrefab: {fileID: 0}
   arrowColorController: {fileID: 5027363392245404008}
+  randomLRColor: {fileID: 0}
+  randomSprite: {fileID: 0}
+  blockerPrefab: {fileID: 0}
   isPermanent: 0
+  transporter: {fileID: 0}
   lr: {fileID: 2179464212106559668}
+  col: {fileID: 0}
   linePoints:
   - {x: -0.32182023, y: 0.15037653, z: 0}
   - {x: -2.6562533, y: 0.10843748, z: 0}
+  arrowPoints: []
+  gapForArrowHead: 0.16
 --- !u!114 &5027363392245404008
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2037,6 +2072,7 @@ MonoBehaviour:
   defHeadMaterial: {fileID: 2100000, guid: 29e20bb0e8f533d4da2d2eeb5982cf97, type: 2}
   glowIntensityMedium: 0
   glowIntensityHigh: 5
+  curGlowIntensity: 0
 --- !u!1 &3611238375605369249
 GameObject:
   m_ObjectHideFlags: 0
@@ -2173,6 +2209,7 @@ MonoBehaviour:
   items:
   - {fileID: 1522932029853116473}
   - {fileID: 2337637337967769086}
+  containerPos: {x: 0, y: 0, z: 0}
   gap: 0.3
 --- !u!1 &3729417041337300784
 GameObject:
@@ -2916,12 +2953,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startingNode: {fileID: 7188281294754668702}
   destinationNode: {fileID: 32001742412655660}
+  arrowPointPrefab: {fileID: 0}
   arrowColorController: {fileID: 1629669696123547834}
+  randomLRColor: {fileID: 0}
+  randomSprite: {fileID: 0}
+  blockerPrefab: {fileID: 0}
   isPermanent: 0
+  transporter: {fileID: 0}
   lr: {fileID: 9190709040666477538}
+  col: {fileID: 0}
   linePoints:
   - {x: -2.8725092, y: 0.31928128, z: 0}
   - {x: -0.39423466, y: 1.6636493, z: 0}
+  arrowPoints: []
+  gapForArrowHead: 0.16
 --- !u!114 &1629669696123547834
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2940,6 +2985,7 @@ MonoBehaviour:
   defHeadMaterial: {fileID: 2100000, guid: 29e20bb0e8f533d4da2d2eeb5982cf97, type: 2}
   glowIntensityMedium: 0
   glowIntensityHigh: 5
+  curGlowIntensity: 0
 --- !u!1 &4803757120158638991
 GameObject:
   m_ObjectHideFlags: 0
@@ -3093,16 +3139,23 @@ MonoBehaviour:
   nodeSprite: {fileID: 1157690945288879700}
   basicSprite: {fileID: 21300000, guid: 91afd2c71a714974e91a08b32652ab0c, type: 3}
   indegree_text: {fileID: 3215854008046521233}
+  _squareSprite: {fileID: 0}
+  _baseSprite: {fileID: 0}
   nodeColorController: {fileID: 1882092918273555303}
   itemController: {fileID: 4466251270119690519}
+  randomSpriteColor: {fileID: 0}
   arrowsFromThisNode:
   - {fileID: 6756558215161158033}
   arrowsToThisNode:
   - {fileID: 264518200223208158}
   selectable: 0
+  isSelected: 0
   isPermanent: 0
   isRemoved: 0
+  hasShell: 0
   defSprite: {fileID: 21300000, guid: 91afd2c71a714974e91a08b32652ab0c, type: 3}
+  col: {fileID: 0}
+  defTag: 
   indegree: 1
 --- !u!114 &1882092918273555303
 MonoBehaviour:
@@ -3117,6 +3170,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nodeSprite: {fileID: 1157690945288879700}
+  secondarySprite: {fileID: 0}
   indegreeText: {fileID: 3215854008046521233}
   defMaterial: {fileID: 2100000, guid: 4394f7e321b2ee3499b14fcf54920593, type: 2}
   glowIntensityVeryLow: -8
@@ -3138,14 +3192,7 @@ MonoBehaviour:
   itemContainer: {fileID: 6425182408923620133}
   padlocks:
   - {fileID: 3208729724421955305}
-  key: {fileID: 0}
-  padLock: {fileID: 0}
   hasPadLock: 1
-  hasKey: 0
-  padLockImage: {fileID: 0}
-  keyImage: {fileID: 0}
-  padLockPos: {x: 0.24, y: -0.2, z: 0}
-  keyPos: {x: -0.24, y: -0.2, z: 0}
 --- !u!1 &5192699289229400067
 GameObject:
   m_ObjectHideFlags: 0
@@ -3552,7 +3599,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.2777778, y: 0.2777778}
+  m_Size: {x: 0.2647059, y: 0.2647059}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -3869,11 +3916,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 2
+  itemSR: {fileID: 0}
+  randomSpriteColor: {fileID: 373526084017920045}
+  owner: {fileID: 0}
+  nonPermanentColor: {r: 0, g: 0, b: 0, a: 0}
+  isUsable: 0
   isObtainable: 0
   isTransportable: 1
   isPermanent: 0
-  padlockSR: {fileID: 2166980147284507545}
-  randomSpriteColor: {fileID: 373526084017920045}
 --- !u!114 &373526084017920045
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3887,6 +3937,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sr: {fileID: 2166980147284507545}
+  secondarySprite: {fileID: 0}
 --- !u!1 &6447574598781861514
 GameObject:
   m_ObjectHideFlags: 0
@@ -4011,11 +4062,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 1
+  itemSR: {fileID: 0}
+  randomSpriteColor: {fileID: 6735026333565517791}
+  owner: {fileID: 0}
+  nonPermanentColor: {r: 0, g: 0, b: 0, a: 0}
+  isUsable: 0
   isObtainable: 1
   isTransportable: 1
   isPermanent: 1
-  keySR: {fileID: 2813197198410728359}
-  randomSpriteColor: {fileID: 6735026333565517791}
 --- !u!114 &6735026333565517791
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4029,6 +4083,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sr: {fileID: 2813197198410728359}
+  secondarySprite: {fileID: 0}
 --- !u!1 &6621295490324774356
 GameObject:
   m_ObjectHideFlags: 0
@@ -4307,12 +4362,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startingNode: {fileID: 4891979468586338474}
   destinationNode: {fileID: 9004568667862687378}
+  arrowPointPrefab: {fileID: 0}
   arrowColorController: {fileID: 1141898838126464630}
+  randomLRColor: {fileID: 0}
+  randomSprite: {fileID: 0}
+  blockerPrefab: {fileID: 0}
   isPermanent: 0
+  transporter: {fileID: 0}
   lr: {fileID: 4717391291210834636}
+  col: {fileID: 0}
   linePoints:
   - {x: 0.5899465, y: -1.3666611, z: 0}
   - {x: 2.9759395, y: -0.12881172, z: 0}
+  arrowPoints: []
+  gapForArrowHead: 0.16
 --- !u!114 &1141898838126464630
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4331,6 +4394,7 @@ MonoBehaviour:
   defHeadMaterial: {fileID: 2100000, guid: 29e20bb0e8f533d4da2d2eeb5982cf97, type: 2}
   glowIntensityMedium: 0
   glowIntensityHigh: 5
+  curGlowIntensity: 0
 --- !u!1 &7053902964645978540
 GameObject:
   m_ObjectHideFlags: 0
@@ -4568,17 +4632,24 @@ MonoBehaviour:
   nodeSprite: {fileID: 265573513621117018}
   basicSprite: {fileID: 21300000, guid: 91afd2c71a714974e91a08b32652ab0c, type: 3}
   indegree_text: {fileID: 5646937951074978249}
+  _squareSprite: {fileID: 0}
+  _baseSprite: {fileID: 0}
   nodeColorController: {fileID: 2056509522781918130}
   itemController: {fileID: 4981033914209997837}
+  randomSpriteColor: {fileID: 0}
   arrowsFromThisNode:
   - {fileID: 264518200223208158}
   - {fileID: 4728352861918190276}
   arrowsToThisNode:
   - {fileID: 3301110620197651375}
   selectable: 0
+  isSelected: 0
   isPermanent: 0
   isRemoved: 0
+  hasShell: 0
   defSprite: {fileID: 21300000, guid: 91afd2c71a714974e91a08b32652ab0c, type: 3}
+  col: {fileID: 0}
+  defTag: 
   indegree: 1
 --- !u!114 &2056509522781918130
 MonoBehaviour:
@@ -4593,6 +4664,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nodeSprite: {fileID: 265573513621117018}
+  secondarySprite: {fileID: 0}
   indegreeText: {fileID: 5646937951074978249}
   defMaterial: {fileID: 2100000, guid: 4394f7e321b2ee3499b14fcf54920593, type: 2}
   glowIntensityVeryLow: -8
@@ -4613,14 +4685,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemContainer: {fileID: 673064576019316628}
   padlocks: []
-  key: {fileID: 0}
-  padLock: {fileID: 0}
   hasPadLock: 0
-  hasKey: 0
-  padLockImage: {fileID: 0}
-  keyImage: {fileID: 0}
-  padLockPos: {x: 0.24, y: -0.2, z: 0}
-  keyPos: {x: -0.24, y: -0.2, z: 0}
 --- !u!1 &7452792680442929034
 GameObject:
   m_ObjectHideFlags: 0
@@ -4932,11 +4997,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 2
+  itemSR: {fileID: 0}
+  randomSpriteColor: {fileID: 91049580186884399}
+  owner: {fileID: 0}
+  nonPermanentColor: {r: 0, g: 0, b: 0, a: 0}
+  isUsable: 0
   isObtainable: 0
   isTransportable: 1
   isPermanent: 0
-  padlockSR: {fileID: 7557085154406741503}
-  randomSpriteColor: {fileID: 91049580186884399}
 --- !u!114 &91049580186884399
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4950,6 +5018,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sr: {fileID: 7557085154406741503}
+  secondarySprite: {fileID: 0}
 --- !u!1 &7697238041078425223
 GameObject:
   m_ObjectHideFlags: 0
@@ -5019,16 +5088,25 @@ MonoBehaviour:
   nodeSprite: {fileID: 3627283717912936090}
   basicSprite: {fileID: 21300000, guid: 91afd2c71a714974e91a08b32652ab0c, type: 3}
   indegree_text: {fileID: 6844315466786746293}
+  _squareSprite: {fileID: 0}
+  _baseSprite: {fileID: 0}
   nodeColorController: {fileID: 5330271030488611006}
   itemController: {fileID: 4669759226379283164}
+  randomSpriteColor: {fileID: 0}
   arrowsFromThisNode:
   - {fileID: 3301110620197651375}
   arrowsToThisNode: []
   selectable: 0
+  isSelected: 0
   isPermanent: 0
   isRemoved: 0
+  hasShell: 0
   defSprite: {fileID: 21300000, guid: 6074db34addf19147b61e266a0af076f, type: 3}
+  col: {fileID: 0}
+  defTag: 
   indegree: 0
+  squareSprite: {fileID: 0}
+  baseSprite: {fileID: 0}
 --- !u!114 &5330271030488611006
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5042,6 +5120,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nodeSprite: {fileID: 3627283717912936090}
+  secondarySprite: {fileID: 0}
   indegreeText: {fileID: 6844315466786746293}
   defMaterial: {fileID: 2100000, guid: 4394f7e321b2ee3499b14fcf54920593, type: 2}
   glowIntensityVeryLow: -8
@@ -5062,14 +5141,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemContainer: {fileID: 833166680384765784}
   padlocks: []
-  key: {fileID: 0}
-  padLock: {fileID: 0}
   hasPadLock: 0
-  hasKey: 0
-  padLockImage: {fileID: 0}
-  keyImage: {fileID: 0}
-  padLockPos: {x: 0.24, y: -0.2, z: 0}
-  keyPos: {x: -0.24, y: -0.2, z: 0}
 --- !u!1 &7739635460971031622
 GameObject:
   m_ObjectHideFlags: 0
@@ -5202,11 +5274,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 2
+  itemSR: {fileID: 0}
+  randomSpriteColor: {fileID: 6869198440173551758}
+  owner: {fileID: 0}
+  nonPermanentColor: {r: 0, g: 0, b: 0, a: 0}
+  isUsable: 0
   isObtainable: 0
   isTransportable: 1
   isPermanent: 1
-  padlockSR: {fileID: 3305083745127586916}
-  randomSpriteColor: {fileID: 6869198440173551758}
 --- !u!114 &6869198440173551758
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5220,6 +5295,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sr: {fileID: 3305083745127586916}
+  secondarySprite: {fileID: 0}
 --- !u!1 &8273243469213978839
 GameObject:
   m_ObjectHideFlags: 0
@@ -5862,16 +5938,23 @@ MonoBehaviour:
   nodeSprite: {fileID: 8921589070211013972}
   basicSprite: {fileID: 21300000, guid: 91afd2c71a714974e91a08b32652ab0c, type: 3}
   indegree_text: {fileID: 8226394404894680455}
+  _squareSprite: {fileID: 0}
+  _baseSprite: {fileID: 0}
   nodeColorController: {fileID: 8103765369652853756}
   itemController: {fileID: 6898195988022332303}
+  randomSpriteColor: {fileID: 0}
   arrowsFromThisNode:
   - {fileID: 1087615723210247405}
   arrowsToThisNode:
   - {fileID: 6756558215161158033}
   selectable: 0
+  isSelected: 0
   isPermanent: 0
   isRemoved: 0
+  hasShell: 0
   defSprite: {fileID: 21300000, guid: 91afd2c71a714974e91a08b32652ab0c, type: 3}
+  col: {fileID: 0}
+  defTag: 
   indegree: 1
 --- !u!114 &8103765369652853756
 MonoBehaviour:
@@ -5886,6 +5969,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nodeSprite: {fileID: 8921589070211013972}
+  secondarySprite: {fileID: 0}
   indegreeText: {fileID: 8226394404894680455}
   defMaterial: {fileID: 2100000, guid: 4394f7e321b2ee3499b14fcf54920593, type: 2}
   glowIntensityVeryLow: -8
@@ -5907,11 +5991,4 @@ MonoBehaviour:
   itemContainer: {fileID: 1847244976307807215}
   padlocks:
   - {fileID: 2337637337967769086}
-  key: {fileID: 0}
-  padLock: {fileID: 0}
   hasPadLock: 1
-  hasKey: 0
-  padLockImage: {fileID: 0}
-  keyImage: {fileID: 0}
-  padLockPos: {x: 0.24, y: -0.2, z: 0}
-  keyPos: {x: -0.24, y: -0.2, z: 0}

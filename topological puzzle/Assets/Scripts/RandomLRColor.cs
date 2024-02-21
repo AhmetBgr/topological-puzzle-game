@@ -7,13 +7,11 @@ public class RandomLRColor : MonoBehaviour
 {
     public LineRenderer lr;
 
-    //public ParticleSystem particleSystem;
 
-    private Tween colorTween;
+    /*private Tween colorTween;
     private float duration = 0.7f;
     private float t = 2f;
-    
-    // Start is called before the first frame update
+    */
     void Start()
     {
         //var particleSystemShape = particleSystem.shape;
@@ -23,13 +21,18 @@ public class RandomLRColor : MonoBehaviour
         //lr.DOColor(new Color2(lr.startColor, lr.endColor), new Color2(Random.ColorHSV(), Random.ColorHSV()), 1f).SetUpdate(UpdateType.Normal);
     }
 
+    private void OnEnable() {
+        lr.material.SetInt("_Enable", 1);
+    }
+
     private void OnDisable()
     {
-        colorTween.Kill();
+        lr.material.SetInt("_Enable", 0);
+
     }
 
     // Update is called once per frame
-    void Update()
+    /*void Update()
     {
         if (!lr) return;
         
@@ -41,5 +44,5 @@ public class RandomLRColor : MonoBehaviour
                 new Color2(Random.ColorHSV(0f, 1f, 0.5f, 1f, 0.8f, 1f), 
                 Random.ColorHSV(0f, 1f, 0.5f, 1f, 0.8f, 1f)), duration);
         }
-    }
+    }*/
 }

@@ -52,7 +52,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: dc36624f4ace90a4baf73f49942458f5, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -78,7 +78,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.2777778, y: 0.2777778}
+  m_Size: {x: 0.2647059, y: 0.2647059}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -236,6 +236,8 @@ MonoBehaviour:
   itemSR: {fileID: 3553593484378885344}
   randomSpriteColor: {fileID: 3112652153225994893}
   owner: {fileID: 0}
+  nonPermanentColor: {r: 0, g: 0, b: 0, a: 0}
+  isUsable: 0
   isObtainable: 1
   isTransportable: 1
   isPermanent: 0
@@ -252,3 +254,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sr: {fileID: 3553593484378885344}
+  secondarySprite: {fileID: 0}

@@ -5,7 +5,7 @@
             "posX": -2.000000238418579,
             "posY": 1.000000238418579,
             "tag": "BasicNode",
-            "id": -148760,
+            "id": -16414,
             "hasShell": false,
             "itemTags": []
         },
@@ -13,7 +13,7 @@
             "posX": 0.0,
             "posY": -0.9999999403953552,
             "tag": "BasicNode",
-            "id": -148908,
+            "id": -16472,
             "hasShell": false,
             "itemTags": []
         },
@@ -21,7 +21,7 @@
             "posX": 2.000000238418579,
             "posY": -0.9999999403953552,
             "tag": "BasicNode",
-            "id": -148966,
+            "id": -16530,
             "hasShell": false,
             "itemTags": []
         },
@@ -29,35 +29,39 @@
             "posX": 0.0,
             "posY": 1.000000238418579,
             "tag": "HexagonNode",
-            "id": -149024,
+            "id": -16588,
             "hasShell": false,
-            "itemTags": []
-        },
-        {
-            "posX": 2.000000238418579,
-            "posY": 1.000000238418579,
-            "tag": "StarNode",
-            "id": -149090,
-            "hasShell": false,
-            "itemTags": []
+            "itemTags": [
+                "Key"
+            ]
         },
         {
             "posX": -2.000000238418579,
             "posY": -0.9999999403953552,
             "tag": "BasicNode",
-            "id": -149624,
+            "id": -16712,
             "hasShell": true,
             "itemTags": [
                 "ReverseArrow"
+            ]
+        },
+        {
+            "posX": 2.000000238418579,
+            "posY": 1.000000238418579,
+            "tag": "BasicNode",
+            "id": -17310,
+            "hasShell": false,
+            "itemTags": [
+                "Padlock"
             ]
         }
     ],
     "arrows": [
         {
             "tag": "Arrow",
-            "id": -149148,
-            "startingNodeID": -149624,
-            "destinationNodeID": -148760,
+            "id": -16792,
+            "startingNodeID": -16712,
+            "destinationNodeID": -16414,
             "pointsX": [
                 -2.000000238418579,
                 -2.000000238418579
@@ -70,9 +74,9 @@
         },
         {
             "tag": "Arrow",
-            "id": -149190,
-            "startingNodeID": -148966,
-            "destinationNodeID": -148908,
+            "id": -16834,
+            "startingNodeID": -16530,
+            "destinationNodeID": -16472,
             "pointsX": [
                 1.600000262260437,
                 0.559999942779541
@@ -85,9 +89,9 @@
         },
         {
             "tag": "Arrow",
-            "id": -149232,
-            "startingNodeID": -148908,
-            "destinationNodeID": -149624,
+            "id": -16876,
+            "startingNodeID": -16472,
+            "destinationNodeID": -16712,
             "pointsX": [
                 -0.4000000059604645,
                 -1.3400002717971802
@@ -100,9 +104,9 @@
         },
         {
             "tag": "Arrow",
-            "id": -149274,
-            "startingNodeID": -149090,
-            "destinationNodeID": -149024,
+            "id": -16918,
+            "startingNodeID": -17310,
+            "destinationNodeID": -16588,
             "pointsX": [
                 1.8211147785186768,
                 1.5000004768371583,
@@ -119,9 +123,9 @@
         },
         {
             "tag": "Arrow",
-            "id": -149316,
-            "startingNodeID": -149024,
-            "destinationNodeID": -149090,
+            "id": -16960,
+            "startingNodeID": -16588,
+            "destinationNodeID": -17310,
             "pointsX": [
                 0.178885355591774,
                 0.4999998211860657,
@@ -138,9 +142,9 @@
         },
         {
             "tag": "Arrow",
-            "id": -149358,
-            "startingNodeID": -148760,
-            "destinationNodeID": -149024,
+            "id": -17002,
+            "startingNodeID": -16414,
+            "destinationNodeID": -16588,
             "pointsX": [
                 -1.600000262260437,
                 -0.559999942779541

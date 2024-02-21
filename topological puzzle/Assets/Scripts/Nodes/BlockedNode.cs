@@ -17,6 +17,7 @@ public class BlockedNode : Node
 
     protected void Start()
     {
+        
         blockedNodeCount++;
     }
 
@@ -31,10 +32,20 @@ public class BlockedNode : Node
             levelManager = FindObjectOfType<LevelManager>();
 
         // Update locked status if node has lock
-        int nodeCount = levelManager.GetActiveNodeCount();
-        
-        if (nodeCount - blockedNodeCount <= 0)
-        { // Unlock the node if only it is left 
+        //int nodeCount = levelManager.GetActiveNodeCount();
+
+        bool otherNodeExists = false;
+
+        foreach(Node node in levelManager.nodesPool) {
+            if (!node.isRemoved && !node.CompareTag("StarNode")) {
+                otherNodeExists = true;
+                break;
+            }
+        }
+
+
+        if (!otherNodeExists) //nodeCount - blockedNodeCount <= 0
+        {
             nodeSprite.sprite = basicSprite;
             indegree_text.gameObject.SetActive(true);
             blocked = false;
@@ -52,15 +63,24 @@ public class BlockedNode : Node
 
     protected override void UpdateHighlight(MultipleComparison<Component> mp)
     {
-        if(GameState.gameState == GameState_EN.playing | GameState.gameState == GameState_EN.testingLevel)
+        if((GameState.gameState == GameState_EN.playing | GameState.gameState == GameState_EN.testingLevel) && !hasShell)
             UpdateBLockStatus();
 
-        if (blocked && (GameState.gameState == GameState_EN.playing | GameState.gameState == GameState_EN.testingLevel))
+        if ((blocked && !hasShell) && (GameState.gameState == GameState_EN.playing | GameState.gameState == GameState_EN.testingLevel))
         {
             SetNotSelectable();
             return;
         }
 
         base.UpdateHighlight(mp);
+    }
+
+    public override void AddShell(float dur = 0) {
+        blockedNodeCount--;
+        base.AddShell(dur);
+    }
+    public override void RemoveShell(float dur = 0) {
+        blockedNodeCount++;
+        base.RemoveShell(dur);
     }
 }

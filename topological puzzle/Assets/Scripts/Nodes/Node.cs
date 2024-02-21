@@ -163,12 +163,6 @@ public class Node : MonoBehaviour{
         gameObject.tag = defTag;
     }
 
-    public IEnumerator AddShellWithDelay(float delay) {
-        yield return new WaitForSeconds(delay);
-
-        AddShell();
-    }
-
     public virtual void AddShell(float dur = 0f) {
         _squareSprite.gameObject.SetActive(true);
         _squareSprite.transform.localPosition = Vector3.zero;

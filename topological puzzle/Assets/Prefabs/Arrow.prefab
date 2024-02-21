@@ -53,7 +53,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 29e20bb0e8f533d4da2d2eeb5982cf97, type: 2}
+  - {fileID: 2100000, guid: dc36624f4ace90a4baf73f49942458f5, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -159,7 +159,7 @@ LineRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 29e20bb0e8f533d4da2d2eeb5982cf97, type: 2}
+  - {fileID: 2100000, guid: 2f0eade43d0797946a7ebc19fd85621c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -305,6 +305,7 @@ MonoBehaviour:
   priorityHighlightColor: {r: 0, g: 0, b: 0, a: 0}
   red: {r: 0.8, g: 0.38, b: 0.38, a: 1}
   redHighlight: {r: 0, g: 0, b: 0, a: 0}
+  transportOnNodeRemove: 0
   canTransport: 0
   isCanceled: 0
 --- !u!114 &8432575794985418858
@@ -321,8 +322,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   arrowHead: {fileID: 282529941505921820}
   lr: {fileID: 282529941782624234}
-  defMaterial: {fileID: 2100000, guid: 29e20bb0e8f533d4da2d2eeb5982cf97, type: 2}
-  defHeadMaterial: {fileID: 2100000, guid: 29e20bb0e8f533d4da2d2eeb5982cf97, type: 2}
+  defMaterial: {fileID: 2100000, guid: 2f0eade43d0797946a7ebc19fd85621c, type: 2}
+  defHeadMaterial: {fileID: 2100000, guid: 2f0eade43d0797946a7ebc19fd85621c, type: 2}
   glowIntensityMedium: 2
   glowIntensityHigh: 7
   curGlowIntensity: 0
