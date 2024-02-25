@@ -520,7 +520,7 @@ public class LevelEditor : MonoBehaviour{
             Destroy(curObj.gameObject);
         }
 
-        Transform obj = Instantiate(prefab, Vector3.zero, Quaternion.identity).transform;
+        Transform obj = Instantiate(prefab, cursor.worldPos, Quaternion.identity).transform;
         obj.SetParent(curLevelInEditing.transform);
         obj.GetComponent<Collider2D>().enabled = false;
         curObj = obj;
@@ -833,6 +833,7 @@ public class LevelEditor : MonoBehaviour{
     }
 
     public void CloseAddItemPanel(){
+        Debug.Log("add item panel closed");
         addItemPanel.gameObject.SetActive(false);
     }
 

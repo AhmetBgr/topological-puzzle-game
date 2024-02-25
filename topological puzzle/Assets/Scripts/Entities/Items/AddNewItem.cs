@@ -13,7 +13,7 @@ public class AddNewItem : Item
         col.enabled = true;
     }
 
-    private void OnMouseDown()
+    private void OnMouseUp()
     {
         if(OnMouseEnter!= null)
         {

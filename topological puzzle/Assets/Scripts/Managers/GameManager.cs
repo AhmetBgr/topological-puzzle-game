@@ -218,18 +218,51 @@ public class GameManager : MonoBehaviour{
                 case Commands.TransportItem: {
                     // Sets selected arrow permanent 
                     timeID++;
-                    TransportCommand transportCommand = new TransportCommand(this, selectedObjects[0].GetComponent<Arrow>());
-                    transportCommand.Execute(commandDur);
+                    Arrow arrow = selectedObjects[0].GetComponent<Arrow>();
+                    int itemCount = arrow.startingNode.GetComponent<ItemController>().itemContainer.items.Count;
+                    
+                    ItemController startingItemCont = arrow.startingNode.GetComponent<ItemController>();
+                    ItemController destItemCont = arrow.destinationNode.GetComponent<ItemController>();
 
+                    TransportCommand transportCommand1 = null;
+                    
+                    List<Item> items = new List<Item>();
+                    items.AddRange(startingItemCont.itemContainer.items);
+
+                    Item item = startingItemCont.FindLastTransportableItem();
+
+                    for (int i = 0; i <itemCount; i++) {
+                        TransportCommand transportCommand = new TransportCommand(this, arrow, skipFix: i != 0);
+                        transportCommand.Execute(commandDur);
+                        if (i == 0) {
+                            transportCommand1 = transportCommand;
+                            transportCommand1.items.AddRange(items);
+                        }
+                        else {
+                            transportCommand1.affectedCommands.Add(transportCommand);
+                        }
+                    }
+
+                    List<Vector3> pathlist = new List<Vector3>();
+                    pathlist.Add(item.transform.position);
+                    pathlist.AddRange(arrow.linePoints);
+
+
+                    startingItemCont.itemContainer.FixItemPositions(commandDur / 2, setDelayBetweenFixes: true);
+                    destItemCont.itemContainer.FixItemPositions(commandDur / 2, itemFixPath: pathlist, setDelayBetweenFixes: true, itemsWithFixPath: items);
+                    
                     Item lastItem = itemManager.GetLastItem();
+                    //TransportCommand transportCommand1 = new TransportCommand(this, arrow, lastItem);
+                    //transportCommand1.Execute(commandDur);
+
+                    
                     if (lastItem && lastItem.isUsable) {
                         UseItem useItem = new UseItem(lastItem, lastItem.transform.position +
                             Vector3.up, itemManager, this);
                         useItem.Execute(commandDur);
-                        transportCommand.affectedCommands.Add(useItem);
+                        transportCommand1.affectedCommands.Add(useItem);
                     }
-
-                    command = transportCommand;
+                    command = transportCommand1;
                     break;
                 }
             }
@@ -259,7 +292,8 @@ public class GameManager : MonoBehaviour{
             
             time += Time.deltaTime;
             if (time >= maxUndoDur){
-                Rewind();
+                Rewind rewind = Rewind();
+                //maxUndoDur = rewind.executeDur;
                 time = 0;
             }
 
@@ -524,8 +558,8 @@ public class GameManager : MonoBehaviour{
         this.targetLM = targetLM;
     }
 
-    public void Rewind(){
-        if (nonRewindCommands.Count <= 0) return;
+    public Rewind Rewind(){
+        if (nonRewindCommands.Count <= 0) return null;
         
         DeselectObjects();
 
@@ -538,6 +572,8 @@ public class GameManager : MonoBehaviour{
 
         if (!rewind.skipped)
             AddToOldCommands(rewind, false);
+
+        return rewind;
     }
 
     // Undo last command

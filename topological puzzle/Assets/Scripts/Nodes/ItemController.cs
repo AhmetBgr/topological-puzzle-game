@@ -123,7 +123,16 @@ public class ItemController : MonoBehaviour
         }
 
         return null;
+    }
 
+    public Item FindItemAt(int index) {
+        if (itemContainer.items.Count == 0)                     return null;
+        if (index < 0 | index > itemContainer.items.Count-1)    return null;
+
+
+        Item item = itemContainer.items[index];
+
+        return item;
     }
 
     public void GetObtainableItems( RemoveNode command, float dur) { //GameObject removedNode,
@@ -176,7 +185,7 @@ public class ItemController : MonoBehaviour
         return item.gameObject;
     }
 
-    public void AddItem(Item item, int index,  float dur, Vector3[] lastItemFixPath = null, bool skipFix = false, bool setInstantAnim = false)
+    public void AddItem(Item item, int index,  float dur, List<Vector3> itemFixPath = null, bool skipFix = false, bool setInstantAnim = false, float startingDelay = 0f)
     {
         if (item.CompareTag("Padlock"))
         {
@@ -186,7 +195,7 @@ public class ItemController : MonoBehaviour
         item.owner = node;
         //item.isUsable = false;
         itemContainer.UpdateContainerPos();
-        itemContainer.AddItem(item, index, dur, lastItemFixPath, skipFix: skipFix, setInstantAnim: setInstantAnim);
+        itemContainer.AddItem(item, index, dur, itemFixPath, skipFix: skipFix, setInstantAnim: setInstantAnim, startingDelay: startingDelay);
     }
 
     public void RemoveItem(Item item, float dur, bool skipFix = false)

@@ -187,21 +187,34 @@ public class Transporter : MonoBehaviour{
             transportCommand.Execute(gameManager.commandDur);
     }
 
-    public void Transport(Item item, ItemController startingItemCont, 
-        ItemController destItemCont, Vector3[] lrPoints, float dur, int destContainerIndex = 0){
+    public void TransportWithDelay2(Item item, ItemController startingItemCont,
+        ItemController destItemCont, Vector3[] lrPoints, float dur, int destContainerIndex = 0, float delay = 0f) {
+
+        StartCoroutine(_TransportWithDelay(item, startingItemCont, destItemCont, lrPoints, dur, destContainerIndex, delay));
+    }
+
+    private IEnumerator _TransportWithDelay(Item item, ItemController startingItemCont,
+        ItemController destItemCont, Vector3[] lrPoints, float dur, int destContainerIndex = 0, float delay = 0f) {
+        yield return new WaitForSeconds(delay);
+
+        Transport(item, startingItemCont, destItemCont, lrPoints, dur, destContainerIndex);
+    }
+
+    public void Transport(Item item, ItemController startingItemCont,
+        ItemController destItemCont, Vector3[] lrPoints, float dur, int destContainerIndex = 0, float startingDelay = 0f, bool skipFix = false) {
 
         item.transform.SetParent(LevelManager.curLevel.transform);
         //Item item = itemT.GetComponent<Item>();
-        startingItemCont.RemoveItem(item, dur/2);
+        startingItemCont.RemoveItem(item, dur/2, skipFix : skipFix);
 
         List<Vector3> pathlist = new List<Vector3>();
         pathlist.Add(item.transform.position);
         pathlist.AddRange(lrPoints);
-        Vector3 nextItemPos = (-(destItemCont.itemContainer.items.Count) * destItemCont.itemContainer.gap) * (Vector3.right / 2);
+        /*Vector3 nextItemPos = (-(destItemCont.itemContainer.items.Count) * destItemCont.itemContainer.gap) * (Vector3.right / 2);
         nextItemPos += Vector3.right * destItemCont.itemContainer.gap * (destItemCont.itemContainer.items.Count);
         pathlist.Add(nextItemPos + destItemCont.itemContainer.containerPos);
-        Vector3[] path = pathlist.ToArray();
-        destItemCont.AddItem(item, destContainerIndex, dur / 2, lastItemFixPath: path);
+        Vector3[] path = pathlist.ToArray();*/
+        destItemCont.AddItem(item, destContainerIndex, dur / 2, itemFixPath: pathlist, skipFix: skipFix,startingDelay: startingDelay);
         /*itemT.DOPath(path, dur/2).OnComplete(() => { 
             destItemCont.AddItem(item, destContainerIndex, dur/2);
             //destItemCont.itemContainer.FixItemPositions(dur/2);

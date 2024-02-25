@@ -4,6 +4,8 @@ using UnityEngine;
 
 public abstract class Command {
     public float executionTime;
+    public float executeDur;
+    public float undoDur;
 
     public delegate void OnUndoSkippedDelegate(Command command);
     public static event OnUndoSkippedDelegate OnUndoSkipped;

@@ -29,8 +29,8 @@ public class ItemContainer : MonoBehaviour{
     }
 
     public void AddItem(Item addedItem, int index, float dur, 
-        Vector3[] lastItemFixPath = null, bool skipFix = false, 
-        bool setInstantAnim = false){
+        List<Vector3> itemFixPath = null, bool skipFix = false, 
+        bool setInstantAnim = false, float startingDelay = 0f) {
 
         if (items.Contains(addedItem)) return;
 
@@ -45,8 +45,8 @@ public class ItemContainer : MonoBehaviour{
 
         if (skipFix) return;
 
-        FixItemPositions(dur, lastItemFixPath, 
-            setInstantAnim: setInstantAnim);
+        FixItemPositions(dur, itemFixPath, 
+            setInstantAnim: setInstantAnim, startingDelay: startingDelay);
     }
 
     public void RemoveItem(Item item, float dur, 
@@ -88,16 +88,18 @@ public class ItemContainer : MonoBehaviour{
         return items[items.Count - 1];
     }
 
-    public void FixItemPositions(float dur, Vector3[] lastItemFixPath = null, 
+    public void FixItemPositions(float dur, List<Vector3> itemFixPath = null,
+        List<Item> itemsWithFixPath = null,
         bool setDelayBetweenFixes = false, 
-        bool setInstantAnim = false){
+        bool setInstantAnim = false, float startingDelay= 0f){
 
         //gap = style == Style.Main ? 0.15f : 0.3f;
 
         Vector3 pivot3 = Vector3.right * ((int)pivot);
         Vector3 nextItemPos = (-(items.Count - 1) * gap) * 
             ( (pivot3 + 1*Vector3.right) / 2);
-        float delay = 0f;
+
+        float delay = startingDelay;
 
         // Fixes every item pos in item container
         for (int i = 0; i < items.Count; i++){
@@ -123,7 +125,7 @@ public class ItemContainer : MonoBehaviour{
             sequence = DOTween.Sequence();
             if (setDelayBetweenFixes){
                 sequence.SetDelay(delay);
-                delay += 0.15f;
+                delay += dur/5;
             }
 
             if(style == Style.Main){
@@ -141,8 +143,9 @@ public class ItemContainer : MonoBehaviour{
 
                 Tween moveTween;
 
-                if(i == items.Count - 1 && lastItemFixPath != null) {
-                    moveTween = item.transform.DOPath(lastItemFixPath, dur)
+                if(itemFixPath != null && itemsWithFixPath != null && itemsWithFixPath.Contains(item)) {
+                    itemFixPath.Add(pos);
+                    moveTween = item.transform.DOPath(itemFixPath.ToArray(), dur)
                         .SetEase(Ease.InCubic);
                 }
                 else {
