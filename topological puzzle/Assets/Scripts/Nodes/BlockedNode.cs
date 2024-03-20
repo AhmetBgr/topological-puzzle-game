@@ -12,14 +12,12 @@ public class BlockedNode : Node
     public delegate void OnBlockCheckDelegate();
     public static event OnBlockCheckDelegate OnBlockCheck;
 
-    protected override void Awake()
-    {
+    protected override void Awake(){
         base.Awake();
         blockedNodeCount = 0;
     }
 
-    protected void Start()
-    {
+    protected void Start(){
         
         blockedNodeCount++;
     }
