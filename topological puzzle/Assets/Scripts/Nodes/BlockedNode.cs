@@ -6,8 +6,11 @@ using DG.Tweening;
 public class BlockedNode : Node
 {
     private LevelManager levelManager;
-    private bool blocked = true;
+    public bool blocked = true;
     private static int blockedNodeCount = 0;
+
+    public delegate void OnBlockCheckDelegate();
+    public static event OnBlockCheckDelegate OnBlockCheck;
 
     protected override void Awake()
     {
@@ -31,46 +34,38 @@ public class BlockedNode : Node
         if (levelManager == null)
             levelManager = FindObjectOfType<LevelManager>();
 
-        // Update locked status if node has lock
-        //int nodeCount = levelManager.GetActiveNodeCount();
-
         bool otherNodeExists = false;
 
-        foreach(Node node in levelManager.nodesPool) {
-            if (!node.isRemoved && !node.CompareTag("StarNode")) {
+        List<Node> visited = new List<Node>();
+        Node current = this;
+        Visit(current, visited);
+        foreach (Node node in visited) {
+            if (!node.isRemoved && !(node.CompareTag("BlockedNode") | node.CompareTag("StarNode"))) {
                 otherNodeExists = true;
                 break;
             }
         }
 
-
-        if (!otherNodeExists) //nodeCount - blockedNodeCount <= 0
-        {
+        if (!otherNodeExists){
             nodeSprite.sprite = basicSprite;
-            indegree_text.gameObject.SetActive(true);
+            //indegree_text.gameObject.SetActive(true);
             blocked = false;
         }
-        else if (gameManager.curCommand == Commands.SwapNodes | hasShell)
-        {
+        else if (gameManager.curCommand == Commands.SwapNodes | hasShell){
             blocked = false;
         }
         else{
             nodeSprite.sprite = defSprite;
-            indegree_text.gameObject.SetActive(false);
+            //indegree_text.gameObject.SetActive(false);
             blocked = true; 
         }
     }
 
-    protected override void UpdateHighlight(MultipleComparison<Component> mp)
-    {
+
+
+    protected override void UpdateHighlight(MultipleComparison<Component> mp){
         if((GameState.gameState == GameState_EN.playing | GameState.gameState == GameState_EN.testingLevel) && !hasShell)
             UpdateBLockStatus();
-
-        if ((blocked && !hasShell) && (GameState.gameState == GameState_EN.playing | GameState.gameState == GameState_EN.testingLevel))
-        {
-            SetNotSelectable();
-            return;
-        }
 
         base.UpdateHighlight(mp);
     }
@@ -82,5 +77,49 @@ public class BlockedNode : Node
     public override void RemoveShell(float dur = 0) {
         blockedNodeCount++;
         base.RemoveShell(dur);
+    }
+
+    public bool BlockCheck() {
+        if (blocked && !hasShell && OnBlockCheck != null) {
+
+            List<Node> visited = new List<Node>();
+            Node current = this;
+            Visit(current, visited);
+            foreach (Node node in visited) {
+                if (!node.isRemoved && !(node.CompareTag("BlockedNode") | node.CompareTag("StarNode"))) {
+                    node.Deny();
+                }
+            }
+
+            //OnBlockCheck();
+            return true;
+        }
+        return false;
+    }
+
+    protected void Visit(Node next, List<Node> visited) {
+        //if (current == target) return true;
+
+        visited.Add(next);
+        List<GameObject> neighbors = new List<GameObject>();
+
+        foreach (var arrow in next.arrowsFromThisNode) {
+            neighbors.Add(arrow.GetComponent<Arrow>().destinationNode);
+        }
+
+        foreach (var arrow in next.arrowsToThisNode) {
+            neighbors.Add(arrow.GetComponent<Arrow>().startingNode);
+        }
+
+        foreach (var item in neighbors) {
+            if (!visited.Contains(item.GetComponent<Node>())) {
+                Visit(item.GetComponent<Node>(), visited);
+            }
+        }
+
+    }
+
+    public override void Deny() {
+        
     }
 }

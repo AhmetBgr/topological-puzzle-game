@@ -149,6 +149,15 @@ public class GameManager : MonoBehaviour{
                         selectedObjects.Clear();
                         return;
                     }
+                    else if (commandOwner.CompareTag("BlockedNode")) {
+
+                        BlockedNode blockedNode = commandOwner.GetComponent<BlockedNode>();
+                        if (blockedNode.BlockCheck()) {
+                            audioManager.PlaySound(audioManager.deny);
+                            selectedObjects.Clear();
+                            return;
+                        }
+                    }
 
                     // Checks if player intents to remove Square Node,
                     // if so transforms and get last item from the node(if it has any)
@@ -233,13 +242,15 @@ public class GameManager : MonoBehaviour{
 
                     for (int i = 0; i <itemCount; i++) {
                         TransportCommand transportCommand = new TransportCommand(this, arrow, skipFix: i != 0);
-                        transportCommand.Execute(commandDur);
+                        transportCommand.Execute(commandDur, skipFix: true);
                         if (i == 0) {
                             transportCommand1 = transportCommand;
                             transportCommand1.items.AddRange(items);
+                            transportCommand.isMain = true;
                         }
                         else {
                             transportCommand1.affectedCommands.Add(transportCommand);
+                            transportCommand.items = transportCommand1.items;
                         }
                     }
 

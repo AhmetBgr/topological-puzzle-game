@@ -5,9 +5,9 @@ using DG.Tweening;
 using TMPro;
 using System;
 
-public class Node : MonoBehaviour{
+public class Node : MonoBehaviour {
     public SpriteRenderer nodeSprite;
-    public Sprite basicSprite;  
+    public Sprite basicSprite;
     public TextMeshProUGUI indegree_text;
 
     public SpriteRenderer _squareSprite;
@@ -27,6 +27,7 @@ public class Node : MonoBehaviour{
     public bool isPermanent = false;
     public bool isRemoved = false;
     public bool hasShell = false;
+    //[HideInInspector] public bool isVisited = false;
 
     private Vector3 initalScale;
     //private Color initialColor;
@@ -37,6 +38,7 @@ public class Node : MonoBehaviour{
     private Tween disappearTween;
     protected Tween nodeTween;
     protected Tween scaleTween;
+    protected Tween shakeTween;
     protected Color nonPermanentColor;
 
     public string defTag;
@@ -84,6 +86,7 @@ public class Node : MonoBehaviour{
         LevelManager.OnLevelLoad += GetOnTheLevel;
         Item.OnUsabilityCheck += CheckIfSuitableForKey;
         HighlightManager.OnSearch += UpdateHighlight;
+        BlockedNode.OnBlockCheck += Deny;
     }
 
     void OnDisable(){
@@ -91,6 +94,8 @@ public class Node : MonoBehaviour{
         LevelManager.OnLevelLoad -= GetOnTheLevel;
         Item.OnUsabilityCheck -= CheckIfSuitableForKey;
         HighlightManager.OnSearch -= UpdateHighlight;
+        BlockedNode.OnBlockCheck -= Deny;
+
     }
 
     void OnMouseEnter(){
@@ -135,16 +140,7 @@ public class Node : MonoBehaviour{
 
         if (itemController.hasPadLock && gameManager.curCommand == Commands.RemoveNode )
         {
-            Tween temp = nodeTween;
-            if(nodeTween != null)
-            {
-                nodeTween.Pause();
-                transform.localScale = Vector3.one;
-            }
-            transform.DOShakePosition(0.5f, strength : 0.2f).OnComplete(() => { 
-                nodeTween = temp;
-                nodeTween.Play();
-            });
+            Deny();
         }
     }
 
@@ -393,5 +389,13 @@ public class Node : MonoBehaviour{
     private void AddNodeToPool(List<Node> nodesPool)
     {
         nodesPool.Add(this);
+    }
+
+    public virtual void Deny() {
+        if (shakeTween != null) {
+            return;
+        }
+
+        shakeTween = transform.DOShakePosition(0.5f, strength: 0.2f).OnComplete(() => { shakeTween = null; });
     }
 }

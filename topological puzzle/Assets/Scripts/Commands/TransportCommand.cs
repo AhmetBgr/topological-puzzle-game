@@ -14,9 +14,10 @@ public class TransportCommand : Command {
     private Item transporterItem;
     public List<Item> items = new List<Item>();
     private Item item;
-    private int startingNodeIndexe;
-    private int destNodeIndexe;
+    private int startingNodeIndex;
+    private int destNodeIndex;
     private bool skipFix;
+    public bool isMain = false;
     private Arrow arrow;
 
 
@@ -41,76 +42,106 @@ public class TransportCommand : Command {
     public override void Execute(float dur, bool isRewinding = false){
         //if (item.isPermanent && isRewinding) return;
 
+        Execute(dur, isRewinding, false);
+
+        /*if (OnExecute != null){
+            OnExecute(items[items.Count - 1].gameObject);
+        }*/
+    }
+    public void Execute(float dur, bool isRewinding = false, bool skipFix = false) {
         executionTime = gameManager.timeID;
 
         List<Vector3> pathlist = new List<Vector3>();
         pathlist.Add(item.transform.position);
         pathlist.AddRange(arrow.linePoints);
 
-        int addIndex = isRewinding ? destNodeIndexe : -1;
-        startingNodeIndexe = isRewinding ? startingNodeIndexe : startingItemCont.itemContainer.GetItemIndex(item);
+        //int addIndex = isRewinding ? destNodeIndex : -1;
+        //startingNodeIndex = isRewinding ? startingNodeIndex : startingItemCont.itemContainer.GetItemIndex(item);
+
+        startingNodeIndex = startingItemCont.itemContainer.GetItemIndex(item);
+        int addIndex = isRewinding ? destNodeIndex : -1;
         transporter.Transport(item, startingItemCont, destItemCont, arrow.linePoints, dur, addIndex, skipFix: true);
 
+        destNodeIndex = destItemCont.itemContainer.GetItemIndex(item);
 
         if (!skipFix) {
-            startingItemCont.itemContainer.FixItemPositions(dur / 2, setDelayBetweenFixes: true);
-            destItemCont.itemContainer.FixItemPositions(dur / 2, itemFixPath: pathlist, setDelayBetweenFixes: true, itemsWithFixPath: new List<Item>() {item});
+            startingItemCont.itemContainer.FixItemPositions(dur , setDelayBetweenFixes: true);
+            destItemCont.itemContainer.FixItemPositions(dur , itemFixPath: pathlist, 
+                setDelayBetweenFixes: true, itemsWithFixPath: new List<Item>() { item });
         }
 
         for (int i = 0; i < affectedCommands.Count; i++) {
             affectedCommands[i].Execute(dur, isRewinding);
         }
-
-        /*if (OnExecute != null){
-            OnExecute(items[items.Count - 1].gameObject);
-        }*/
     }
+
 
     public override bool Undo(float dur, bool isRewinding = false){
         //Debug.Log("transport affected commands count: " + affectedCommands.Count);
+        bool skippedAll = true;
+
         for (int i = affectedCommands.Count - 1; i >= 0; i--) {
-            affectedCommands[i].Undo(dur, isRewinding);
+
+            bool skipped = affectedCommands[i].Undo(dur, isRewinding);
 
             if (!isRewinding)
                 affectedCommands.RemoveAt(i);
+
+            if (!skipped && skippedAll)
+                skippedAll = false;
         }
-        
-        if ( item.isPermanent && isRewinding) { 
+
+        Vector3[] reversedPoints = (Vector3[])arrow.linePoints.Clone();
+        Array.Reverse(reversedPoints);
+
+        List<Vector3> pathlist = new List<Vector3>();
+        pathlist.Add(item.transform.position);
+        pathlist.AddRange(reversedPoints);
+
+        List<Item> undoItems = new List<Item>();
+        undoItems.AddRange(items);
+
+        if(item.owner.gameObject == startingItemCont.gameObject)
+            items.Remove(item);
+
+
+        if ( (item.isPermanent && isRewinding) | item.owner.gameObject == startingItemCont.gameObject) {
+
+            if (isMain ) {
+                destItemCont.itemContainer.FixItemPositions(dur , setDelayBetweenFixes: true);
+                startingItemCont.itemContainer.FixItemPositions(dur , itemFixPath: pathlist, setDelayBetweenFixes: true, itemsWithFixPath: items);
+            }
+
             InvokeOnUndoSkipped(this);
             //skipped = true;
-            return true;
+            return skippedAll;
         }
         else{
             if (gameManager.skippedOldCommands.Contains(this)){
                 gameManager.RemoveFromSkippedOldCommands(this);
             }
         }
-
-        Vector3[] reversedPoints = (Vector3[])arrow.linePoints.Clone();
-        Array.Reverse(reversedPoints);
-
-
-        if (item.isPermanent && isRewinding) {
+        /*if ((item.isPermanent && isRewinding) | item.owner.gameObject != destItemCont.gameObject) {
             //Debug.Log("item stransport undo skipped");
+
             return false;
-        }
-        if (item.owner.gameObject != destItemCont.gameObject) {
-            //Debug.Log("item stransport undo skipped 2");
-            return false;
-        } 
-        //startingNodeIndexes[i] = destItemCont.itemContainer.GetItemIndex(items[i]);
+        }*/
+
+        //destNodeIndex = destItemCont.itemContainer.GetItemIndex(item);
         //Debug.Log("should undo transport: " + item.gameObject.GetInstanceID());
-        transporter.Transport(item, destItemCont, startingItemCont, reversedPoints, dur, -1, skipFix: true); //startingNodeIndexes[i]
+        transporter.Transport(item, destItemCont, startingItemCont, reversedPoints, dur, startingNodeIndex, skipFix: true); //startingNodeIndexes[i]
 
-        List<Vector3> pathlist = new List<Vector3>();
-        pathlist.Add(item.transform.position);
-        pathlist.AddRange(reversedPoints);
+        //if (skipFix)
+        //return false;
 
-        if (skipFix)
-            return false;
+        /*if(item.owner.gameObject == startingItemCont.gameObject)
+            items.Remove(item);*/
 
-        destItemCont.itemContainer.FixItemPositions(dur / 2, setDelayBetweenFixes: true);
-        startingItemCont.itemContainer.FixItemPositions(dur / 2, itemFixPath: pathlist, setDelayBetweenFixes: true, itemsWithFixPath: items);
+        if (isMain) {
+            destItemCont.itemContainer.FixItemPositions(dur , setDelayBetweenFixes: true);
+            startingItemCont.itemContainer.FixItemPositions(dur , itemFixPath: pathlist, setDelayBetweenFixes: true, itemsWithFixPath: items);
+        }
+
 
         /*if (OnUndo != null){
             OnUndo(affectedObjects[0]);

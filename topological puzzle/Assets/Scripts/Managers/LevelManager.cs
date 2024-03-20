@@ -15,7 +15,7 @@ public class LevelManager : MonoBehaviour{
     public GameObject transporterArrow;
     public GameObject basicNode;
     public GameObject squareNode;
-    public GameObject lockedNode;
+    public GameObject blockedNode;
     public GameObject hexagonNode;
     public GameObject padLockPrefab;
     public GameObject keyPrefab;
@@ -731,9 +731,9 @@ public class LevelManager : MonoBehaviour{
             prefabAndPool.prefab = hexagonNode;
             //prefabAndPool.pool = nodesPool;
         }
-        else if (tag == "StarNode")
+        else if (tag == "BlockedNode" | tag == "StarNode")
         {
-            prefabAndPool.prefab = lockedNode;
+            prefabAndPool.prefab = blockedNode;
             //prefabAndPool.pool = nodesPool;
         }
         else if (tag == "SquareNode")

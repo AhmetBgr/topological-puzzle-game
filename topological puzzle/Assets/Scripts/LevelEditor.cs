@@ -339,7 +339,7 @@ public class LevelEditor : MonoBehaviour{
             Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             float distance = (mousePos.x - dragStartPos.x);
 
-            if(Mathf.Abs(distance) > swapItemContainer.gap) {
+            if(Mathf.Abs(distance) > swapItemContainer.gap/2) {
                 int itemIndex = swapItemContainer.items.IndexOf(objToMove.GetComponent<Item>());
                 int otherIndex = itemIndex + (int)Mathf.Sign(distance);
 
