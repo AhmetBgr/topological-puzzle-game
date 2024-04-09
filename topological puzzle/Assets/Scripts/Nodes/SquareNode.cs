@@ -24,7 +24,7 @@ public class SquareNode : Node{
         nodeSprite = squareSprite;
 
         nodeSprite.transform.DOScale(Vector3.one * 1.03f, dur);
-        baseSprite.transform.DOScale(Vector3.one * 0.8f, dur);
+        baseSprite.transform.DOScale(Vector3.one * 0.75f, dur);
         nodeSprite.DOFade(1f, dur);
 
         gameObject.tag = defTag;

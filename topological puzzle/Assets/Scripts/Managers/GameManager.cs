@@ -153,7 +153,7 @@ public class GameManager : MonoBehaviour{
 
                         BlockedNode blockedNode = commandOwner.GetComponent<BlockedNode>();
                         if (blockedNode.BlockCheck()) {
-                            audioManager.PlaySound(audioManager.deny);
+                            audioManager.PlaySound(audioManager.deny2);
                             selectedObjects.Clear();
                             return;
                         }
@@ -404,6 +404,19 @@ public class GameManager : MonoBehaviour{
         SwapNodes swapNodes = new SwapNodes(this, itemManager, itemManager.GetLastItem(),
             selectedObjects, searchTarget);
         swapNodes.Execute(commandDur);
+
+        Item lastItem = itemManager.GetLastItem();
+        //TransportCommand transportCommand1 = new TransportCommand(this, arrow, lastItem);
+        //transportCommand1.Execute(commandDur);
+
+
+        if (lastItem && lastItem.isUsable) {
+            UseItem useItem = new UseItem(lastItem, lastItem.transform.position +
+                Vector3.up, itemManager, this);
+            useItem.Execute(commandDur);
+            swapNodes.affectedCommands.Add(useItem);
+        }
+
         return swapNodes;
     }
     private UnlockPadlock ExecuteUnlockPadlock(List<GameObject> selectedObjects) {

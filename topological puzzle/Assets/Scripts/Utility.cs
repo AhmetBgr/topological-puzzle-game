@@ -7,6 +7,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Runtime.InteropServices;
 
 public enum Direction {
     right,
@@ -72,29 +73,55 @@ public static class Utility
             return hit.transform.gameObject;
         }
         return null;
+    }
 
+    [DllImport("__Internal")]
+    private static extern void JS_FileSystem_Sync();
+
+    public static void SyncJS() {
+        if (Application.platform != RuntimePlatform.WebGLPlayer) return;
+
+        JS_FileSystem_Sync();
     }
 
     public static void BinarySerialization(string folderName, string fileName, object saveData)
     {
         BinaryFormatter bf = new BinaryFormatter();
-        string path = Application.persistentDataPath + folderName;
 
-        if (!Directory.Exists(path))
-        {
-            Debug.Log("path created : " + path);
+        string path = Application.persistentDataPath + "/" + folderName;
+
+        if (Application.platform == RuntimePlatform.WebGLPlayer)
+            path = "/idbfs/" + folderName;
+        
+        //Debug.Log("path1: " + path);
+
+        if (!Directory.Exists(path)){
+            //Debug.Log("path created : " + path);
             Directory.CreateDirectory(path);
         }
 
 
-        FileStream file = File.Create(path + "/" + fileName);
+        string dataText = JsonSerialization(saveData);
+        path += "/";
+        path = Path.Combine(path + fileName);
+        //Debug.Log("path2: " + path);
+
+        FileStream file = File.Create(path);
+
         bf.Serialize(file, saveData);
         file.Close();
+
+        SyncJS();
     }
 
     public static object BinaryDeserialization(string folderName, string fileName)
     {
         string filePath = Application.persistentDataPath + folderName + fileName;
+
+        if (Application.platform == RuntimePlatform.WebGLPlayer)
+            filePath = "/idbfs" + folderName + fileName;
+        
+        //Debug.Log("path3: " + filePath);
 
         BinaryFormatter bf = new BinaryFormatter();
         FileStream file = File.Open(filePath, FileMode.Open);
@@ -118,6 +145,9 @@ public static class Utility
             writer.Write(json);
         }
         //fileStream.Close();
+
+        SyncJS();
+
     }
 
     public static T LoadDataFromJson<T>(string path) {

@@ -5,6 +5,8 @@ using DG.Tweening;
 
 public class SwapNodes : Command
 {
+    public List<Command> affectedCommands = new List<Command>();
+
     private GameManager gameManager;
     ItemManager itemManager;
 
@@ -30,14 +32,15 @@ public class SwapNodes : Command
         executionTime = gameManager.timeID;
 
         // Swap postions between two nodes
-        //commandOwner.TransformIntoBasic();
-        itemManager.itemContainer.RemoveItem(commandOwner, dur);
-        Item nodeSwapper = commandOwner.GetComponent<Item>();
-        nodeSwapper.randomSpriteColor.enabled = false;
-        commandOwner.transform.DOMoveY(commandOwner.transform.position.y + 2f, dur);
-        commandOwner.GetComponent<Item>().itemSR.DOFade(0f, dur * 3/5)
-            .SetDelay(dur * 2/5)
-            .OnComplete(() => { commandOwner.gameObject.SetActive(false); });
+
+        //itemManager.itemContainer.RemoveItem(commandOwner, dur);
+        //Item nodeSwapper = commandOwner.GetComponent<Item>();
+        //nodeSwapper.randomSpriteColor.enabled = false;
+        //commandOwner.transform.DOMoveY(commandOwner.transform.position.y + 2f, dur);
+        //commandOwner.GetComponent<Item>().itemSR.DOFade(0f, dur * 3/5)
+            //.SetDelay(dur * 2/5)
+            //.OnComplete(() => { commandOwner.gameObject.SetActive(false); });
+
         SwapNodesFunc(selectedObjects, dur);
         AudioManager.instance.PlaySound(AudioManager.instance.swapNode);
         for (int i = 0; i < selectedObjects.Count; i++)
@@ -45,7 +48,9 @@ public class SwapNodes : Command
             affectedObjects.Add(selectedObjects[i]);
         }
 
-
+        for (int i = 0; i < affectedCommands.Count; i++) {
+            affectedCommands[i].Execute(dur, isRewinding);
+        }
     }
 
     public override bool Undo(float dur, bool isRewinding = false)
@@ -53,11 +58,23 @@ public class SwapNodes : Command
         //commandOwner.transform.DOScale(1f, 0.3f).SetEase(Ease.InOutCubic);
         // Swap postions between two nodes
         //commandOwner.TransformBackToDef();
+        bool skippedAll = true;
+
+        for (int i = affectedCommands.Count - 1; i >= 0; i--) {
+
+            bool skipped = affectedCommands[i].Undo(dur, isRewinding);
+
+            if (!isRewinding)
+                affectedCommands.RemoveAt(i);
+
+            if (!skipped && skippedAll)
+                skippedAll = false;
+        }
 
         Node node1 = selectedObjects[0].GetComponent<Node>();
         Node node2 = selectedObjects[1].GetComponent<Node>();
         HighlightManager highlightManager = HighlightManager.instance;
-        if ((commandOwner.isPermanent |  node1.isPermanent | node2.isPermanent) && isRewinding)
+        if ((commandOwner.isPermanent ) && isRewinding)
         {
             gameManager.ChangeCommand(Commands.RemoveNode);
             InvokeOnUndoSkipped(this);
@@ -71,17 +88,22 @@ public class SwapNodes : Command
             }
         }
 
-        NodeSwapper nodeSwapper = commandOwner.GetComponent<NodeSwapper>();
-        commandOwner.gameObject.SetActive(true);
-        itemManager.itemContainer.AddItem(commandOwner, -1, dur);
+        //NodeSwapper nodeSwapper = commandOwner.GetComponent<NodeSwapper>();
+        //commandOwner.gameObject.SetActive(true);
+        //itemManager.itemContainer.AddItem(commandOwner, -1, dur);
         //commandOwner.transform.DOMoveY(commandOwner.transform.position.y + 2f, 0.5f);
 
 
-        nodeSwapper.randomSpriteColor.enabled = false;
-        nodeSwapper.itemSR.DOFade(1f, dur).OnComplete(() => {
-            if (nodeSwapper.isPermanent)
-                nodeSwapper.randomSpriteColor.enabled = true;
-        });
+
+        //nodeSwapper.randomSpriteColor.enabled = false;
+        //nodeSwapper.itemSR.DOFade(1f, dur).OnComplete(() => {
+        //    if (nodeSwapper.isPermanent)
+        //        nodeSwapper.randomSpriteColor.enabled = true;
+        //});
+
+        if (node1.isPermanent | node2.isPermanent) {
+            return false;
+        }
 
         SwapNodesFunc(affectedObjects, dur);
         if(isRewinding)

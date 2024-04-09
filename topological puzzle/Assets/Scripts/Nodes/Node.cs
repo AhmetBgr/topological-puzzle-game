@@ -396,6 +396,7 @@ public class Node : MonoBehaviour {
             return;
         }
 
-        shakeTween = transform.DOShakePosition(0.5f, strength: 0.2f).OnComplete(() => { shakeTween = null; });
+        shakeTween = transform.DOShakePosition(0.3f, strength: 0.15f)
+            .OnComplete(() => { shakeTween = null; });
     }
 }

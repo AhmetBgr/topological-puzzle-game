@@ -37,7 +37,7 @@ public class Arrow : MonoBehaviour {
     //public int arrowPointPreviewIndex;
     public float gapForArrowHead = 0.16f;
     private int pointsCount;
-    private float defWidth = 0.05f;
+    private float defWidth = 0.065f;
 
     private float time = 0;
     private float t = 0;
@@ -107,6 +107,7 @@ public class Arrow : MonoBehaviour {
     void OnEnable(){
         //Node.OnNodeRemove += ChangeDirIfLinkedToStar;
         RemoveNode.PreExecute += ChangeDirIfLinkedToStar;
+        TransformToBasicNode.PreExecute += ChangeDirIfLinkedToStar;
         //Node.OnNodeAdd += UndoChangeDirIfLinkedToStar;
 
         //GameManager.OnCurCommandChange += CheckIfSuitable;
@@ -120,6 +121,8 @@ public class Arrow : MonoBehaviour {
     void OnDisable(){
         //Node.OnNodeRemove -= ChangeDirIfLinkedToStar;
         RemoveNode.PreExecute -= ChangeDirIfLinkedToStar;
+        TransformToBasicNode.PreExecute -= ChangeDirIfLinkedToStar;
+
         //Node.OnNodeAdd -= UndoChangeDirIfLinkedToStar;
 
         //GameManager.OnCurCommandChange -= CheckIfSuitable;
@@ -257,7 +260,28 @@ public class Arrow : MonoBehaviour {
             } 
         }
     }
-    
+
+    private void ChangeDirIfLinkedToStar(GameObject node, TransformToBasicNode command) {
+        //if (node == startingNode) return;
+        if (command.isRewinding) return;
+
+        if (startingNode.CompareTag("HexagonNode") || destinationNode.CompareTag("HexagonNode")) {
+            GameObject starNode = startingNode.CompareTag("HexagonNode") ? startingNode : destinationNode;
+            if (!(startingNode.CompareTag("HexagonNode") && destinationNode.CompareTag("HexagonNode"))) {
+                CompareLayer nodeLayer = new CompareLayer(LayerMask.GetMask("Node"));
+                MultipleComparison<Component> searchTarget = new MultipleComparison<Component>(new List<Comparison> {
+                    new CompareNodeAdjecentNode(starNode.GetComponent<Node>()) });
+
+                //if (!searchTarget.CheckAll(node.GetComponent<Node>())) return;
+
+                ChangeArrowDir changeDirCommand = new ChangeArrowDir(gameManager, gameObject, false, true);
+                //changeDirCommand.Execute(gameManager.commandDur);
+                command.affectedCommands.Add(changeDirCommand);
+                //changeDirCommands.Add(changeDirCommand);
+            }
+        }
+    }
+
     /*private void UndoChangeDirIfLinkedToStar(GameObject removedNode, bool skipPermanent)
     {
         if (changeDirCommands.Count == 0) return;
@@ -275,7 +299,7 @@ public class Arrow : MonoBehaviour {
             } 
         }
     }*/
-    
+
     public void Remove(float dur){ //GameObject node
         isRemoved = true;
         LevelManager.ChangeArrowCount(-1);

@@ -5,13 +5,12 @@ using UnityEngine;
 public class TransformToBasicNode : Command
 {
     public List<Command> affectedCommands = new List<Command>();
+    public bool isRewinding = false;
 
-    public delegate void OnExecuteDelegate();
+    public delegate void PreExecuteDelegate(GameObject node, TransformToBasicNode command);
+    public static event PreExecuteDelegate PreExecute;
 
-    public static event OnExecuteDelegate OnExecute;
-
-    public delegate void OnUndoDelegate();
-
+    public delegate void OnUndoDelegate(GameObject node, TransformToBasicNode command);
     public static event OnUndoDelegate OnUndo;
 
     private Node node;
@@ -25,6 +24,10 @@ public class TransformToBasicNode : Command
 
     public override void Execute(float dur, bool isRewinding = false)
     {
+        if (PreExecute != null && !isRewinding) {
+            PreExecute(node.gameObject, this);
+        }
+        this.isRewinding = isRewinding;
         executionTime = gameManager.timeID;
         //node.TransformIntoBasic(dur);
         node.RemoveShell(dur);
@@ -35,14 +38,13 @@ public class TransformToBasicNode : Command
             affectedCommands[i].Execute(dur, isRewinding);
         }
 
-        if (OnExecute != null)
-        {
-            OnExecute();
-        }
+
     }
 
     public override bool Undo(float dur, bool isRewinding = false)
     {
+        this.isRewinding = isRewinding;
+
         for (int i = affectedCommands.Count - 1; i >= 0; i--) {
             affectedCommands[i].Undo(dur, isRewinding);
 
@@ -71,7 +73,7 @@ public class TransformToBasicNode : Command
         node.AddShell(dur);
         if (OnUndo != null)
         {
-            OnUndo();
+            OnUndo(node.gameObject, this);
         }
         return false;
     }

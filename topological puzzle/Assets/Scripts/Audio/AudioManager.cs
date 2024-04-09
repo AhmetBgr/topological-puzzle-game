@@ -15,6 +15,7 @@ public class AudioManager : MonoBehaviour{
     public SoundEffect swapNode;
     public SoundEffect changeArrowDir;
     public SoundEffect deny;
+    public SoundEffect deny2;
     public SoundEffect brushA;
 
     public static AudioManager instance;

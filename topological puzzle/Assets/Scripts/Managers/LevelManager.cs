@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using UnityEngine.Networking;
+using System.Runtime.InteropServices;
+
 public enum LevelPool
 {
     Original, Player
@@ -74,10 +77,10 @@ public class LevelManager : MonoBehaviour{
     public static OnLevelPoolChangedDelegate OnLevelPoolChanged;
 
     private void Awake(){
-        if (!Directory.Exists(Application.persistentDataPath)){
+        /*if (!Directory.Exists("/idbfs/")){
             Debug.Log("path created : " + path);
             Directory.CreateDirectory(path);
-        }
+        }*/
 
         LoadPlayerLevels();
 
@@ -92,11 +95,12 @@ public class LevelManager : MonoBehaviour{
     }
 
     void Start(){
+
         // Get progression data
         GetAndSetProgressionData();
 
         #if UNITY_EDITOR
-        levelProgressIndex = originalLevels.Count - 1;
+            levelProgressIndex = originalLevels.Count - 1;
         #endif
 
         //LoadLevel(curLevelIndex);
@@ -190,12 +194,21 @@ public class LevelManager : MonoBehaviour{
         Utility.BinarySerialization("", saveName, saveData);
     }
     private void GetAndSetProgressionData(){
-        if (File.Exists(Application.persistentDataPath + "/" + saveName)){
+        string path = Application.persistentDataPath + "/" + saveName; 
+
+        if (Application.platform == RuntimePlatform.WebGLPlayer)
+            path = "/idbfs/" + saveName; //Application.persistentDataPath + "/"
+
+        Debug.Log("path 0: " + path);
+        if (File.Exists(path)){
+            Debug.Log("save data will be loaded");
+
             LoadProgressionData();
             Debug.Log("save data loaded");
         }
         else{
             // Create default level data
+            Debug.Log("Save will be Created");
             curLevelIndex = 0;
             levelProgressIndex = 0;
             SaveProgressionData();
@@ -215,8 +228,10 @@ public class LevelManager : MonoBehaviour{
         loadLevelCor = LoadLevelWithDelay(curLevelIndex, delay);
         StartCoroutine(loadLevelCor);
 
-        if (curLevelIndex > levelProgressIndex && curPool == LevelPool.Original)
+        if (curLevelIndex > levelProgressIndex && curPool == LevelPool.Original) {
             SaveProgressionData();
+        }
+
     }
 
     public void LoadPreviousLevel(){
@@ -422,8 +437,11 @@ public class LevelManager : MonoBehaviour{
         LevelProperty levelProperty = CreateLevelProperty(level);
 
         // Set full path
-        string fullPath;
-        fullPath = Application.persistentDataPath + myLevelsPath + "/" + levelProperty.levelName + ".txt";
+        string fullPath = Application.persistentDataPath + myLevelsPath + "/" + levelProperty.levelName + ".txt";
+
+        if(Application.platform == RuntimePlatform.WebGLPlayer)
+            fullPath = "/idbfs" + myLevelsPath + "/" + levelProperty.levelName + ".txt";
+
         #if UNITY_EDITOR
             if (saveAsBackup)
                 fullPath = this.backupPath + levelProperty.levelName + ".txt";
@@ -434,9 +452,9 @@ public class LevelManager : MonoBehaviour{
         // Serialize level property
         Utility.SaveAsJson(fullPath, levelProperty);
 
-#if UNITY_EDITOR
-    return;
-#endif
+        #if UNITY_EDITOR
+            return;
+        #endif
     
         AddToPlayerLevels(levelProperty);
     }
@@ -671,6 +689,10 @@ public class LevelManager : MonoBehaviour{
         playerLevels.Clear();
 
         string path = Application.persistentDataPath + myLevelsPath;
+
+        if(Application.platform == RuntimePlatform.WebGLPlayer)
+            path = "/idbfs" + myLevelsPath;
+        
         if (!Directory.Exists(path)){
             Debug.Log("path created : " + path);
             Directory.CreateDirectory(path);
