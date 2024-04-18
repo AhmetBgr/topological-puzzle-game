@@ -40,7 +40,7 @@ public class LevelManager : MonoBehaviour{
     public LevelPool curPool;
     //public GameObject levelContainer;
 
-    public static int curLevelIndex = 0;
+    public int curLevelIndex = 0;
     public int levelProgressIndex;
 
     public static int nodecount = 0;
@@ -99,9 +99,9 @@ public class LevelManager : MonoBehaviour{
         // Get progression data
         GetAndSetProgressionData();
 
-        #if UNITY_EDITOR
-            levelProgressIndex = originalLevels.Count - 1;
-        #endif
+        //#if UNITY_EDITOR
+            //levelProgressIndex = originalLevels.Count - 1;
+        //#endif
 
         //LoadLevel(curLevelIndex);
         LoadLevelWithIndex(curLevelIndex); // "multiple square test"
@@ -184,6 +184,7 @@ public class LevelManager : MonoBehaviour{
     private void LoadProgressionData(){
         SaveData saveData = (SaveData)Utility.BinaryDeserialization("/", saveName);
         levelProgressIndex = saveData.levelProgressIndex;
+        Debug.Log("level prog index: " + levelProgressIndex);
         SetCurLevelIndex(levelProgressIndex);
     }
 
@@ -221,7 +222,7 @@ public class LevelManager : MonoBehaviour{
         if(GameState.gameState == GameState_EN.testingLevel)    return;
         if(curLevelIndex >= curLevelPool.Count -1)              return;
 
-        if( loadLevelCor != null )
+        if(loadLevelCor != null)
             StopCoroutine(loadLevelCor);
             
         SetCurLevelIndex(curLevelIndex + 1);
@@ -254,35 +255,6 @@ public class LevelManager : MonoBehaviour{
         loadLevelCor = null;
     }
 
-    private void LoadLevelWithPrefab(string name){
-
-        int index = -1;
-        for (int i = 0; i < curLevelPool.Count; i++){
-            LevelProperty level = curLevelPool[i];
-            if (level.levelName == name){
-                index = i;
-                break;
-            }
-        }
-        if(index == -1){
-            Debug.Log("Level couldn't found, name: " + name);
-            return;
-        }
-
-        DestroyCurLevel();
-        SetCurLevelIndex(index);
-        curLevel = null;
-        curLevel = Instantiate(levelPrefabs[index], Vector3.zero, Quaternion.identity);
-        curLevel.gameObject.name = curLevel.name; //.Replace("(Clone)", "");
-        Debug.Log("cur level name: " + curLevel.name);
-        UpdateObjectCount();
-
-        if(OnLevelLoad != null){
-            
-            OnLevelLoad();
-        }
-    }
-
     public void RestartCurLevel(){
         //LoadLevelWithIndex(curLevelIndex);
         DestroyCurLevel();
@@ -293,6 +265,9 @@ public class LevelManager : MonoBehaviour{
 
     public void LoadLevelWithIndex(int index = 0){
         DestroyCurLevel();
+        index = index < 0 ? 0 : index;
+        index = index >= levelTxts.Length ? levelTxts.Length - 1 : index;
+
         string levelName = curLevelPool[index].levelName;
         Transform levelHolder = GenerateNewLevelHolder(levelName);
 
@@ -340,9 +315,6 @@ public class LevelManager : MonoBehaviour{
     }
 
     public int GetActiveNodeCount(){
-        
-        
-
         int nodeCount = 0;
 
         foreach (var item in nodesPool) {
@@ -354,30 +326,17 @@ public class LevelManager : MonoBehaviour{
             }
         }
 
-        /*
-        Transform levelTransform = curLevel.transform;
-        int childCount = levelTransform.childCount;
-        for (int i = 0; i < childCount; i++){
-            GameObject child = levelTransform.GetChild(i).gameObject;
-            if(child.activeInHierarchy && ((1<<child.layer) & LayerMask.GetMask("Node")) != 0){
-                nodeCount++;
-            }
-        }*/
-
         return nodeCount;
     }
-    public static int GetArrowCount()
-    {
+    public static int GetArrowCount(){
         Transform levelTransform = curLevel.transform;
         int childCount = levelTransform.childCount;
 
         int arrowCount = 0;
 
-        for (int i = 0; i < childCount; i++)
-        {
+        for (int i = 0; i < childCount; i++){
             GameObject child = levelTransform.GetChild(i).gameObject;
-            if (child.activeInHierarchy && ((1 << child.layer) & LayerMask.GetMask("Arrow")) != 0)
-            {
+            if (child.activeInHierarchy && ((1 << child.layer) & LayerMask.GetMask("Arrow")) != 0){
                 arrowCount++;
             }
         }
@@ -388,7 +347,9 @@ public class LevelManager : MonoBehaviour{
     public void SetCurLevelIndex(int levelIndex){
         Debug.Log("cur level pool count : " + curLevelPool.Count);
         Debug.Log("level index : " + levelIndex);
-        if (levelIndex < 0 || levelIndex > curLevelPool.Count - 1) return;
+        if (levelIndex < 0 || levelIndex > curLevelPool.Count-1) return;
+
+
 
         curLevelIndex = levelIndex;
         if(OnCurLevelIndexChange != null){
@@ -396,25 +357,25 @@ public class LevelManager : MonoBehaviour{
         }
     }
 
-    public void ChangeCurLevelIndex(int amount)
-    {
+    public void ChangeCurLevelIndex(int amount){
+        int index = curLevelIndex + amount;
+        if (index > levelProgressIndex && curPool == LevelPool.Original) return;
+
         SetCurLevelIndex(curLevelIndex + amount);
     }
-    public static int GetCurLevelIndex()
-    {
+
+    public int GetCurLevelIndex(){
         return curLevelIndex;
     }
 
     public void DestroyCurLevel(){
-        if(curLevel != null)
-        {
+        if(curLevel != null){
             Destroy(curLevel);
         }
     }
 
-    public Transform GenerateNewLevelHolder(string levelName)
-    {
-        Transform levelHolder = new GameObject(levelName).transform; //Instantiate(levelContainer, Vector3.zero, Quaternion.identity).transform;
+    public Transform GenerateNewLevelHolder(string levelName){
+        Transform levelHolder = new GameObject(levelName).transform; 
 
         levelHolder.gameObject.AddComponent<Level>();
 
@@ -532,15 +493,13 @@ public class LevelManager : MonoBehaviour{
         return levelProperty;
     }
 
-    public string SerializeLevelAsJson(Transform level)
-    {
+    public string SerializeLevelAsJson(Transform level){
         LevelProperty levelProperty = CreateLevelProperty(level);
 
         return Utility.JsonSerialization(levelProperty);
     }
 
-    public void LoadLevelWithName(string levelName)
-    {
+    public void LoadLevelWithName(string levelName){
         LoadLevelProperty(levelName, transform);
     }
 
@@ -551,34 +510,28 @@ public class LevelManager : MonoBehaviour{
         List<GameObject> childrenToDestroy = new List<GameObject>();
 
 
-        for (int i = 0; i < childCount; i++)
-        {
+        for (int i = 0; i < childCount; i++){
             GameObject obj = objects.GetChild(i).gameObject;
             childrenToDestroy.Add(obj);
         }
 
         // Destroy inactive objects before saving the level
-        foreach (var obj in childrenToDestroy)
-        {
+        foreach (var obj in childrenToDestroy){
             DestroyImmediate(obj);
         }
 
         LevelProperty levelProperty = null;
-        foreach (var item in curLevelPool)
-        {
-            if(item.levelName == levelName)
-            {
+        foreach (var item in curLevelPool){
+            if(item.levelName == levelName){
                 levelProperty = item;
                 break;
             }
         }
 
-        if (levelProperty != null)
-        {
+        if (levelProperty != null){
             LoadLevelWithLevelProperty(levelProperty, levelParent);
         }
-        else
-        {
+        else{
             Debug.Log("No level found with given name: " + levelName);
             throw new System.Exception();
         }
@@ -710,26 +663,22 @@ public class LevelManager : MonoBehaviour{
         }
     }
 
-    private void AddToPlayerLevels(LevelProperty level)
-    {
+    private void AddToPlayerLevels(LevelProperty level){
         playerLevels.Add(level);
         playerLevelsNames.Add(level.levelName);
     }
 
-    public void SetCurLevelPool(LevelPool value)
-    {
+    public void SetCurLevelPool(LevelPool value){
         curPool = value;
 
         curLevelPool = value == LevelPool.Original ? originalLevels : playerLevels;
 
-        if (OnLevelPoolChanged != null)
-        {
+        if (OnLevelPoolChanged != null){
             OnLevelPoolChanged(GetCurLevelsNameList());
         }
     }
 
-    public List<string> GetCurLevelsNameList()
-    {
+    public List<string> GetCurLevelsNameList(){
         List<string> value = curPool == LevelPool.Original ? originalLevelsNames : playerLevelsNames;
 
         return value;
@@ -738,49 +687,39 @@ public class LevelManager : MonoBehaviour{
     private PrefabAndPool GetPrefabAndPoolByTag(string tag){
         PrefabAndPool prefabAndPool = new PrefabAndPool();
 
-        if (tag == "BasicNode")
-        {
+        if (tag == "BasicNode"){
             prefabAndPool.prefab = basicNode;
             //prefabAndPool.pool = nodesPool;
         }
-        else if (tag == "Arrow")
-        {
+        else if (tag == "Arrow"){
             prefabAndPool.prefab = arrow;
             //prefabAndPool.pool = arrowsPool;
         }
-        else if (tag == "HexagonNode")
-        {
+        else if (tag == "HexagonNode"){
             prefabAndPool.prefab = hexagonNode;
             //prefabAndPool.pool = nodesPool;
         }
-        else if (tag == "BlockedNode" | tag == "StarNode")
-        {
+        else if (tag == "BlockedNode" | tag == "StarNode"){
             prefabAndPool.prefab = blockedNode;
             //prefabAndPool.pool = nodesPool;
         }
-        else if (tag == "SquareNode")
-        {
+        else if (tag == "SquareNode"){
             prefabAndPool.prefab = squareNode;
             //prefabAndPool.pool = nodesPool;
         }
-        else if (tag == "TransporterArrow")
-        {
+        else if (tag == "TransporterArrow"){
             prefabAndPool.prefab = transporterArrow;
         }
-        else if (tag == "Key")
-        {
+        else if (tag == "Key"){
             prefabAndPool.prefab = keyPrefab;
         }
-        else if (tag == "Padlock")
-        {
+        else if (tag == "Padlock"){
             prefabAndPool.prefab = padLockPrefab;
         }
-        else if (tag == "NodeSwapper")
-        {
+        else if (tag == "NodeSwapper"){
             prefabAndPool.prefab = nodeSwapperPrefab;
         }
-        else if (tag == "BrushA")
-        {
+        else if (tag == "BrushA"){
             prefabAndPool.prefab = brushAPrefab;
         }
         else if(tag == "ReverseArrow") {
@@ -797,8 +736,6 @@ public class LevelManager : MonoBehaviour{
         Arrow obj = null;
         
         foreach (var item in pool){
-            //Debug.Log("-----------------------------");
-            //Debug.Log("name: " + item.name + " =? " + "id: " + id);
             if(id == item.name){
                 obj = item;
                 break;
@@ -809,16 +746,13 @@ public class LevelManager : MonoBehaviour{
     }
 
 
-    private Node FindObjInNodePool(string id, List<Node> pool)
-    {
+    private Node FindObjInNodePool(string id, List<Node> pool){
         Node obj = null;
 
-        foreach (var item in pool)
-        {
+        foreach (var item in pool){
             //Debug.Log("-----------------------------");
             //Debug.Log("name: " + item.name + " =? " + "id: " + id);
-            if (id == item.name)
-            {
+            if (id == item.name){
                 obj = item;
                 break;
             }
@@ -827,33 +761,28 @@ public class LevelManager : MonoBehaviour{
         return obj;
     }
 
-    public void StartIncreasingLevelIndex()
-    {
+    public void StartIncreasingLevelIndex(){
         startIncreasingLevelIndex = true;
         changeLevelIndexDur = defChangeLevelIndexDur;
         time = 0;
     }
 
-    public void StopIncreasingLevelIndex()
-    {
+    public void StopIncreasingLevelIndex(){
         startIncreasingLevelIndex = false;
     }
 
-    public void StartDecreasingLevelIndex()
-    {
+    public void StartDecreasingLevelIndex(){
         startDecreasingLevelIndex = true;
         changeLevelIndexDur = defChangeLevelIndexDur;
         time = 0;
     }
 
-    public void StopDecreasingLevelIndex()
-    {
+    public void StopDecreasingLevelIndex(){
         startDecreasingLevelIndex = false;
     }
 
 
-    struct PrefabAndPool
-    {
+    struct PrefabAndPool{
         public GameObject prefab;
         //public List<GameObject> pool;
     }

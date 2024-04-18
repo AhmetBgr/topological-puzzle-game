@@ -26,6 +26,8 @@ public class Options : MonoBehaviour{
 
     private string optionsDataPath;
 
+    private string dataFileName = "options.txt";
+
     private void OnEnable() {
         Grid.OnGridSizeChanged += SetGridSize;
     }
@@ -35,8 +37,17 @@ public class Options : MonoBehaviour{
     }
 
     void Start(){
-        optionsDataPath = Application.persistentDataPath + "/" + "options.txt";
+        optionsDataPath = Application.persistentDataPath + "/" + dataFileName;
+
+        if (Application.platform == RuntimePlatform.WebGLPlayer)
+            optionsDataPath = "/idbfs/" + dataFileName; 
+
+
         UpdateResolutionDropdown();
+
+        if(Application.platform == RuntimePlatform.WebGLPlayer) {
+            resolutionDropdown.interactable = false;
+        }
 
         if (!File.Exists(optionsDataPath)) {
             // Set default options

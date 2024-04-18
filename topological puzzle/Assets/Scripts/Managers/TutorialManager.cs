@@ -13,7 +13,7 @@ public class TutorialManager : MonoBehaviour
     private Vector3 rewindButtonAppearPos;
     private Vector3 rewindButtonDisAppearPos = new Vector3(0f, 700f, 0f);
 
-    private Vector3 tutorialPanelAppearPos = new Vector3(-707f, 0f, 0f);
+    public Vector3 tutorialPanelAppearPos;
     private Vector3 tutorialPanelDisAppearPos;
 
     bool tutorialPanelAppeared = false;
@@ -37,7 +37,7 @@ public class TutorialManager : MonoBehaviour
     }
 
     private void TryEnableTutorialPanel() {
-        if(LevelManager.curLevelIndex == 2 && levelManager.curPool == LevelPool.Original && !tutorialPanelAppeared) {
+        if(levelManager.curLevelIndex == 2 && levelManager.curPool == LevelPool.Original && !tutorialPanelAppeared) {
             tutorialPanel.transform.DOLocalMove(tutorialPanelAppearPos, 1f);
             tutorialPanelAppeared = true;
         }
@@ -49,11 +49,11 @@ public class TutorialManager : MonoBehaviour
     }
 
     private void TryEnableRewindButton() {
-        if (LevelManager.curLevelIndex < 2 && levelManager.curPool == LevelPool.Original && rewindButtonAppeared) {
+        if (levelManager.curLevelIndex < 2 && levelManager.curPool == LevelPool.Original && rewindButtonAppeared) {
             rewindButton.transform.DOLocalMove(rewindButtonDisAppearPos, 1f);
             rewindButtonAppeared = false;
         }
-        else if (LevelManager.curLevelIndex >= 2 && !rewindButtonAppeared) {
+        else if (levelManager.curLevelIndex >= 2 && !rewindButtonAppeared) {
             rewindButton.transform.DOLocalMove(rewindButtonAppearPos, 1f);
             rewindButtonAppeared = true;
         }

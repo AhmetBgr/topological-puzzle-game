@@ -100,6 +100,7 @@ public class HighlightManager : MonoBehaviour
     }
 
     public void Search(MultipleComparison<Component> mp){
+        Debug.Log("SEARCH: " + mp.ToString());
         if(OnSearch != null)
             OnSearch(mp);
     }

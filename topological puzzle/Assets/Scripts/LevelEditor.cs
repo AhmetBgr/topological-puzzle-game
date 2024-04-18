@@ -692,7 +692,7 @@ public class LevelEditor : MonoBehaviour{
             levelManager.OpenPlayerLevels();
 #endif 
         levelsDropdownHandler.AddOptions(levelManager.GetCurLevelsNameList());
-        levelsDropdownHandler.UpdateCurrentValue(LevelManager.curLevelIndex, false);
+        levelsDropdownHandler.UpdateCurrentValue(levelManager.curLevelIndex, false);
         UpdateLevelPoolName();
 
         if (wasGridActive)

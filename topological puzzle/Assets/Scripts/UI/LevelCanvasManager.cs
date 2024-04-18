@@ -28,104 +28,67 @@ public class LevelCanvasManager : MonoBehaviour
     private void OnEnable()
     {
         LevelManager.OnCurLevelIndexChange += UpdateLevelIndexText;
-        //LevelManager.OnCurLevelIndexChange += UpdateLevelProgressButtons;
         LevelManager.OnLevelLoad += UpdateNextLevelButton;
         LevelManager.OnLevelLoad += UpdatePreviousLevelButton;
         GameState.OnAnimationStart += MakeUndoNoninteractive;
-        //mainItemContainer.OnContainerChanged += UpdateUseItemButtonBCImage;
         Item.OnUsabilityChanged += UpdateUseItemButtonBCImage;
         LevelManager.OnLevelLoad += Reset;
         LevelEditor.OnExit += Reset;
-        //LevelEditor.OnEnter += DisableUseItemButton;
-        //LevelEditor.OnExit += EnableUseItemButton;
-        //LevelEditor.OnEnter += ToggleLevelChangeButtons;
-        //LevelEditor.OnExit += ToggleLevelChangeButtons;
         UpdateNextLevelButton();
         UpdatePreviousLevelButton();
         Reset();
-        UpdateLevelIndexText(LevelManager.curLevelIndex);
+        UpdateLevelIndexText(levelManager.curLevelIndex);
     }
     private void OnDisable()
     {
         LevelManager.OnCurLevelIndexChange -= UpdateLevelIndexText;
-        //LevelManager.OnCurLevelIndexChange -= UpdateLevelProgressButtons;
         LevelManager.OnLevelLoad -= UpdateNextLevelButton;
         LevelManager.OnLevelLoad -= UpdatePreviousLevelButton;
         GameState.OnAnimationStart -= MakeUndoNoninteractive;
-        //mainItemContainer.OnContainerChanged -= UpdateUseItemButtonBCImage;
         Item.OnUsabilityChanged -= UpdateUseItemButtonBCImage;
         LevelManager.OnLevelLoad -= Reset;
         LevelEditor.OnExit -= Reset;
-        //LevelEditor.OnEnter -= DisableUseItemButton;
-        //LevelEditor.OnExit -= EnableUseItemButton;
-        //LevelEditor.OnEnter -= ToggleLevelChangeButtons;
-        //LevelEditor.OnExit -= ToggleLevelChangeButtons;
     }
 
-    private void Start()
-    {
-    }
     private void UpdateLevelIndexText(int curLevelIndex)
     {
         int level = curLevelIndex +1;
-        Debug.Log("level index: " + level);
+        //Debug.Log("level index: " + level);
         levelIndexText.text = level >= 10 ? level.ToString() : "0" + level.ToString();
     }
 
-    private void UpdateNextLevelButton()
-    {
-        if(levelManager.curPool == LevelPool.Player && LevelManager.curLevelIndex >= levelManager.playerLevels.Count - 1){
+    private void UpdateNextLevelButton(){
+        GameObject nextBTG = nextLevelButton.targetGraphic.gameObject;
+
+        if (levelManager.curPool == LevelPool.Player && levelManager.curLevelIndex >= levelManager.playerLevels.Count - 1){
+            nextBTG.SetActive(false);
             nextLevelButton.gameObject.SetActive(false);
         }
-        else if(levelManager.curPool == LevelPool.Original && LevelManager.curLevelIndex >= levelManager.levelProgressIndex){
+        else if(levelManager.curPool == LevelPool.Original && levelManager.curLevelIndex >= levelManager.levelProgressIndex){
+            nextBTG.SetActive(false);
             nextLevelButton.gameObject.SetActive(false);
+        }
+        else {
+            nextLevelButton.gameObject.SetActive(true);
+            nextBTG.SetActive(true);
+
+        }
+    }
+
+    private void UpdatePreviousLevelButton(){
+        GameObject prviousBTG = previousLevelButton.targetGraphic.gameObject;
+        if (levelManager.curLevelIndex <= 0){
+            prviousBTG.SetActive(false);
+            previousLevelButton.gameObject.SetActive(false);
         }
         else{
-            nextLevelButton.gameObject.SetActive(true);
-        }
-
-    }
-
-    private void UpdatePreviousLevelButton()
-    {
-        if (LevelManager.curLevelIndex <= 0)
-        {
-            previousLevelButton.gameObject.SetActive(false);
-        }
-        else
-        {
             previousLevelButton.gameObject.SetActive(true);
+            prviousBTG.SetActive(true);
+
         }
     }
 
-    private void ToggleLevelChangeButtons()
-    {
-        if (previousLevelButton.gameObject.activeInHierarchy || nextLevelButton.gameObject.activeInHierarchy)
-        {
-            previousLevelButton.gameObject.SetActive(false);
-            nextLevelButton.gameObject.SetActive(false);
-        }
-        else
-        {
-            if (LevelManager.curLevelIndex <= 1)
-            {
-                previousLevelButton.gameObject.SetActive(false);
-                nextLevelButton.gameObject.SetActive(true);
-            }
-            else if (LevelManager.curLevelIndex >= levelManager.levelProgressIndex)
-            {
-                previousLevelButton.gameObject.SetActive(true);
-                nextLevelButton.gameObject.SetActive(false);
-            }
-            else
-            {
-                previousLevelButton.gameObject.SetActive(true);
-                nextLevelButton.gameObject.SetActive(true);
-            }
-        }
-    }
-    public void MakeUndoNoninteractive(float duration)
-    {
+    public void MakeUndoNoninteractive(float duration){
         if (disableCor != null)
             StopCoroutine(disableCor);
 

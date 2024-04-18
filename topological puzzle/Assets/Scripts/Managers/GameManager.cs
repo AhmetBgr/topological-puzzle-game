@@ -88,7 +88,6 @@ public class GameManager : MonoBehaviour{
 
     void Start(){
         //StartCoroutine(ChangeCommandWithDelay(Commands.RemoveNode, 1f));
-
         highlightManager = HighlightManager.instance;
         audioManager = AudioManager.instance;
     }
@@ -337,7 +336,7 @@ public class GameManager : MonoBehaviour{
         if ((Input.GetKeyDown(KeyCode.Z) |  Input.GetMouseButtonDown(2)) && !isPlayingAction)
             Undo();
 
-        UpdateChangesCounter();
+        //UpdateChangesCounter();
     }
 
     private void SetPlayingAction() {
@@ -541,7 +540,7 @@ public class GameManager : MonoBehaviour{
 
         if (GameState.gameState == GameState_EN.inLevelEditor) return;
 
-        ChangeCommandWithDelay(Commands.RemoveNode, 0.7f);
+        ChangeCommandWithDelay(Commands.RemoveNode, 0.1f);
     }
 
     public void AddToOldCommands(Command command, bool addToNonRewindCommands = true)

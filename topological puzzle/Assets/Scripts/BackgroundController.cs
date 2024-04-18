@@ -52,7 +52,7 @@ public class BackgroundController : MonoBehaviour {
 
     private void UpdateBackground() {
         //int index = Mathf.FloorToInt((LevelManager.curLevelIndex + 1) / 3);
-        int levelIndex = LevelManager.curLevelIndex;
+        int levelIndex = levelManager.curLevelIndex;
 
         int index = 1;
 

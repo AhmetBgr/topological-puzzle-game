@@ -1,0 +1,111 @@
+{
+    "levelName": "transporter_arrow_2",
+    "nodes": [
+        {
+            "posX": 0.0,
+            "posY": -1.25,
+            "tag": "BasicNode",
+            "id": -18486,
+            "hasShell": false,
+            "itemTags": [
+                "TransporterItem"
+            ]
+        },
+        {
+            "posX": 1.249999761581421,
+            "posY": 0.0,
+            "tag": "BasicNode",
+            "id": -18566,
+            "hasShell": false,
+            "itemTags": []
+        },
+        {
+            "posX": 2.499999523162842,
+            "posY": -1.25,
+            "tag": "BasicNode",
+            "id": -18646,
+            "hasShell": false,
+            "itemTags": []
+        },
+        {
+            "posX": -2.5,
+            "posY": 1.25,
+            "tag": "BasicNode",
+            "id": -18726,
+            "hasShell": false,
+            "itemTags": [
+                "Padlock"
+            ]
+        },
+        {
+            "posX": 0.0,
+            "posY": 1.25,
+            "tag": "BlockedNode",
+            "id": -18806,
+            "hasShell": false,
+            "itemTags": [
+                "p,Padlock"
+            ]
+        },
+        {
+            "posX": -1.250000238418579,
+            "posY": 0.0,
+            "tag": "BasicNode",
+            "id": -18888,
+            "hasShell": true,
+            "itemTags": [
+                "ReverseArrow",
+                "Key"
+            ]
+        }
+    ],
+    "arrows": [
+        {
+            "tag": "Arrow",
+            "id": -18990,
+            "startingNodeID": -18726,
+            "destinationNodeID": -18806,
+            "pointsX": [
+                -2.0799999237060549,
+                -0.5799999237060547
+            ],
+            "pointsY": [
+                1.25,
+                1.25
+            ],
+            "priority": 0
+        },
+        {
+            "tag": "Arrow",
+            "id": -19032,
+            "startingNodeID": -18888,
+            "destinationNodeID": -18566,
+            "pointsX": [
+                -0.8300002813339233,
+                0.6699998378753662
+            ],
+            "pointsY": [
+                0.0,
+                0.0
+            ],
+            "priority": 0
+        },
+        {
+            "tag": "Arrow",
+            "id": -19074,
+            "startingNodeID": -18486,
+            "destinationNodeID": -18646,
+            "pointsX": [
+                0.41999998688697817,
+                1.9199994802474976
+            ],
+            "pointsY": [
+                -1.25,
+                -1.25
+            ],
+            "priority": 0
+        }
+    ],
+    "nodeCount": 6,
+    "arrowCount": 3
+}

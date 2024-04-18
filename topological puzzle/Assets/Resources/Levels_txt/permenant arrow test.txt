@@ -3,9 +3,9 @@
     "nodes": [
         {
             "posX": -1.5,
-            "posY": 0.7499998807907105,
+            "posY": 1.000000238418579,
             "tag": "BasicNode",
-            "id": -152014,
+            "id": -13442,
             "hasShell": false,
             "itemTags": [
                 "Key"
@@ -13,17 +13,17 @@
         },
         {
             "posX": 1.5000004768371583,
-            "posY": -1.5,
+            "posY": -0.9999999403953552,
             "tag": "BasicNode",
-            "id": -152094,
+            "id": -13522,
             "hasShell": false,
             "itemTags": []
         },
         {
             "posX": 1.5000004768371583,
-            "posY": 0.7499998807907105,
+            "posY": 1.000000238418579,
             "tag": "HexagonNode",
-            "id": -152152,
+            "id": -13580,
             "hasShell": false,
             "itemTags": [
                 "Padlock"
@@ -31,145 +31,183 @@
         },
         {
             "posX": 0.0,
-            "posY": 2.250000238418579,
-            "tag": "StarNode",
-            "id": -152330,
+            "posY": 2.5,
+            "tag": "BlockedNode",
+            "id": -13668,
             "hasShell": false,
             "itemTags": []
         },
         {
             "posX": -1.5,
-            "posY": -1.5,
+            "posY": -0.9999999403953552,
             "tag": "BasicNode",
-            "id": -152838,
+            "id": -13726,
             "hasShell": true,
             "itemTags": [
                 "ReverseArrow"
             ]
+        },
+        {
+            "posX": 0.0,
+            "posY": -2.5,
+            "tag": "BasicNode",
+            "id": -15118,
+            "hasShell": false,
+            "itemTags": []
         }
     ],
     "arrows": [
         {
             "tag": "Arrow",
-            "id": -152388,
-            "startingNodeID": -152094,
-            "destinationNodeID": -152152,
+            "id": -13848,
+            "startingNodeID": -13522,
+            "destinationNodeID": -13442,
+            "pointsX": [
+                1.1505393981933594,
+                -1.0174107551574708
+            ],
+            "pointsY": [
+                -0.7670259475708008,
+                0.6782741546630859
+            ],
+            "priority": 0
+        },
+        {
+            "tag": "Arrow",
+            "id": -13890,
+            "startingNodeID": -13726,
+            "destinationNodeID": -13442,
+            "pointsX": [
+                -1.5,
+                -1.5
+            ],
+            "pointsY": [
+                -0.5799999237060547,
+                0.4200003147125244
+            ],
+            "priority": 0
+        },
+        {
+            "tag": "Arrow",
+            "id": -14016,
+            "startingNodeID": -13726,
+            "destinationNodeID": -13580,
+            "pointsX": [
+                -1.1505389213562012,
+                1.017411231994629
+            ],
+            "pointsY": [
+                -0.7670258283615112,
+                0.6782740354537964
+            ],
+            "priority": 0
+        },
+        {
+            "tag": "p,Arrow",
+            "id": -14058,
+            "startingNodeID": -13668,
+            "destinationNodeID": -13442,
+            "pointsX": [
+                -0.29698488116264346,
+                -1.089877963066101
+            ],
+            "pointsY": [
+                2.203015089035034,
+                1.4101221561431885
+            ],
+            "priority": 0
+        },
+        {
+            "tag": "p,Arrow",
+            "id": -14100,
+            "startingNodeID": -13522,
+            "destinationNodeID": -13726,
+            "pointsX": [
+                1.0800005197525025,
+                -0.9199999570846558
+            ],
+            "pointsY": [
+                -0.9999999403953552,
+                -0.9999999403953552
+            ],
+            "priority": 0
+        },
+        {
+            "tag": "p,Arrow",
+            "id": -15258,
+            "startingNodeID": -15118,
+            "destinationNodeID": -13522,
+            "pointsX": [
+                0.2969849109649658,
+                1.0898785591125489
+            ],
+            "pointsY": [
+                -2.2030153274536135,
+                -1.4101219177246094
+            ],
+            "priority": 0
+        },
+        {
+            "tag": "p,Arrow",
+            "id": -15300,
+            "startingNodeID": -15118,
+            "destinationNodeID": -13726,
+            "pointsX": [
+                -0.29698482155799868,
+                -1.0898782014846802
+            ],
+            "pointsY": [
+                -2.203015089035034,
+                -1.4101219177246094
+            ],
+            "priority": 0
+        },
+        {
+            "tag": "Arrow",
+            "id": -16238,
+            "startingNodeID": -13522,
+            "destinationNodeID": -13580,
             "pointsX": [
                 1.5000004768371583,
                 1.5000004768371583
             ],
             "pointsY": [
-                -1.100000023841858,
-                0.18999993801116944
+                -0.5799999237060547,
+                0.4200003147125244
             ],
             "priority": 0
         },
         {
             "tag": "Arrow",
-            "id": -152430,
-            "startingNodeID": -152094,
-            "destinationNodeID": -152014,
+            "id": -16280,
+            "startingNodeID": -13580,
+            "destinationNodeID": -13442,
             "pointsX": [
-                1.1800004243850709,
-                -1.0519999265670777
+                1.0800005197525025,
+                -0.9199999570846558
             ],
             "pointsY": [
-                -1.2599999904632569,
-                0.4140000343322754
+                1.000000238418579,
+                1.000000238418579
             ],
             "priority": 0
         },
         {
             "tag": "Arrow",
-            "id": -152472,
-            "startingNodeID": -152838,
-            "destinationNodeID": -152014,
+            "id": -16322,
+            "startingNodeID": -13668,
+            "destinationNodeID": -13580,
             "pointsX": [
-                -1.5,
-                -1.5
+                0.2969849407672882,
+                1.0898785591125489
             ],
             "pointsY": [
-                -1.0,
-                0.18999993801116944
-            ],
-            "priority": 0
-        },
-        {
-            "tag": "Arrow",
-            "id": -152514,
-            "startingNodeID": -152152,
-            "destinationNodeID": -152014,
-            "pointsX": [
-                1.1000005006790162,
-                -0.9399999380111694
-            ],
-            "pointsY": [
-                0.7499998807907105,
-                0.7499998807907105
-            ],
-            "priority": 0
-        },
-        {
-            "tag": "Arrow",
-            "id": -152556,
-            "startingNodeID": -152330,
-            "destinationNodeID": -152152,
-            "pointsX": [
-                0.2828427255153656,
-                1.104020595550537
-            ],
-            "pointsY": [
-                1.9671574831008912,
-                1.145979642868042
-            ],
-            "priority": 0
-        },
-        {
-            "tag": "Arrow",
-            "id": -152598,
-            "startingNodeID": -152838,
-            "destinationNodeID": -152152,
-            "pointsX": [
-                -1.0999999046325684,
-                1.0520002841949463
-            ],
-            "pointsY": [
-                -1.2000000476837159,
-                0.41399991512298586
-            ],
-            "priority": 0
-        },
-        {
-            "tag": "p,Arrow",
-            "id": -152640,
-            "startingNodeID": -152330,
-            "destinationNodeID": -152014,
-            "pointsX": [
-                -0.2828426957130432,
-                -1.104020357131958
-            ],
-            "pointsY": [
-                1.9671574831008912,
-                1.145979642868042
-            ],
-            "priority": 0
-        },
-        {
-            "tag": "p,Arrow",
-            "id": -152682,
-            "startingNodeID": -152094,
-            "destinationNodeID": -152838,
-            "pointsX": [
-                1.1000005006790162,
-                -0.8399999141693115
-            ],
-            "pointsY": [
-                -1.5,
-                -1.5
+                2.2030153274536135,
+                1.4101221561431885
             ],
             "priority": 0
         }
     ],
-    "nodeCount": 5,
-    "arrowCount": 8
+    "nodeCount": 6,
+    "arrowCount": 10
 }
