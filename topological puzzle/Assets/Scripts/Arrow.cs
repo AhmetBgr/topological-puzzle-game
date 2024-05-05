@@ -5,6 +5,13 @@ using System;
 using DG.Tweening;
 
 public class Arrow : MonoBehaviour {
+    private enum HighlightState {
+        Highlight,
+        Dehighlight,
+        Selecteble,
+        NotSelectable,
+        None
+    }
 
     public GameObject startingNode;
     public GameObject destinationNode;
@@ -33,18 +40,23 @@ public class Arrow : MonoBehaviour {
     private Tween headScaleTween;
     public Vector3[] linePoints;
     public List<ArrowPoint> arrowPoints = new List<ArrowPoint>();
+    private HighlightState highlightState;
+    //private HighlightState prevHighlightState;
+    //private HighlightState nextHighlightState;
+
     //public Transform arrowPointPreview;
     //public int arrowPointPreviewIndex;
     public float gapForArrowHead = 0.16f;
     private int pointsCount;
-    private float defWidth = 0.065f;
+    private float defWidth = 0.07f;
 
     private float time = 0;
     private float t = 0;
     private float dur = 1f;
-    float width = 0.15f;
-    private bool isSelectable = false;
+    //float width = 0.15f;
+    //private bool isSelectable = false;
     private bool isRemoved = false;
+    private bool isSelected = false;
     /*private bool _isBlocked = false;
     public bool isBlocked {
         get { return _isBlocked; }
@@ -56,17 +68,12 @@ public class Arrow : MonoBehaviour {
         }
     }*/
 
-
     public delegate void BeforeChangeDelegate();
     public event BeforeChangeDelegate BeforeChange;
 
     public delegate void OnChangedDelegate();
     public event OnChangedDelegate OnChanged;
-    //private float glowIntensity1 = 2f;
-    //private float glowIntensity2 = 7f;
-    //private bool animatingWidth = false;
 
-    // Start is called before the first frame update
     void Awake(){
         head = transform.GetChild(0);
         lr = gameObject.GetComponent<LineRenderer>();
@@ -133,28 +140,15 @@ public class Arrow : MonoBehaviour {
         LevelEditor.OnExit -= DisableArrowPoints;
     }
     void OnMouseEnter(){
-        
-
-        isSelectable = false;
-
-        //KillWidthCor();
-
-        KillHighlightCor();
-        KillWidthCor();
-        //StopAllCoroutines();
-
-        widthAnim = ChangeWidth(defWidth + 0.1f, 0.1f);
-        StartCoroutine(widthAnim);
-
-        highlightCor = arrowColorController.Highlight(arrowColorController.glowIntensityHigh, 0.1f);
-
-        if (GameState.gameState != GameState_EN.inLevelEditor) return;
-        LevelEditor.arrowPointPreview.gameObject.SetActive(true);
+        ChangeHighlightState(HighlightState.Highlight);
     }
 
     private void OnMouseOver()
     {
         if (GameState.gameState != GameState_EN.inLevelEditor) return;
+
+        if(!LevelEditor.arrowPointPreview.gameObject.activeSelf)
+            LevelEditor.arrowPointPreview.gameObject.SetActive(true);
 
         int posCount = lr.positionCount;
         if (posCount < 2) return;
@@ -201,41 +195,81 @@ public class Arrow : MonoBehaviour {
     }
 
     void OnMouseExit(){
-        isSelectable = true;
-
-        KillWidthCor();
-
-        KillHighlightCor();
-
-        //head.DOScale(Vector3.one, 0.2f);
-        widthAnim = ChangeWidth(defWidth, 0.1f);
-        StartCoroutine(ChangeWidth(defWidth, 0.1f));
+        if (!isSelected)
+            ChangeHighlightState(HighlightState.Dehighlight);
+        else
+            isSelected = false;
 
         if (GameState.gameState != GameState_EN.inLevelEditor) return;
+
         LevelEditor.arrowPointPreview.gameObject.SetActive(false);
     }
 
-    private void Update()
-    {
-        if (!isSelectable) return;
+    private void OnMouseDown() {
+        isSelected = true;
+        ChangeHighlightState(HighlightState.NotSelectable);
+    }
 
-        t += Time.deltaTime;
-        if (t >= dur)
-        {
-            t = 0;
-            width = lr.startWidth > defWidth ? defWidth : defWidth + 0.1f;
-            dur = UnityEngine.Random.Range(0.5f, 2f);
-            float glowIntensity = arrowColorController.curGlowIntensity == arrowColorController.glowIntensityHigh ?
-                arrowColorController.glowIntensityMedium : arrowColorController.glowIntensityHigh;
-            widthAnim = ChangeWidth(width, dur);
-            StartCoroutine(widthAnim);
-            highlightCor =  arrowColorController.Highlight(glowIntensity, dur);
-            //Debug.Log("should change width change coroutine, dur : " + dur + ", width: "+ width);
-            //Debug.Log("starts width: " + lr.startWidth);
+    private void Update(){
+        if (highlightState == HighlightState.None) return;
+
+        if(highlightState != HighlightState.Selecteble) {
+            KillHighlightCor();
+            KillWidthCor();
+        }
+
+        switch (highlightState) {
+            case HighlightState.Selecteble: {
+                t += Time.deltaTime;
+                if (t >= dur) {
+                    t = 0;
+
+                    dur = UnityEngine.Random.Range(0.5f, 2f);
+                    float glowIntensity = arrowColorController.curGlowIntensity == arrowColorController.glowIntensityMedHigh ?
+                        arrowColorController.glowIntensityMedium : arrowColorController.glowIntensityMedHigh;
+
+                    //width = lr.startWidth > defWidth ? defWidth : defWidth + 0.05f;
+
+
+                    highlightCor = arrowColorController.Highlight(glowIntensity, dur);
+                }
+                break;
+            }
+            case HighlightState.Highlight: {
+                widthAnim = ChangeWidth(defWidth + 0.1f, 0f);
+                StartCoroutine(widthAnim);
+
+                highlightCor = arrowColorController.Highlight(arrowColorController.glowIntensityHigh, 0.1f);
+
+                ChangeHighlightState(HighlightState.None);
+                t = dur;
+
+                break;
+            }
+            case HighlightState.Dehighlight: {
+                widthAnim = ChangeWidth(defWidth, 0.1f);
+                StartCoroutine(widthAnim);
+
+                ChangeHighlightState(HighlightState.Selecteble);
+                t = dur;
+
+                break;
+            }
+            case HighlightState.NotSelectable: {
+                arrowColorController.Highlight(arrowColorController.glowIntensityMedium, 1f);
+                StartCoroutine(ChangeWidth(defWidth, 1f));
+                t = dur;
+                ChangeHighlightState(HighlightState.None);
+                break;
+            }
         }
     }
 
-    
+    private void ChangeHighlightState(HighlightState state, HighlightState nextHighlightState = HighlightState.None) {
+        //prevHighlightState =  highlightState;
+        highlightState = state;
+        //this.nextHighlightState = nextHighlightState;
+    }
 
     // Changes direction on any other node removed if the starting node of this arrow is a star node
     private void ChangeDirIfLinkedToStar(GameObject node, RemoveNode command)
@@ -415,19 +449,17 @@ public class Arrow : MonoBehaviour {
         {
             //arrowColorController.Highlight(arrowColorController.glowIntensityHigh, 1f);
             col.enabled = true;
-            isSelectable = true;
+            //isSelectable = true;
             dur = UnityEngine.Random.Range(0.2f, 2f);
             t = 0;
+            widthAnim = ChangeWidth(defWidth, 0f);
+            StartCoroutine(widthAnim);
+            ChangeHighlightState(HighlightState.Selecteble);
         }
         else
         {
-            isSelectable = false;
-            KillWidthCor();
-            KillHighlightCor();
-
-            arrowColorController.Highlight(arrowColorController.glowIntensityMedium, 1f);
-            StartCoroutine(ChangeWidth(defWidth, 1f));
             col.enabled = false;
+            ChangeHighlightState(HighlightState.NotSelectable);
         }
     }
 
@@ -603,15 +635,17 @@ public class Arrow : MonoBehaviour {
         float initialTime = Time.time;
         float initialWidth = lr.startWidth;
         float time = 0;
-        while(time <= duration){
-            time += Time.deltaTime;
-            float t = (Time.time - initialTime) / duration;
+        while(time < duration){
+            float t = time / duration; //(Time.time - initialTime) / duration
             float width = Mathf.Lerp(initialWidth, targetWidth, t);
+            time += Time.deltaTime;
+
             lr.startWidth = width;
 
             yield return null;
         }
         //animatingWidth = false;
+        lr.startWidth = targetWidth;
         widthAnim = null;
         if(OnComplete != null) 
             OnComplete();

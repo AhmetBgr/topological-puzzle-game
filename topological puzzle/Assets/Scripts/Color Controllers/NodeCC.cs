@@ -14,6 +14,9 @@ public class NodeCC : ColorController
     
     private Material material;
     private Material secondaryMaterial;
+    private Tween colorTween;
+    private Tween colorTween2;
+
 
 
     [HideInInspector] public float glowIntensityVeryLow = -8f;
@@ -40,11 +43,18 @@ public class NodeCC : ColorController
     protected override void ChangeColorsOnPaletteSwap(Palette palette, float duration)
     {
         bool isPermanent = nodeSprite.material.GetFloat("_Enable") == 1f;
-        if(nodeSprite != null && !isPermanent) 
-            nodeSprite.DOColor(palette.nodeColor, duration);
+        if(colorTween != null) {
+            colorTween.Kill();
+        }
+        if (colorTween != null) {
+            colorTween2.Kill();
+        }
+
+        if (nodeSprite != null && !isPermanent) 
+             colorTween = nodeSprite.DOColor(palette.nodeColor, duration);
 
         if (secondarySprite != null && !isPermanent)
-            secondarySprite.DOColor(palette.nodeColor, duration);
+            colorTween2 = secondarySprite.DOColor(palette.nodeColor, duration);
 
         if (indegreeText != null)
             indegreeText.DOColor(palette.nodeColor, duration);

@@ -116,6 +116,8 @@ public abstract class Item : MonoBehaviour
             OnUsabilityCheck();
         }
         isUsable = false;
+
+
         if (suitableObjCount > 0)
         {
             isUsable = true;

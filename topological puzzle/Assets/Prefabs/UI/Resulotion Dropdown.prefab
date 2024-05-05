@@ -827,7 +827,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -1102,7 +1102,7 @@ MonoBehaviour:
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
-  m_ScrollSensitivity: 1
+  m_ScrollSensitivity: 25
   m_Viewport: {fileID: 3151660932453208024}
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 3151660931253265665}
@@ -1215,6 +1215,10 @@ PrefabInstance:
     - target: {fileID: 9155456660365956960, guid: d293a2fd5713bc64b960fb8997b5883e, type: 3}
       propertyPath: m_text
       value: Resolution
+      objectReference: {fileID: 0}
+    - target: {fileID: 9155456660365956960, guid: d293a2fd5713bc64b960fb8997b5883e, type: 3}
+      propertyPath: m_fontStyle
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9155456660365956960, guid: d293a2fd5713bc64b960fb8997b5883e, type: 3}
       propertyPath: m_sharedMaterial

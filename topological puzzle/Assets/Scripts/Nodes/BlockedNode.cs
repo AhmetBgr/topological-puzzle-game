@@ -23,6 +23,7 @@ public class BlockedNode : Node
     }
 
     protected override void CheckIfSuitableForKey() {
+        UpdateBLockStatus();
         if (blocked) return;
 
         base.CheckIfSuitableForKey();
@@ -59,7 +60,10 @@ public class BlockedNode : Node
         }
     }
 
-
+    public override void CheckAvailibility(MultipleComparison<Component> mp) {
+        UpdateBLockStatus();
+        base.CheckAvailibility(mp);
+    }
 
     protected override void UpdateHighlight(MultipleComparison<Component> mp){
         if((GameState.gameState == GameState_EN.playing | GameState.gameState == GameState_EN.testingLevel) && !hasShell)
@@ -81,13 +85,15 @@ public class BlockedNode : Node
         if (blocked && !hasShell && OnBlockCheck != null) {
 
             List<Node> visited = new List<Node>();
-            Node current = this;
-            Visit(current, visited);
+            Visit(this, visited);
             foreach (Node node in visited) {
                 if (!node.isRemoved && !(node.CompareTag("BlockedNode") | node.CompareTag("StarNode"))) {
+                    Debug.Log("Try Deny");
+
                     node.Deny();
                 }
             }
+            Debug.Log("blocked true");
 
             //OnBlockCheck();
             return true;
@@ -110,8 +116,9 @@ public class BlockedNode : Node
         }
 
         foreach (var item in neighbors) {
-            if (!visited.Contains(item.GetComponent<Node>())) {
-                Visit(item.GetComponent<Node>(), visited);
+            Node node = item.GetComponent<Node>();
+            if (!visited.Contains(node)) {
+                Visit(node, visited);
             }
         }
 

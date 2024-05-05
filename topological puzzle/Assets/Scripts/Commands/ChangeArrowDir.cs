@@ -31,6 +31,8 @@ public class ChangeArrowDir : Command
 
     public override void Execute(float dur, bool isRewinding = false)
     {
+        if (isRewinding && arrow.isPermanent) return;
+
         executionTime = gameManager.timeID;
 
         affectedObjects.Add(arrowObj);
@@ -92,6 +94,7 @@ public class ChangeArrowDir : Command
             }
         }
 
+        if (!arrow.gameObject.activeSelf) return false;
 
         arrow.gameObject.SetActive(true);
         arrow.ChangeDir(dur);

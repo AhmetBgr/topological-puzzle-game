@@ -32,7 +32,9 @@ public class LevelEditor : MonoBehaviour{
     public RectTransform addItemPanel;
     public TMP_InputField levelNameField;
     public TextMeshProUGUI levelNameText;
-    public TextMeshProUGUI encodedLevelText;
+    public TMP_InputField copyLevelCodeTextField;
+    public TextMeshProUGUI copyLevelCodeChildTextField;
+
     public TMP_InputField encodedLevelTextField;
     public TextMeshProUGUI levelPoolNameTextField;
     public Button enterTestButton;
@@ -62,6 +64,8 @@ public class LevelEditor : MonoBehaviour{
     private Sequence panelSequance;
     public Node addItemNode;
     public GameObject itemToAdd;
+    [HideInInspector] public Palette defPalette;
+
     private Button curSelButton;
     private LineRenderer lr;
     public List<LeCommand> oldCommands = new List<LeCommand>();
@@ -91,7 +95,7 @@ public class LevelEditor : MonoBehaviour{
     void Awake(){
         state = LeState.closed;
         gameManager = FindObjectOfType<GameManager>();
-
+        defPalette = gameManager.defPalette;
         gameObject.SetActive(false);
         panel.OnOpen += OpenLevelEditor;
         panel.OnClose += CloseLevelEditor;
@@ -138,7 +142,7 @@ public class LevelEditor : MonoBehaviour{
             toggleGridHandler.Toggle();
 
         // Delete Object
-        if (Input.GetMouseButtonDown(2) && GameState.gameState == GameState_EN.inLevelEditor){
+        if (Input.GetMouseButtonDown(1) && GameState.gameState == GameState_EN.inLevelEditor){
             Vector2 ray = cursor.worldPos;
             RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero);
             if(hit){
@@ -410,12 +414,12 @@ public class LevelEditor : MonoBehaviour{
                     toggleItemPermanent.Execute(null);
                     oldCommands.Add(toggleItemPermanent);
                 }
-                else if (((1 << selectedObject.layer) & LayerMask.GetMask("Node")) != 0)
+                /*else if (((1 << selectedObject.layer) & LayerMask.GetMask("Node")) != 0)
                 {
                     ToggleNodePermanent toggleNodePermanent = new ToggleNodePermanent(selectedObject.GetComponent<Node>());
                     toggleNodePermanent.Execute(null);
                     oldCommands.Add(toggleNodePermanent);
-                }
+                }*/
                 else if (((1 << selectedObject.layer) & LayerMask.GetMask("Arrow")) != 0)
                 {
                     ToggleArrowPermanent toggleArrowPermanent = new ToggleArrowPermanent(selectedObject.GetComponent<Arrow>());
@@ -592,7 +596,8 @@ public class LevelEditor : MonoBehaviour{
         Debug.Log( System.Text.Encoding.Default
             .GetString(bytesToEncode));
 
-        encodedLevelText.text = Utility.EncodeBase64FromBytes(bytesToEncode);
+        copyLevelCodeChildTextField.enableWordWrapping = true;
+        copyLevelCodeTextField.text = Utility.EncodeBase64FromBytes(bytesToEncode);
     }
 
     private void UpdateGridSizeTextField(float value, float minGridSize)
@@ -600,14 +605,22 @@ public class LevelEditor : MonoBehaviour{
         gridSizeTextField.text = (value / minGridSize).ToString(); 
     }
 
-    public void CopyLevelCode()
-    {
-        GUIUtility.systemCopyBuffer = encodedLevelText.text;
+    public void CopyLevelCode(){
+        /*if(Application.platform == RuntimePlatform.WebGLPlayer) {
+            WebGLCopyAndPasteAPI.GetClipboard(copyLevelCodeTextField.text);
+            return;
+        }*/
+        
+        GUIUtility.systemCopyBuffer = copyLevelCodeTextField.text;
         //ToggleSharePanel();
     }
 
-    public void PasteLevelCode()
-    {
+    public void PasteLevelCode(){
+        /*if (Application.platform == RuntimePlatform.WebGLPlayer) {
+            WebGLCopyAndPasteAPI.ReceivePaste(copyLevelCodeTextField.text);
+            return;
+        }*/
+
         encodedLevelTextField.text = GUIUtility.systemCopyBuffer;
     }
 
@@ -638,6 +651,7 @@ public class LevelEditor : MonoBehaviour{
         
         levelManager.LoadLevelWithLevelProperty(levelProperty, levelHolder);
         curLevelInEditing.SetActive(true);
+        UpdateHighlights(0);
     }
 
     public void ClearAllObjects(){
@@ -647,6 +661,7 @@ public class LevelEditor : MonoBehaviour{
     }
 
     private void OpenLevelEditor(){
+        gameManager.gameObject.SetActive(false);
         gameObject.SetActive(true);
         cursor.Enable();
         if (OnEnter != null){
@@ -680,7 +695,8 @@ public class LevelEditor : MonoBehaviour{
 
         enterTestButton.gameObject.SetActive(true);
 
-        HighlightManager.instance.SearchWithDelay(HighlightManager.instance.any, .5f);
+        //HighlightManager.instance.Search(HighlightManager.instance.any);
+        UpdateHighlights(0);
         lastState = LeState.waiting;
         state = LeState.waiting;
         ResetCurLevelInEditing();
@@ -700,10 +716,13 @@ public class LevelEditor : MonoBehaviour{
     }   
 
     private void CloseLevelEditor(){
-        if(GameState.gameState == GameState_EN.testingLevel){
+        gameManager.gameObject.SetActive(true);
+
+        if (GameState.gameState == GameState_EN.testingLevel){
             ExitTesting();
             return;
         }
+
 
         if (panelSequance != null){
             panelSequance.Kill();
@@ -744,7 +763,7 @@ public class LevelEditor : MonoBehaviour{
 
     private void UpdateHighlights(int value)
     {
-        HighlightManager.instance.SearchWithDelay(HighlightManager.instance.any, 1f);
+        HighlightManager.instance.Search(HighlightManager.instance.any);
         gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, 0.02f);
     }
 
@@ -768,6 +787,8 @@ public class LevelEditor : MonoBehaviour{
     }
 
     public void EnterTesting(){
+        gameManager.gameObject.SetActive(true);
+
         CancelCurrentAction();
 
         initialLevel = levelManager.CreateLevelProperty(LevelManager.curLevel.transform);
@@ -778,7 +799,7 @@ public class LevelEditor : MonoBehaviour{
         CloseLevelEditor();
         gameplayPanel.Open();
         GameState.ChangeGameState(GameState_EN.testingLevel);
-
+        gameManager.UpdateCommand();
         exitTestButton.gameObject.SetActive(true);
         //wasGridActive = grid.isActive;
 
@@ -790,6 +811,7 @@ public class LevelEditor : MonoBehaviour{
     public void ExitTesting(){
         if (GameState.gameState != GameState_EN.testingLevel) return;
 
+        //gameManager.gameObject.SetActive(true);
 
         Destroy(LevelManager.curLevel);
         initialLevelObj.SetActive(true);
@@ -797,7 +819,8 @@ public class LevelEditor : MonoBehaviour{
         levelManager.UpdatePools();
         //levelManager.LoadLevelWithLevelProperty(initialLevel, levelManager.GenerateNewLevelHolder(name));
         GameState.ChangeGameState(GameState_EN.inLevelEditor);
-        gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, 0.02f);
+        //gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, 0.02f);
+        gameManager.ResetData();
         OpenLevelEditor();
         gameplayPanel.Close();
         ResetCurLevelInEditing();

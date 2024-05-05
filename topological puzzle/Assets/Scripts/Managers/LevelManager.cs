@@ -99,9 +99,9 @@ public class LevelManager : MonoBehaviour{
         // Get progression data
         GetAndSetProgressionData();
 
-        //#if UNITY_EDITOR
-            //levelProgressIndex = originalLevels.Count - 1;
-        //#endif
+        #if UNITY_EDITOR
+            levelProgressIndex = originalLevels.Count - 1;
+        #endif
 
         //LoadLevel(curLevelIndex);
         LoadLevelWithIndex(curLevelIndex); // "multiple square test"

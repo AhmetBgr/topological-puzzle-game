@@ -53,6 +53,42 @@ public class CompareArrowPermanent : Comparison
     }
 }
 
+public class CompareShell : Comparison {
+    public int targetShell = -1; // -1 = any, 1 = target should have shell, 0 = target shouldn't have shell
+
+    public CompareShell(int targetShell) {
+        this.targetShell = targetShell;
+    }
+
+    public override bool Compare(Component obj) {
+        Node node = obj as Node;
+
+        bool shellCheck = targetShell == -1 ? true : (node.hasShell && targetShell == 1) | (!node.hasShell && targetShell == 0);
+        return shellCheck;
+    }
+}
+
+public class CompareBlocked : Comparison {
+    public int targetBlocked = -1; // -1 = any, 1 = blocked target , 0 = not blocked target 
+
+    public CompareBlocked(int targetBlocked) {
+        this.targetBlocked = targetBlocked;
+    }
+
+    public override bool Compare(Component obj) {
+        BlockedNode node = obj as BlockedNode;
+
+
+        if(node == null && (targetBlocked == 0 | targetBlocked == -1)){
+            return true;
+        }
+
+        Debug.Log("here: " + node.tag + ", blocked:" + node.blocked);
+        bool blockCheck = targetBlocked == -1 ? true : (node.blocked && targetBlocked == 1) | (!node.blocked && targetBlocked == 0);
+        return blockCheck;
+    }
+}
+
 public class CompareItemPermanent : Comparison
 {
     public int permanent = -1; // -1 = any, 0 = target nonpermanent, 1 = target permanent

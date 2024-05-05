@@ -1,0 +1,162 @@
+{
+    "levelName": "transfer locks",
+    "nodes": [
+        {
+            "posX": 0.0,
+            "posY": -1.9999998807907105,
+            "tag": "BlockedNode",
+            "id": -107464,
+            "hasShell": false,
+            "itemTags": [
+                "Padlock",
+                "p,Padlock",
+                "Padlock"
+            ]
+        },
+        {
+            "posX": 2.000000476837158,
+            "posY": -1.9999998807907105,
+            "tag": "BlockedNode",
+            "id": -107522,
+            "hasShell": false,
+            "itemTags": [
+                "p,Padlock",
+                "Padlock"
+            ]
+        },
+        {
+            "posX": 1.000000238418579,
+            "posY": 0.0,
+            "tag": "BasicNode",
+            "id": -107758,
+            "hasShell": false,
+            "itemTags": []
+        },
+        {
+            "posX": 0.0,
+            "posY": 1.499999761581421,
+            "tag": "BasicNode",
+            "id": -107922,
+            "hasShell": false,
+            "itemTags": [
+                "TransporterItem"
+            ]
+        },
+        {
+            "posX": -0.9999997019767761,
+            "posY": 0.0,
+            "tag": "BasicNode",
+            "id": -108142,
+            "hasShell": false,
+            "itemTags": [
+                "p,Key",
+                "Key",
+                "p,Key"
+            ]
+        },
+        {
+            "posX": -1.9999998807907105,
+            "posY": 1.499999761581421,
+            "tag": "BasicNode",
+            "id": -108200,
+            "hasShell": false,
+            "itemTags": [
+                "ReverseArrow"
+            ]
+        }
+    ],
+    "arrows": [
+        {
+            "tag": "Arrow",
+            "id": -108442,
+            "startingNodeID": -107758,
+            "destinationNodeID": -107464,
+            "pointsX": [
+                0.8121705055236816,
+                0.2593839168548584
+            ],
+            "pointsY": [
+                -0.37565937638282778,
+                -1.4812321662902833
+            ],
+            "priority": 0
+        },
+        {
+            "tag": "Arrow",
+            "id": -108526,
+            "startingNodeID": -107464,
+            "destinationNodeID": -107522,
+            "pointsX": [
+                0.41999998688697817,
+                1.4200005531311036
+            ],
+            "pointsY": [
+                -1.9999998807907105,
+                -1.9999998807907105
+            ],
+            "priority": 0
+        },
+        {
+            "tag": "Arrow",
+            "id": -108610,
+            "startingNodeID": -107758,
+            "destinationNodeID": -107522,
+            "pointsX": [
+                1.1878299713134766,
+                1.7406165599822999
+            ],
+            "pointsY": [
+                -0.37565937638282778,
+                -1.4812321662902833
+            ],
+            "priority": 0
+        },
+        {
+            "tag": "Arrow",
+            "id": -108800,
+            "startingNodeID": -108200,
+            "destinationNodeID": -108142,
+            "pointsX": [
+                -1.7670257091522217,
+                -1.321725845336914
+            ],
+            "pointsY": [
+                1.150538682937622,
+                0.48258912563323977
+            ],
+            "priority": 0
+        },
+        {
+            "tag": "Arrow",
+            "id": -119842,
+            "startingNodeID": -108142,
+            "destinationNodeID": -107758,
+            "pointsX": [
+                -0.5799996852874756,
+                0.4200003147125244
+            ],
+            "pointsY": [
+                0.0,
+                0.0
+            ],
+            "priority": 0
+        },
+        {
+            "tag": "Arrow",
+            "id": -120794,
+            "startingNodeID": -107922,
+            "destinationNodeID": -108142,
+            "pointsX": [
+                -0.2329740822315216,
+                -0.6782737374305725
+            ],
+            "pointsY": [
+                1.150538682937622,
+                0.4825891852378845
+            ],
+            "priority": 0
+        }
+    ],
+    "nodeCount": 6,
+    "arrowCount": 6
+}

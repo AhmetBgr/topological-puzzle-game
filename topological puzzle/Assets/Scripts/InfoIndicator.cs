@@ -7,6 +7,8 @@ using DG.Tweening;
 public class InfoIndicator : MonoBehaviour{
 
     public TextMeshProUGUI infoText;
+    public Transform infoTextParent;
+    private CanvasGroup infoTextCanvasGroup;
     private Vector3 initialPos;
     private Sequence infoTextSeq;
     
@@ -14,6 +16,8 @@ public class InfoIndicator : MonoBehaviour{
     [HideInInspector] public string changeArrowDirText;
     [HideInInspector] public string swapNodeText;
     [HideInInspector] public string setArrowPermanentText;
+    [HideInInspector] public string transferItemsText;
+
 
     public Color objColor;
     public Color actionColor;
@@ -28,38 +32,47 @@ public class InfoIndicator : MonoBehaviour{
     public string setArrowPermanentColor;*/
 
     void Start(){
-        initialPos = infoText.transform.localPosition;
+        //infoTextParent = infoText.transform.parent;
+        infoTextCanvasGroup = infoTextParent.GetComponent<CanvasGroup>();
+        initialPos = infoTextParent.localPosition;
         
         objColorHex = ColorUtility.ToHtmlStringRGB(objColor);
         actionColorHex = ColorUtility.ToHtmlStringRGB(actionColor);
 
         unlockText = 
-            "<color=#FFFFFF><size=0.7em>select a </size></color>" +
+            "<color=#FFFFFF><size=0.8em>select a </size></color>" +
             $"<color=#{objColorHex}>Locked Node </color>" +
-            "<color=#FFFFFF><size=0.7em >to </size></color>" +
+            "<color=#FFFFFF><size=0.8em >to </size></color>" +
             $"<color=#{actionColorHex}>Unlock </color>" +
-            "<color=#FFFFFF><size=0.7em >it.</size></color>"; 
+            "<color=#FFFFFF><size=0.8em >it.</size></color>"; 
         
         changeArrowDirText = 
-            "<color=#FFFFFF><size=0.7em>select an </size></color>" +
+            "<color=#FFFFFF><size=0.8em>select an </size></color>" +
             $"<color=#{objColorHex}>Arrow </color>" +
-            "<color=#FFFFFF><size=0.7em >to change it's </size></color>" +
+            "<color=#FFFFFF><size=0.8em >to change it's </size></color>" +
             $"<color=#{actionColorHex}>Direction </color>"; ;
 
         swapNodeText = 
-            "<color=#FFFFFF><size=0.7em>select 2 </size></color>" +
+            "<color=#FFFFFF><size=0.8em>select 2 </size></color>" +
             $"<color=#{objColorHex}>Adjacent Node </color>" +
-            "<color=#FFFFFF><size=0.7em >to </size></color>" +
+            "<color=#FFFFFF><size=0.8em >to </size></color>" +
             $"<color=#{actionColorHex}>Swap </color>" +
-            "<color=#FFFFFF><size=0.7em >them.</size></color>"; 
+            "<color=#FFFFFF><size=0.8em >them.</size></color>"; 
 
         setArrowPermanentText = 
-            "<color=#FFFFFF><size=0.7em>select an </size></color>" +
+            "<color=#FFFFFF><size=0.8em>select an </size></color>" +
             $"<color=#{objColorHex}>Arrow </color>" +
-            "<color=#FFFFFF><size=0.7em >to </size></color>" +
+            "<color=#FFFFFF><size=0.8em >to </size></color>" +
             $"<color=#{actionColorHex}>Set Permanent</color>";
 
-        if(Options.optionsData != null && Options.optionsData.disableActionInfoText) {
+        transferItemsText =
+            "<color=#FFFFFF><size=0.8em>select an </size></color>" +
+            $"<color=#{objColorHex}>Arrow </color>" +
+            "<color=#FFFFFF><size=0.8em >to </size></color>" +
+            $"<color=#{actionColorHex}>Transfer Items </color>" +
+            "<color=#FFFFFF><size=0.8em >to destination Node </size></color>";
+
+        if (Options.optionsData != null && Options.optionsData.disableActionInfoText) {
             this.enabled = !Options.optionsData.disableActionInfoText;
         }
     }
@@ -72,23 +85,23 @@ public class InfoIndicator : MonoBehaviour{
     public void ShowInfoText(string text){
         if (!this.enabled) return;
 
-        infoText.gameObject.SetActive(true);
+        infoTextParent.gameObject.SetActive(true);
         infoText.text = text;
         
         if (infoTextSeq != null && infoTextSeq.IsPlaying())
             infoTextSeq.Kill();
 
         infoTextSeq = DOTween.Sequence();
-        
-        infoText.transform.localPosition = initialPos + Vector3.down*25f;
 
-        infoTextSeq.Append(infoText.DOFade(0f, 0f));
-        infoTextSeq.Append(infoText.DOFade(1f, 1f));
-        infoTextSeq.Append(infoText.transform.DOLocalMoveY(initialPos.y, 1f).SetDelay(-1f));
+        infoTextParent.localPosition = initialPos + Vector3.down*25f;
+
+        infoTextSeq.Append(infoTextCanvasGroup.DOFade(0f, 0f));
+        infoTextSeq.Append(infoTextCanvasGroup.DOFade(1f, 1f));
+        infoTextSeq.Append(infoTextParent.DOLocalMoveY(initialPos.y, 1f).SetDelay(-1f));
         
     }
 
-    public void HideInfoText(){
+    public void HideInfoText(float dur = 1f){
         if (!this.enabled) return;
         //initialPos = infoText.transform.localPosition;
 
@@ -100,8 +113,8 @@ public class InfoIndicator : MonoBehaviour{
 
         //infoText.transform.localPosition = initialPos - Vector3.up*40f;
 
-        infoTextSeq.Append(infoText.DOFade(0f, 1f));
-        infoTextSeq.Append(infoText.transform.DOLocalMoveY(initialPos.y + 5f, 1f)
+        infoTextSeq.Append(infoTextCanvasGroup.DOFade(0f, dur));
+        infoTextSeq.Append(infoTextParent.DOLocalMoveY(initialPos.y + 5f, dur)
             .SetDelay(-1f));
             /*.OnComplete(() => {
                 infoText.transform.localPosition = initialPos;

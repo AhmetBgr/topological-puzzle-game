@@ -86,6 +86,7 @@ public class ItemController : MonoBehaviour
     // Returns first item in items list with given item type
     public Item FindItemWithType(ItemType itemType)
     {
+        //Debug.Log("has shell:" + node.hasShell + ", item count: " + itemContainer.items.Count);
         if (itemContainer.items.Count == 0) return null; 
 
         foreach (var item in itemContainer.items)

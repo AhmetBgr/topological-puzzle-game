@@ -55,6 +55,7 @@ public class HighlightManager : MonoBehaviour
 
         unlockPadlock = new MultipleComparison<Component>(new List<Comparison> { nodeLayer,
             new CompareIndegree(0),
+            new CompareBlocked(0),
             new CompareIncludeNodesWithGivenItemTypes(
                 new List<ItemType> {ItemType.Padlock})});
         

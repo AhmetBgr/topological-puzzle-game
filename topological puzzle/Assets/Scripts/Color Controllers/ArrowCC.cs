@@ -13,13 +13,15 @@ public class ArrowCC : ColorController
     public Material defHeadMaterial;
 
 
-    private Palette defPalette;
+    public Palette defPalette;
     private Material material;
     private Material headMaterial;
     
     //[HideInInspector] public float glowIntensityVeryLow = -8f;
     //[HideInInspector] public float glowIntensityLow = -3f;
+
     [HideInInspector] public float glowIntensityMedium;
+    [HideInInspector] public float glowIntensityMedHigh;
     [HideInInspector] public float glowIntensityHigh;
     [HideInInspector] public float curGlowIntensity;
     private void Awake()
@@ -32,9 +34,10 @@ public class ArrowCC : ColorController
         material = lr.material;
         headMaterial = arrowHead.material;
         glowIntensityMedium = -6; //-3f
+        glowIntensityMedHigh = 0f;
         glowIntensityHigh = 1f;     //1f
 
-        defPalette = FindObjectOfType<GameManager>().defPalette;
+        //defPalette = FindObjectOfType<LevelEditor>().defPalette;
     }
     
     protected override void ChangeColorsOnPaletteSwap(Palette palette, float duration)

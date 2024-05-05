@@ -12,7 +12,7 @@ public class BasicPanel : Panel
 
     public override void Open()
     {
-        PostProcessingManager.instance.ChangeDOF(dofAmountOpen, 0.04f);
+        //PostProcessingManager.instance.ChangeDOF(dofAmountOpen, 0.04f);
         GameState.ChangeGameState(gameState);
 
         gameObject.SetActive(true);

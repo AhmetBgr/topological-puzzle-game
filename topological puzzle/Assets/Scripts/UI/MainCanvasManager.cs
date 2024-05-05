@@ -13,6 +13,7 @@ public class MainCanvasManager : MonoBehaviour
     public Panel gameplayPanel;
     public Panel levelEditorPanel;
     public GameObject optionsPanel;
+    public GameObject blurPanel;
 
     public Button myLevelsButton;
     public Button optionsButton;
@@ -64,10 +65,12 @@ public class MainCanvasManager : MonoBehaviour
     {
         if(currentPanel == mainMenuPanel){
             PanelTransition(previousPanel);
+            //blurPanel.SetActive(false);
         }
         else{
             //playText.text = "Play" + " - " + LevelManager.curLevel.name;
             PanelTransition(mainMenuPanel);
+            //blurPanel.SetActive(true);
         }
     }
 
@@ -105,6 +108,8 @@ public class MainCanvasManager : MonoBehaviour
         nextPanel.Open();
 
         currentPanel = nextPanel;
+
+        blurPanel.SetActive(currentPanel == mainMenuPanel);
     }
 
     public void UpdateMyLevelsButton()

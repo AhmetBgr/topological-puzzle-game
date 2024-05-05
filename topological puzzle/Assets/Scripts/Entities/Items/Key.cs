@@ -7,13 +7,30 @@ using System;
 
 public class Key : Obtainable
 {
+
+    public override void CheckAndUse() {
+        isUsable = false;
+
+        isUsable = HighlightManager.instance.CheckAvailibility(HighlightManager.instance.unlockPadlock);
+
+        if (isUsable) {
+            Use();
+        }
+
+        InvokeOnUsabilityCheckEvent(isUsable);
+
+        suitableObjCount = 0;
+    }
     public override void Use()
     {
-        ChangeCommand changeCommand = new ChangeCommand(gameManager, null, gameManager.curCommand, Commands.UnlockPadlock);
-        changeCommand.isPermanent = isPermanent;
-        changeCommand.Execute(gameManager.commandDur);
+        //ChangeCommand changeCommand = new ChangeCommand(gameManager, null, gameManager.curCommand, Commands.UnlockPadlock);
+        //changeCommand.isPermanent = isPermanent;
+        //changeCommand.Execute(gameManager.commandDur);
+
         //HighlightManager.instance.Search(HighlightManager.instance.unlockPadlockSearch);
         //gameManager.AddToOldCommands(changeCommand);
+
+        gameManager.ChangeCommand(Commands.UnlockPadlock);
     }
 
     public override void MoveWithTween(Action moveAction)

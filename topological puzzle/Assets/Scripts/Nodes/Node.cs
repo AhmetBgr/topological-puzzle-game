@@ -6,6 +6,10 @@ using TMPro;
 using System;
 
 public class Node : MonoBehaviour {
+
+    public List<GameObject> arrowsFromThisNode = new List<GameObject>();
+    public List<GameObject> arrowsToThisNode = new List<GameObject>();
+
     public SpriteRenderer nodeSprite;
     public Sprite basicSprite;
     public TextMeshProUGUI indegree_text;
@@ -19,16 +23,6 @@ public class Node : MonoBehaviour {
     public ItemController itemController;
     public RandomSpriteColor randomSpriteColor;
 
-    public List<GameObject> arrowsFromThisNode = new List<GameObject>();
-    public List<GameObject> arrowsToThisNode = new List<GameObject>();
-
-    public bool selectable = false;
-    public bool isSelected = false;
-    public bool isPermanent = false;
-    public bool isRemoved = false;
-    public bool hasShell = false;
-    //[HideInInspector] public bool isVisited = false;
-
     private Vector3 initalScale;
     //private Color initialColor;
     [HideInInspector] public Sprite defSprite;
@@ -41,10 +35,19 @@ public class Node : MonoBehaviour {
     protected Tween shakeTween;
     protected Color nonPermanentColor;
 
+    public bool selectable = false;
+    public bool isSelected = false;
+    public bool isPermanent = false;
+    public bool isRemoved = false;
+    public bool hasShell = false;
+    //[HideInInspector] public bool isVisited = false;
+
     public string defTag;
     private float initialTopPosY;
     
     public int indegree = 0;
+    private float appearDur = 0;
+
 
     public delegate void OnNodeRemoveDelegate(GameObject removedNode);
     public static event OnNodeRemoveDelegate OnNodeRemove;
@@ -62,6 +65,7 @@ public class Node : MonoBehaviour {
     public static event OnPointerExitDelegate OnPointerExit;
 
     protected virtual void Awake(){
+        appearDur = UnityEngine.Random.Range(0.1f, 0.5f);
         gameManager = FindObjectOfType<GameManager>();
         initalScale = transform.localScale;
         initialTopPosY = nodeSprite.transform.localPosition.y;
@@ -74,7 +78,6 @@ public class Node : MonoBehaviour {
         nonPermanentColor = nodeSprite.color;
         //initialColor = material.GetColor("_Color");
         UpdateIndegree(indegree);
-
         /*if (hasShell)
             AddShell(0f);
         else
@@ -85,6 +88,7 @@ public class Node : MonoBehaviour {
         GameManager.OnGetNodes += AddNodeToPool;
         LevelManager.OnLevelLoad += GetOnTheLevel;
         Item.OnUsabilityCheck += CheckIfSuitableForKey;
+        HighlightManager.OnAvailibilityCheck += CheckAvailibility;
         HighlightManager.OnSearch += UpdateHighlight;
         BlockedNode.OnBlockCheck += Deny;
     }
@@ -93,6 +97,7 @@ public class Node : MonoBehaviour {
         GameManager.OnGetNodes -= AddNodeToPool;
         LevelManager.OnLevelLoad -= GetOnTheLevel;
         Item.OnUsabilityCheck -= CheckIfSuitableForKey;
+        HighlightManager.OnAvailibilityCheck -= CheckAvailibility;
         HighlightManager.OnSearch -= UpdateHighlight;
         BlockedNode.OnBlockCheck -= Deny;
 
@@ -106,7 +111,9 @@ public class Node : MonoBehaviour {
         }
 
         scaleTween = nodeSprite.transform.DOScale(1.1f, 0.1f);
-        nodeColorController.Highlight(nodeColorController.glowIntensityHigh, 0.1f);
+        nodeColorController.Highlight(nodeColorController.glowIntensityHigh, 0.01f);
+
+        if (GameState.gameState == GameState_EN.inLevelEditor) return;
 
         if(gameManager.curCommand == Commands.RemoveNode 
             && (GameState.gameState == GameState_EN.playing | GameState.gameState == GameState_EN.testingLevel)) {
@@ -124,7 +131,7 @@ public class Node : MonoBehaviour {
         }
 
         scaleTween = nodeSprite.transform.DOScale(1f, 0.1f);
-        nodeColorController.Highlight(nodeColorController.glowIntensityMedium, 0.1f);
+        nodeColorController.Highlight(nodeColorController.glowIntensityMedium, 0.01f);
 
         if (GameState.gameState == GameState_EN.playing | GameState.gameState == GameState_EN.testingLevel) {
 
@@ -225,8 +232,9 @@ public class Node : MonoBehaviour {
     private void GetOnTheLevel(){
         //Debug.Log("should get on level");
         transform.localScale = Vector3.zero;
-        float duration = UnityEngine.Random.Range(0.2f, 0.7f);
-        AppearAnim(duration, 0f, easeType : Ease.Linear);
+        
+        AppearAnim(appearDur, 0f, easeType : Ease.Linear);
+        appearDur = 0;
     }
 
     protected virtual void UpdateHighlight(MultipleComparison<Component> mp){
@@ -238,22 +246,25 @@ public class Node : MonoBehaviour {
         }
     }
     protected virtual void SetSelectable() {
-        nodeColorController.Highlight(nodeColorController.glowIntensityMedium, 1f);
-        col.enabled = true;
-
         if (nodeTween != null) {
             nodeTween.Kill();
             transform.localScale = Vector3.one;
         }
+        nodeColorController.Highlight(nodeColorController.glowIntensityMedium, 0.3f);
+        col.enabled = true;
 
         if (GameState.gameState != GameState_EN.playing && GameState.gameState != GameState_EN.testingLevel) return;
 
+        //float delay = appearDur + 0.02f;
+        float delay = appearDur < gameManager.commandDur ? gameManager.commandDur : appearDur;
+        delay += 0.02f;
         nodeTween = transform.DOPunchScale(Vector3.one * 0.1f, UnityEngine.Random.Range(1f, 1.5f), vibrato: 1)
-            .SetDelay(gameManager.commandDur + 0.02f).SetLoops(-1);
+            .SetDelay(delay).SetLoops(-1);
+
     }
     protected virtual void SetNotSelectable()
     {
-        nodeColorController.Highlight(nodeColorController.glowIntensityVeryLow, 1f);
+        nodeColorController.Highlight(nodeColorController.glowIntensityVeryLow, 0.3f);
         col.enabled = false;
         if (nodeTween != null)
         {
@@ -270,12 +281,23 @@ public class Node : MonoBehaviour {
     {
         bool hasRequiredItem = itemController.FindItemWithType(ItemType.Padlock) != null ? true : false;
 
+        Debug.Log("has required item: " + hasRequiredItem);
+
         if (indegree == 0 && hasRequiredItem)
         {
             Key.suitableObjCount++;
         }
     }
-    
+
+    public virtual void CheckAvailibility(MultipleComparison<Component> mp) {
+        if (isRemoved) return;
+
+        if (mp.CompareAll(this)) {
+            HighlightManager.instance.availibleItemCount++;
+        }
+    }
+
+
     public void ChangePermanent(bool isPermanent)
     {
         this.isPermanent = isPermanent;
@@ -393,9 +415,11 @@ public class Node : MonoBehaviour {
 
     public virtual void Deny() {
         if (shakeTween != null) {
+            Debug.Log("should not Deny");
+
             return;
         }
-
+        Debug.Log("should Deny");
         shakeTween = transform.DOShakePosition(0.3f, strength: 0.15f)
             .OnComplete(() => { shakeTween = null; });
     }
