@@ -142,7 +142,7 @@ public class LevelEditor : MonoBehaviour{
             toggleGridHandler.Toggle();
 
         // Delete Object
-        if (Input.GetMouseButtonDown(1) && GameState.gameState == GameState_EN.inLevelEditor){
+        if (Input.GetMouseButtonDown(2) && GameState.gameState == GameState_EN.inLevelEditor){
             Vector2 ray = cursor.worldPos;
             RaycastHit2D hit = Physics2D.Raycast(ray, Vector2.zero);
             if(hit){
@@ -399,7 +399,7 @@ public class LevelEditor : MonoBehaviour{
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.P))
+        if (Input.GetKeyDown(KeyCode.R))
         {
             //Vector2 ray = cursor.worldPos; // Camera.main.ScreenToWorldPoint(cursor.pos);
             RaycastHit2D hit = Physics2D.Raycast(cursor.worldPos, Vector2.zero, LayerMask.GetMask("Item", "Arrow", "Node"));
@@ -696,7 +696,6 @@ public class LevelEditor : MonoBehaviour{
         enterTestButton.gameObject.SetActive(true);
 
         //HighlightManager.instance.Search(HighlightManager.instance.any);
-        UpdateHighlights(0);
         lastState = LeState.waiting;
         state = LeState.waiting;
         ResetCurLevelInEditing();
@@ -710,6 +709,7 @@ public class LevelEditor : MonoBehaviour{
         levelsDropdownHandler.AddOptions(levelManager.GetCurLevelsNameList());
         levelsDropdownHandler.UpdateCurrentValue(levelManager.curLevelIndex, false);
         UpdateLevelPoolName();
+        UpdateHighlights(0);
 
         if (wasGridActive)
             toggleGridHandler.On();

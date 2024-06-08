@@ -1,0 +1,80 @@
+{
+    "levelName": "permanent tutorial 2B",
+    "nodes": [
+        {
+            "posX": -1.9999998807907105,
+            "posY": 0.0,
+            "tag": "BasicNode",
+            "id": -15326,
+            "hasShell": false,
+            "itemTags": [
+                "Key"
+            ]
+        },
+        {
+            "posX": 2.000000476837158,
+            "posY": 0.0,
+            "tag": "BasicNode",
+            "id": -15420,
+            "hasShell": false,
+            "itemTags": [
+                "Padlock",
+                "Key"
+            ]
+        },
+        {
+            "posX": 0.0,
+            "posY": -0.9999999403953552,
+            "tag": "BasicNode",
+            "id": -15548,
+            "hasShell": false,
+            "itemTags": [
+                "Padlock"
+            ]
+        },
+        {
+            "posX": 0.0,
+            "posY": 1.000000238418579,
+            "tag": "BasicNode",
+            "id": -15642,
+            "hasShell": false,
+            "itemTags": [
+                "p,ReverseArrow"
+            ]
+        }
+    ],
+    "arrows": [
+        {
+            "tag": "Arrow",
+            "id": -15738,
+            "startingNodeID": -15326,
+            "destinationNodeID": -15642,
+            "pointsX": [
+                -1.624340534210205,
+                -0.5187677145004273
+            ],
+            "pointsY": [
+                0.18782974779605866,
+                0.7406163215637207
+            ],
+            "priority": 0
+        },
+        {
+            "tag": "Arrow",
+            "id": -15780,
+            "startingNodeID": -15642,
+            "destinationNodeID": -15420,
+            "pointsX": [
+                0.37565943598747256,
+                1.4812328815460206
+            ],
+            "pointsY": [
+                0.8121705055236816,
+                0.25938379764556887
+            ],
+            "priority": 0
+        }
+    ],
+    "nodeCount": 4,
+    "arrowCount": 2
+}

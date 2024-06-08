@@ -18,7 +18,6 @@ public class InfoIndicator : MonoBehaviour{
     [HideInInspector] public string setArrowPermanentText;
     [HideInInspector] public string transferItemsText;
 
-
     public Color objColor;
     public Color actionColor;
     private string objColorHex;
@@ -40,47 +39,47 @@ public class InfoIndicator : MonoBehaviour{
         actionColorHex = ColorUtility.ToHtmlStringRGB(actionColor);
 
         unlockText = 
-            "<color=#FFFFFF><size=0.8em>select a </size></color>" +
+            "<color=#FFFFFF><size=0.8em>Select a </size></color>" +
             $"<color=#{objColorHex}>Locked Node </color>" +
             "<color=#FFFFFF><size=0.8em >to </size></color>" +
             $"<color=#{actionColorHex}>Unlock </color>" +
             "<color=#FFFFFF><size=0.8em >it.</size></color>"; 
         
         changeArrowDirText = 
-            "<color=#FFFFFF><size=0.8em>select an </size></color>" +
+            "<color=#FFFFFF><size=0.8em>Select an </size></color>" +
             $"<color=#{objColorHex}>Arrow </color>" +
             "<color=#FFFFFF><size=0.8em >to change it's </size></color>" +
-            $"<color=#{actionColorHex}>Direction </color>"; ;
+            $"<color=#{actionColorHex}>Direction. </color>"; ;
 
         swapNodeText = 
-            "<color=#FFFFFF><size=0.8em>select 2 </size></color>" +
+            "<color=#FFFFFF><size=0.8em>Select 2 </size></color>" +
             $"<color=#{objColorHex}>Adjacent Node </color>" +
             "<color=#FFFFFF><size=0.8em >to </size></color>" +
             $"<color=#{actionColorHex}>Swap </color>" +
             "<color=#FFFFFF><size=0.8em >them.</size></color>"; 
 
         setArrowPermanentText = 
-            "<color=#FFFFFF><size=0.8em>select an </size></color>" +
+            "<color=#FFFFFF><size=0.8em>Select an </size></color>" +
             $"<color=#{objColorHex}>Arrow </color>" +
             "<color=#FFFFFF><size=0.8em >to </size></color>" +
-            $"<color=#{actionColorHex}>Set Permanent</color>";
+            $"<color=#{actionColorHex}>Paint Rainbow.</color>";
 
         transferItemsText =
-            "<color=#FFFFFF><size=0.8em>select an </size></color>" +
+            "<color=#FFFFFF><size=0.8em>Select an </size></color>" +
             $"<color=#{objColorHex}>Arrow </color>" +
             "<color=#FFFFFF><size=0.8em >to </size></color>" +
             $"<color=#{actionColorHex}>Transfer Items </color>" +
-            "<color=#FFFFFF><size=0.8em >to destination Node </size></color>";
+            "<color=#FFFFFF><size=0.8em >to destination Node.</size></color>";
 
-        if (Options.optionsData != null && Options.optionsData.disableActionInfoText) {
-            this.enabled = !Options.optionsData.disableActionInfoText;
+        if (Options.optionsData != null && Options.optionsData.disableActionInfo) {
+            this.enabled = !Options.optionsData.disableActionInfo;
         }
     }
 
-    private void OnDisable() {
+    /*private void OnDisable() {
        
         //infoText.gameObject.SetActive(false);
-    }
+    }*/
 
     public void ShowInfoText(string text){
         if (!this.enabled) return;
@@ -98,7 +97,6 @@ public class InfoIndicator : MonoBehaviour{
         infoTextSeq.Append(infoTextCanvasGroup.DOFade(0f, 0f));
         infoTextSeq.Append(infoTextCanvasGroup.DOFade(1f, 1f));
         infoTextSeq.Append(infoTextParent.DOLocalMoveY(initialPos.y, 1f).SetDelay(-1f));
-        
     }
 
     public void HideInfoText(float dur = 1f){
@@ -107,7 +105,6 @@ public class InfoIndicator : MonoBehaviour{
 
         if (infoTextSeq != null && infoTextSeq.IsPlaying())
             infoTextSeq.Kill();
-
 
         infoTextSeq = DOTween.Sequence();
 

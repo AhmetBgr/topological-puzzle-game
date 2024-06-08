@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using DG.Tweening;
 
 public class BasicPanel : Panel
@@ -9,6 +10,9 @@ public class BasicPanel : Panel
     public float openDur = 0.04f;
     public float closeDur = 0.5f;
     private Tween fadeTween;
+
+    public UnityEvent onOpen;
+    public UnityEvent onClose;
 
     public override void Open()
     {
@@ -25,6 +29,8 @@ public class BasicPanel : Panel
         fadeTween = canvasGroup.DOFade(1f, openDur / 2).SetDelay(openDur / 2);
 
         base.Open();
+
+        onOpen?.Invoke();
     }
 
     public override void Close()
@@ -40,6 +46,8 @@ public class BasicPanel : Panel
         });
 
         base.Close();
+        onClose?.Invoke();
+
     }
 
 }

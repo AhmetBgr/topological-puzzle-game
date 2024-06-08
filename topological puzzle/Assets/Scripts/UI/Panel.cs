@@ -6,7 +6,7 @@ public abstract class Panel : MonoBehaviour
 {
     public GameState_EN gameState;
 
-    public float dofAmountOpen;
+    //public float dofAmountOpen;
     //public float dofAmountClosed;
 
     public delegate void OnOpenDelegate();

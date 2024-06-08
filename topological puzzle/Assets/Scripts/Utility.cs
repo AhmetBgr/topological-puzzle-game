@@ -243,6 +243,13 @@ public static class Utility
         return list;
     }
 
+    public static float AngleFromDir(Vector3 dir) {
+        var angle = Mathf.Atan2(dir.y, dir.x); 
+        var degrees = 180 * angle / Mathf.PI;  
+
+        return (360 + Mathf.Round(degrees)) % 360; 
+    }
+
     public static Vector3 DirToVectorDir(Direction dir)
     {
         return vectorDirections[(int)dir];

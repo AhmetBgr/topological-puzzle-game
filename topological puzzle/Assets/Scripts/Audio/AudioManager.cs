@@ -5,7 +5,8 @@ using UnityEngine.Audio;
 
 public class AudioManager : MonoBehaviour{
     public AudioSource[] audioSources;
-
+    public List<AudioSource> audioSources2 = new List<AudioSource>();
+    public GameObject audioSourcePrefab;
     public SoundEffect unlock;
     public SoundEffect pickUp;
     public SoundEffect removeNode;
@@ -30,8 +31,7 @@ public class AudioManager : MonoBehaviour{
         DontDestroyOnLoad(this.gameObject);
     }
 
-    public void PlaySound(SoundEffect sound, 
-        bool playReverse = false){
+    public void PlaySound(SoundEffect sound, bool playReverse = false){
 
         AudioSource audioSource = GetAudioSource();
 
@@ -80,12 +80,16 @@ public class AudioManager : MonoBehaviour{
     }
 
     private AudioSource GetAudioSource() {
-        for (int i = 0; i < audioSources.Length; i++) {
-            if (audioSources[i].isPlaying) 
+        for (int i = 0; i < audioSources2.Count; i++) {
+            if (audioSources2[i].isPlaying) 
                 continue;
             else 
-                return audioSources[i];
+                return audioSources2[i];
         }
+
+        AudioSource audioSource = Instantiate(audioSourcePrefab, Vector3.zero, Quaternion.identity).GetComponent<AudioSource>();
+        audioSource.transform.SetParent(this.transform);
+        audioSources2.Add(audioSource);
         return null;
     }
 

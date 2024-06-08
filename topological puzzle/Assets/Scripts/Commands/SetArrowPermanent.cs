@@ -30,24 +30,24 @@ public class SetArrowPermanent : Command
         if (useItem != null)
             useItem.Undo(dur, isRewinding);
 
-        /*if(arrow.isPermanent && isRewinding){
+        if(item.isPermanent && isRewinding){
             InvokeOnUndoSkipped(this);
             return true;
         }
         else if (gameManager.skippedOldCommands.Contains(this))
             gameManager.RemoveFromSkippedOldCommands(this);
-        */
+        
         arrow.ChangePermanent(false);
 
         if(isRewinding)
             AudioManager.instance.PlaySound(AudioManager.instance.brushA, true);
 
 
-        if (item.isPermanent && isRewinding)
+        /*if (item.isPermanent && isRewinding)
             gameManager.ChangeCommand(Commands.RemoveNode);
         else
             gameManager.ChangeCommand(Commands.SetArrowPermanent);
-
+        */
         return false;
     }
 }

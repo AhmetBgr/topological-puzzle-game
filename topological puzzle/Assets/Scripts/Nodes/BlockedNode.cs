@@ -2,24 +2,75 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using TMPro;
 
 public class BlockedNode : Node
 {
     private LevelManager levelManager;
+    public TextMeshProUGUI blockerCountText;
     public bool blocked = true;
-    private static int blockedNodeCount = 0;
+    private int blockerCount = 0;
+    private bool isBlockerHinted = false;
 
     public delegate void OnBlockCheckDelegate();
     public static event OnBlockCheckDelegate OnBlockCheck;
 
     protected override void Awake(){
         base.Awake();
-        blockedNodeCount = 0;
     }
 
-    protected void Start(){
-        
-        blockedNodeCount++;
+    protected override void OnEnable() {
+        base.OnEnable();
+        Node.OnPointerEnterRemove += TryHintBlockerCount;
+        Node.OnPointerExitRemove += RevertHint;
+
+    }
+
+    protected override void OnDisable() {
+        base.OnDisable();
+        Node.OnPointerEnterRemove -= TryHintBlockerCount;
+        Node.OnPointerExitRemove -= RevertHint;
+
+    }
+
+    protected override void TryInvokeOnPointerEnterRemove() {
+        if (blocked && !hasShell) return;
+
+        base.TryInvokeOnPointerEnterRemove();
+
+    }
+
+    private void TryHintBlockerCount(Node node) {
+        if (node == this) return;
+        if (hasShell) return;
+        //if (node.hasShell) return;
+
+        List<Node> visited = new List<Node>();
+        Visit(node, visited);
+        bool isInTheSameNetworkWithNode = false;
+        foreach (Node node1 in visited) {
+            if (node1 == this) {
+                isInTheSameNetworkWithNode = true;
+                break;
+            }
+                
+        }
+
+        if (!isInTheSameNetworkWithNode) return;
+
+        blockerCountText.transform.localScale *= 1.5f;
+        //blockerCountText.text = ( (node.hasShell && node.CompareTag("BlockedNode")) | !node.hasShell ? blockerCount - 1 : blockerCount).ToString();
+        isBlockerHinted = true;
+    }
+
+
+
+    private void RevertHint(Node node) {
+        if (!isBlockerHinted) return;
+
+        blockerCountText.transform.localScale /= 1.5f;
+        //blockerCountText.text = ((node.hasShell && node.CompareTag("BlockedNode")) | !node.hasShell ? blockerCount + 1 : blockerCount).ToString();
+        isBlockerHinted = false;
     }
 
     protected override void CheckIfSuitableForKey() {
@@ -33,31 +84,39 @@ public class BlockedNode : Node
         if (levelManager == null)
             levelManager = FindObjectOfType<LevelManager>();
 
-        bool otherNodeExists = false;
-
+        //bool otherNodeExists = false;
+        blockerCount = 0;
         List<Node> visited = new List<Node>();
         Node current = this;
         Visit(current, visited);
         foreach (Node node in visited) {
             if (!node.isRemoved && !(node.CompareTag("BlockedNode") | node.CompareTag("StarNode"))) {
-                otherNodeExists = true;
-                break;
+                blockerCount++;
+                //otherNodeExists = true;
+                //break;
             }
         }
 
-        if (!otherNodeExists){
+        if (blockerCount == 0){
             nodeSprite.sprite = basicSprite;
-            //indegree_text.gameObject.SetActive(true);
             blocked = false;
+            //blockerCountText.gameObject.SetActive(false);
         }
-        else if (gameManager.curCommand == Commands.SwapNodes | hasShell){
+        else if (gameManager.curCommand == Commands.SwapNodes){
             blocked = false;
+            //blockerCountText.gameObject.SetActive(true);
+        }
+        else if(hasShell) {
+            blocked = false;
+            //blockerCountText.gameObject.SetActive(false);
         }
         else{
             nodeSprite.sprite = defSprite;
-            //indegree_text.gameObject.SetActive(false);
+            //blockerCountText.gameObject.SetActive(true);
             blocked = true; 
         }
+
+        blockerCountText.text = blockerCount.ToString();
     }
 
     public override void CheckAvailibility(MultipleComparison<Component> mp) {
@@ -71,14 +130,13 @@ public class BlockedNode : Node
 
         base.UpdateHighlight(mp);
     }
-
-    public override void AddShell(float dur = 0) {
-        blockedNodeCount--;
-        base.AddShell(dur);
-    }
     public override void RemoveShell(float dur = 0) {
-        blockedNodeCount++;
+        //blockedNodeCount++;
         base.RemoveShell(dur);
+    }
+    public override void AddShell(float dur = 0f) {
+        base.AddShell(dur);
+        UpdateBLockStatus();
     }
 
     public bool BlockCheck() {
@@ -87,7 +145,7 @@ public class BlockedNode : Node
             List<Node> visited = new List<Node>();
             Visit(this, visited);
             foreach (Node node in visited) {
-                if (!node.isRemoved && !(node.CompareTag("BlockedNode") | node.CompareTag("StarNode"))) {
+                if (!node.isRemoved && (node.hasShell | !(node.CompareTag("BlockedNode") | node.CompareTag("StarNode")))) {
                     Debug.Log("Try Deny");
 
                     node.Deny();
@@ -122,9 +180,5 @@ public class BlockedNode : Node
             }
         }
 
-    }
-
-    public override void Deny() {
-        
     }
 }

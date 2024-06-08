@@ -81,8 +81,8 @@ public class Transporter : MonoBehaviour{
         GameManager.OnPriorityToggle += TogglePriorityObj;
         LevelEditor.OnEnter += CheckForStarNodeWithDelay;
         LevelEditor.OnExit += CheckForStarNodeWithDelay;
-        Node.OnPointerEnter += TryHighlight;
-        Node.OnPointerExit += TryDefaultHighlight;
+        Node.OnPointerEnterRemove += TryHighlight;
+        Node.OnPointerExitRemove += TryDefaultHighlight;
 
         if (GameState.gameState == GameState_EN.inLevelEditor) {
             priority = priorityNext;
@@ -105,8 +105,8 @@ public class Transporter : MonoBehaviour{
         arrow.OnChanged -= FixPriorityTextPos;
         OnPriorirtySwap -= CheckForPrioritySwap;
         GameManager.OnPriorityToggle -= TogglePriorityObj;
-        Node.OnPointerEnter -= TryHighlight;
-        Node.OnPointerExit -= TryDefaultHighlight;
+        Node.OnPointerEnterRemove -= TryHighlight;
+        Node.OnPointerExitRemove -= TryDefaultHighlight;
 
         priorityNext--;
 
@@ -137,7 +137,7 @@ public class Transporter : MonoBehaviour{
 
     private void InstantiateTransportCommand(GameObject removedNode, RemoveNode command){
         //TogglePriorityObj(gameManager.isPriorityActive);
-        TryDefaultHighlight();
+        TryDefaultHighlight(null);
         CheckForStarNode();
 
         if (!canTransport) return;
@@ -302,7 +302,7 @@ public class Transporter : MonoBehaviour{
         tryPrioritySwapCor = null;
     }
 
-    private void TryHighlight() {
+    private void TryHighlight(Node node) {
         if(priority == gameManager.curPriorities[0] | priority == gameManager.curPriorities[1]) {
             //priorityObj.gameObject.SetActive(true);
             priorityBCImage.color = isNextToAStarNode ? red : priorityHighlightColor;
@@ -311,7 +311,7 @@ public class Transporter : MonoBehaviour{
         }
     }
 
-    private void TryDefaultHighlight() {
+    private void TryDefaultHighlight(Node node) {
         priorityBCImage.color = isNextToAStarNode ? red : initColor;
 
         priorityObj.localScale = Vector3.one * 0.25f;

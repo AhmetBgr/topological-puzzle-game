@@ -5,9 +5,10 @@ using DG.Tweening;
 
 public class ReverseArrowItem : Item
 {
-    public override IEnumerator CheckAndUseWithDelay(float delay) {
-        yield return new WaitForSeconds(delay);
-        isUsable = LevelManager.GetArrowCount() > 0;
+    public override void CheckAndUse() {
+        //isUsable = false;
+
+        isUsable = levelManager.GetActiveArrowCount() > 0;
 
         if (isUsable) {
             Use();

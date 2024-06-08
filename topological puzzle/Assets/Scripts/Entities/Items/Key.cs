@@ -23,6 +23,7 @@ public class Key : Obtainable
     }
     public override void Use()
     {
+        base.Use();
         //ChangeCommand changeCommand = new ChangeCommand(gameManager, null, gameManager.curCommand, Commands.UnlockPadlock);
         //changeCommand.isPermanent = isPermanent;
         //changeCommand.Execute(gameManager.commandDur);
@@ -33,13 +34,19 @@ public class Key : Obtainable
         gameManager.ChangeCommand(Commands.UnlockPadlock);
     }
 
-    public override void MoveWithTween(Action moveAction)
+    /*public override void MoveWithTween(Action moveAction)
     {
+        RevertHint();
         base.MoveWithTween(moveAction);
-    }
+    }*/
 
     public override void PlayUseAnim(Vector3 targetPos, float dur)
     {
+        RevertHint();
+
+        /*if (moveSeq != null)
+            moveSeq.Kill();
+        */
         Sequence useSeq = DOTween.Sequence();
         useSeq.Append(transform.DOMove(targetPos, dur * 3 / 6));
         useSeq.Append(transform.DOScale(1f, dur * 3 / 6)

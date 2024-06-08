@@ -1,0 +1,48 @@
+{
+    "levelName": "shell tutorial 2",
+    "nodes": [
+        {
+            "posX": -1.5000003576278687,
+            "posY": 0.0,
+            "tag": "BasicNode",
+            "id": -76844,
+            "hasShell": true,
+            "itemTags": [
+                "p,Key",
+                "p,Key",
+                "p,Key"
+            ]
+        },
+        {
+            "posX": 1.5000003576278687,
+            "posY": 0.0,
+            "tag": "HexagonNode",
+            "id": -77012,
+            "hasShell": false,
+            "itemTags": [
+                "Padlock",
+                "Padlock",
+                "Padlock"
+            ]
+        }
+    ],
+    "arrows": [
+        {
+            "tag": "Arrow",
+            "id": -77188,
+            "startingNodeID": -76844,
+            "destinationNodeID": -77012,
+            "pointsX": [
+                -1.080000400543213,
+                0.9200003147125244
+            ],
+            "pointsY": [
+                0.0,
+                0.0
+            ],
+            "priority": 0
+        }
+    ],
+    "nodeCount": 2,
+    "arrowCount": 1
+}

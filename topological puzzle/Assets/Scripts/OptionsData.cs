@@ -8,8 +8,13 @@ public class OptionsData
 {
     public float masterVolume;
     public int[] resolution;
+    public int gridSize;
+
     public bool isFulscreen;
     public bool vsync;
-    public bool disableActionInfoText;
-    public int gridSize;
+    public bool disableActionInfo;
+    public bool disableTutorialInfo;
+    public bool isPlayedOnce;
+
+    public int saveFileVersion;
 }

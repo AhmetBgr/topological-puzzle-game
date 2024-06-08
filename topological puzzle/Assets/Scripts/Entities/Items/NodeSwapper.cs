@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class NodeSwapper : Item
 {
@@ -8,7 +9,7 @@ public class NodeSwapper : Item
     public static event OnSwapperUsabilityCheckDelegate OnSwapperUsabilityCheck;
 
     public override void CheckAndUse(){
-        isUsable = LevelManager.GetArrowCount() > 0;
+        isUsable = levelManager.GetActiveArrowCount() > 0;
 
         if (isUsable) {
             Use();
@@ -31,5 +32,17 @@ public class NodeSwapper : Item
         gameManager.ChangeCommand(Commands.SwapNodes);
 
     }
+    /*public override void PlayUseAnim(Vector3 targetPos, float dur) {
+        RevertHint();
 
+        Sequence useSeq = DOTween.Sequence();
+        useSeq.Append(transform.DOMove(targetPos, dur * 3 / 6));
+        useSeq.Append(transform.DOScale(1f, dur * 3 / 6)
+            .SetDelay(-dur * 1 / 4)
+            .OnComplete(() => {
+                transform.DOScale(0f, dur * 2 / 6).SetDelay(dur * 1 / 6);
+            }));
+
+        useSeq.OnComplete(() => gameObject.SetActive(false));
+    }*/
 }

@@ -80,7 +80,7 @@ public class RemoveNode : Command
         priorities[0] = gameManager.curPriorities[0];
         priorities[1] = gameManager.curPriorities[1];
 
-        gameManager.SetNextPriorities();
+        //gameManager.SetNextPriorities();
         //gameManager.curPriority += 2;
         //gameManager.curPriority2 += 2;
         if (isRewinding) return;
@@ -96,6 +96,7 @@ public class RemoveNode : Command
 
         Node node = affectedObjects[0].GetComponent<Node>();
         ItemController itemController = node.itemController;
+        Debug.Log("Here04");
 
         if (node.isPermanent && isRewinding){
             InvokeOnUndoSkipped(this);
@@ -113,6 +114,8 @@ public class RemoveNode : Command
         {
             item.SetActive(true);
         }
+        Debug.Log("Here05");
+
         node.AddToGraph(affectedObjects[0], dur, isRewinding);
         if (isRewinding) {
             AudioManager.instance.PlaySound(AudioManager.instance.removeNode, true);
@@ -136,7 +139,9 @@ public class RemoveNode : Command
         itemController.itemContainer.FixItemPositions(dur, setDelayBetweenFixes: true);
 
         //gameManager.paletteSwapper.ChangePalette(gameManager.defPalette, dur);
-        gameManager.ChangeCommand(Commands.RemoveNode);
+        
+        //gameManager.ChangeCommand(Commands.RemoveNode);
+        
         //HighlightManager.instance.Search(HighlightManager.instance.removeNodeSearch);
         gameManager.curPriorities[0] = priorities[0];
         gameManager.curPriorities[1] = priorities[1];

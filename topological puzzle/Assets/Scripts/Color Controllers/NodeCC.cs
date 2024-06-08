@@ -12,8 +12,8 @@ public class NodeCC : ColorController
     public TextMeshProUGUI indegreeText;
     public Material defMaterial;
     
-    private Material material;
-    private Material secondaryMaterial;
+    public Material material;
+    public Material secondaryMaterial;
     private Tween colorTween;
     private Tween colorTween2;
 
@@ -60,24 +60,25 @@ public class NodeCC : ColorController
             indegreeText.DOColor(palette.nodeColor, duration);
     }
 
-    public void Highlight(float glowIntensity, float duration, float delay = 0f, Action OnComplete = null)
+    public void Highlight(Material mat, float glowIntensity, float duration, float delay = 0f, Action OnComplete = null)
     {
-        StartCoroutine(_Highlight(glowIntensity, duration, delay, OnComplete));
+        StartCoroutine(_Highlight(mat, glowIntensity, duration, delay, OnComplete));
     }
     
-    protected IEnumerator _Highlight(float glowIntensity, float duration, float delay = 0f, Action OnComplete = null){
+    protected IEnumerator _Highlight(Material mat, float glowIntensity, float duration, float delay = 0f, Action OnComplete = null){
         //yield return new WaitForSeconds(delay);
 
         float initialTime = Time.time;
-        float curGlow = material.GetFloat("_Glow"); 
+        float curGlow = mat.GetFloat("_Glow"); 
 
         while (curGlow != glowIntensity) {
             float t = (Time.time - initialTime) / duration;
             float glow = Mathf.Lerp(curGlow, glowIntensity, t);
-            material.SetFloat("_Glow", glow);
+            mat.SetFloat("_Glow", glow);
             curGlow = glow;
-            if (secondaryMaterial)
-                secondaryMaterial.SetFloat("_Glow", glow);
+            
+            //if (secondaryMaterial)
+                //secondaryMaterial.SetFloat("_Glow", glow);
 
             yield return null;
         }

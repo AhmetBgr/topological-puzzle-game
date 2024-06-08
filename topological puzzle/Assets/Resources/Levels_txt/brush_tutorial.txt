@@ -1,0 +1,94 @@
+{
+    "levelName": "brush_tutorial",
+    "nodes": [
+        {
+            "posX": -2.695035219192505,
+            "posY": 0.12411355972290039,
+            "tag": "BasicNode",
+            "id": -155590,
+            "hasShell": false,
+            "itemTags": [
+                "BrushA"
+            ]
+        },
+        {
+            "posX": -0.2127658575773239,
+            "posY": 0.14184415340423585,
+            "tag": "BasicNode",
+            "id": -155730,
+            "hasShell": false,
+            "itemTags": [
+                "Key"
+            ]
+        },
+        {
+            "posX": 2.163120746612549,
+            "posY": -0.07092207670211792,
+            "tag": "BasicNode",
+            "id": -155788,
+            "hasShell": false,
+            "itemTags": [
+                "Padlock"
+            ]
+        },
+        {
+            "posX": 4.698581695556641,
+            "posY": -0.14184385538101197,
+            "tag": "BasicNode",
+            "id": -156400,
+            "hasShell": false,
+            "itemTags": [
+                "p,Padlock"
+            ]
+        }
+    ],
+    "arrows": [
+        {
+            "tag": "Arrow",
+            "id": -155950,
+            "startingNodeID": -155590,
+            "destinationNodeID": -155730,
+            "pointsX": [
+                -2.275045871734619,
+                -0.7927509546279907
+            ],
+            "pointsY": [
+                0.12711350619792939,
+                0.1377013921737671
+            ],
+            "priority": 0
+        },
+        {
+            "tag": "Arrow",
+            "id": -155992,
+            "startingNodeID": -155730,
+            "destinationNodeID": -155788,
+            "pointsX": [
+                0.20556007325649262,
+                1.5854326486587525
+            ],
+            "pointsY": [
+                0.10438209027051926,
+                -0.019188731908798219
+            ],
+            "priority": 0
+        },
+        {
+            "tag": "Arrow",
+            "id": -156540,
+            "startingNodeID": -155788,
+            "destinationNodeID": -156400,
+            "pointsX": [
+                2.582956552505493,
+                4.118808746337891
+            ],
+            "pointsY": [
+                -0.08266569674015045,
+                -0.12562647461891175
+            ],
+            "priority": 0
+        }
+    ],
+    "nodeCount": 4,
+    "arrowCount": 3
+}

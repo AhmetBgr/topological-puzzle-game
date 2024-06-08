@@ -5,7 +5,24 @@ using DG.Tweening;
 
 public class BrushA : Item
 {
-    public override IEnumerator CheckAndUseWithDelay(float delay)
+    public override void CheckAndUse() {
+        isUsable = false;
+
+        foreach (var item in levelManager.arrowsPool) {
+            if (!item.gameObject.activeSelf) continue;
+
+            if (item.isPermanent) continue;
+            if (item.isRemoved) continue;
+
+            isUsable = true;
+            Use();
+            break;
+        }
+
+        InvokeOnUsabilityCheckEvent(isUsable);
+    }
+
+    /*public override IEnumerator CheckAndUseWithDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
 
@@ -22,16 +39,21 @@ public class BrushA : Item
         }
 
         InvokeOnUsabilityCheckEvent(isUsable);
-    }
+    }*/
 
     public override void Use(){
         //gameManager.ChangeCommandWithDelay(Commands.SetArrowPermanent, 0.1f);
+        
+        
         gameManager.ChangeCommand(Commands.SetArrowPermanent);
 
     }
 
     public override void PlayUseAnim(Vector3 targetPos, float dur)
     {
+        RevertHint();
+
+
         Sequence useSeq = DOTween.Sequence();
         useSeq.Append(transform.DOMove(targetPos, dur * 3 / 6));
         useSeq.Append(transform.DOScale(1f, dur * 3 / 6)

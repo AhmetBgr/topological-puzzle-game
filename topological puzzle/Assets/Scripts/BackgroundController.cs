@@ -9,7 +9,7 @@ using System;
 
 public class BackgroundController : MonoBehaviour {
     public LevelManager levelManager;
-
+    public GameObject blackCanvas;
     public BackgroundProperty defaultBG;
 
 
@@ -32,8 +32,8 @@ public class BackgroundController : MonoBehaviour {
         LevelManager.OnLevelLoad += UpdateBackground;
         LevelEditor.OnEnter += UpdateBackground;
         LevelEditor.OnExit += UpdateBackground;
-        //GameManager.OnRewind += SetBW;
-        //GameManager.PostRewind += RevertSaturation;
+        GameManager.OnRewind += SetBW;
+        GameManager.PostRewind += RevertSaturation;
 
     }
 
@@ -43,8 +43,8 @@ public class BackgroundController : MonoBehaviour {
         LevelManager.OnLevelLoad -= UpdateBackground;
         LevelEditor.OnEnter -= UpdateBackground;
         LevelEditor.OnExit -= UpdateBackground;
-        //GameManager.OnRewind -= SetBW;
-        //GameManager.PostRewind += RevertSaturation;
+        GameManager.OnRewind -= SetBW;
+        GameManager.PostRewind += RevertSaturation;
 
     }
 
@@ -60,13 +60,13 @@ public class BackgroundController : MonoBehaviour {
             index = 1;
         else if (levelManager.curPool == LevelPool.Player && GameState.gameState != GameState_EN.testingLevel)
             index = 0;
-        else if (levelIndex >= 20)
+        else if (levelIndex >= 23)
             index = 6;
         else if (levelIndex >= 17)
             index = 5;
-        else if (levelIndex >= 12)
+        else if (levelIndex >= 11)
             index = 4;
-        else if (levelIndex >= 8)
+        else if (levelIndex >= 7)
             index = 3;
         else if (levelIndex >= 4)
             index = 2;
@@ -197,15 +197,14 @@ public class BackgroundController : MonoBehaviour {
 
     private void RevertSaturation() {
         //mat.SetFloat("_Saturation", levelBGs[curIndex].saturation);
-
-        StartCoroutine(_LerpMatVar("_Saturation", levelBGs[curIndex].saturation, 0.3f, ease: Ease.OutSine));
+        blackCanvas.SetActive(false);
+        //StartCoroutine(_LerpMatVar("_Saturation", levelBGs[curIndex].saturation, 0.3f, ease: Ease.OutSine));
     }
 
     private void SetBW() {
         //mat.SetFloat("_Saturation", 0);
-        StartCoroutine(_LerpMatVar("_Saturation", 1f, 0.3f, ease: Ease.InCubic));
-
-
+        //StartCoroutine(_LerpMatVar("_Saturation", 0.9f, 0.3f, ease: Ease.InCubic));
+        blackCanvas.SetActive(true);
     }
 
     public float EaseOutCubic(float t) {

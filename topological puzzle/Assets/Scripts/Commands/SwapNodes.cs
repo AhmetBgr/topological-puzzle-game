@@ -74,7 +74,7 @@ public class SwapNodes : Command
         Node node1 = selectedObjects[0].GetComponent<Node>();
         Node node2 = selectedObjects[1].GetComponent<Node>();
         HighlightManager highlightManager = HighlightManager.instance;
-        if ((commandOwner.isPermanent ) && isRewinding)
+        if ((node1.isPermanent | node2.isPermanent) && isRewinding)
         {
             gameManager.ChangeCommand(Commands.RemoveNode);
             InvokeOnUndoSkipped(this);

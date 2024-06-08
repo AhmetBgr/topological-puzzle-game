@@ -10,7 +10,8 @@ using DG.Tweening;
 
 public class Options : MonoBehaviour{
     public InfoIndicator infoIndicator;
-    public Toggle disableActionInfoTextToggle;
+    public Toggle disableActionInfoToggle;
+    public Toggle disableTutorialInfoToggle;
     public Toggle fullScreenToggle;
     public Toggle vsyncToggle;
     public TMP_Dropdown resolutionDropdown;
@@ -28,6 +29,9 @@ public class Options : MonoBehaviour{
 
     private string dataFileName = "options.txt";
 
+    public delegate void OnDisableTutorialInfoChangedDelegate();
+    public static event OnDisableTutorialInfoChangedDelegate OnDisableTutorialInfoChanged;
+
     private void OnEnable() {
         Grid.OnGridSizeChanged += SetGridSize;
     }
@@ -36,7 +40,7 @@ public class Options : MonoBehaviour{
         Grid.OnGridSizeChanged -= SetGridSize;
     }
 
-    void Start(){
+    void Awake(){
         optionsDataPath = Application.persistentDataPath + "/" + dataFileName;
 
         if (Application.platform == RuntimePlatform.WebGLPlayer)
@@ -52,13 +56,16 @@ public class Options : MonoBehaviour{
         if (!File.Exists(optionsDataPath)) {
             // Set default options
             optionsData = new OptionsData();
-            audioSlider.value = 0.2f;
+            audioSlider.value = 0.5f;
             resolutionDropdown.value = resolutions.Count - 1;
             fullScreenToggle.isOn = true;
             vsyncToggle.isOn = true;
-            disableActionInfoTextToggle.isOn = false;
+            disableActionInfoToggle.isOn = false;
+            disableTutorialInfoToggle.isOn = false;
+            optionsData.saveFileVersion = 1;
             SetGridSize(4);
-
+            SetVsync(true);
+            //SetFullScreen(true);
             // Save options data
             SaveOptionsData();
         }
@@ -66,13 +73,18 @@ public class Options : MonoBehaviour{
             // Load options data
             LoadOptionsData();
 
-            audioSlider.value = optionsData.masterVolume;
-            resolutionDropdown.value = GetResIndex(optionsData.resolution);
-            fullScreenToggle.isOn = optionsData.isFulscreen;
-            vsyncToggle.isOn = optionsData.vsync;
-            disableActionInfoTextToggle.isOn = optionsData.disableActionInfoText;
+            UpdateOptionsPanel();
             SetGridSize(optionsData.gridSize);
         }
+    }
+
+    public void UpdateOptionsPanel() {
+        audioSlider.value = optionsData.masterVolume;
+        resolutionDropdown.value = GetResIndex(optionsData.resolution);
+        fullScreenToggle.isOn = optionsData.isFulscreen;
+        vsyncToggle.isOn = optionsData.vsync;
+        disableActionInfoToggle.isOn = optionsData.disableActionInfo;
+        disableTutorialInfoToggle.isOn = optionsData.disableTutorialInfo;
     }
 
     public void SaveOptionsData() {
@@ -93,10 +105,21 @@ public class Options : MonoBehaviour{
     public void SetDisableActionInfoText(bool value) {
         Debug.Log("info text indcator enable status : " + infoIndicator.enabled);
         infoIndicator.enabled = !value;
-        optionsData.disableActionInfoText = value;
+        optionsData.disableActionInfo = value;
         OnOptionChanged();
     }
 
+    public void SetDisableTutorialInfo(bool value) {
+        optionsData.disableTutorialInfo = value;
+        OnDisableTutorialInfoChanged?.Invoke();
+        OnOptionChanged();
+    }
+
+    public void SetDisableTutorialAndActionInfo(Toggle toggle) {
+        bool value = toggle.isOn;
+        SetDisableActionInfoText(value);
+        SetDisableTutorialInfo(value);
+    }
     public void SetGridSize(float value, float minGridSize) {
         int index = (int) (value / minGridSize);
 
@@ -131,6 +154,12 @@ public class Options : MonoBehaviour{
         QualitySettings.vSyncCount = Convert.ToInt32(value);
 
         OnOptionChanged();
+    }
+
+    public void SetIsPlayedOnce(bool value) {
+        optionsData.isPlayedOnce = value;
+
+        SaveOptionsData();
     }
 
     private int GetResIndex(int[] res) {

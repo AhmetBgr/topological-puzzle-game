@@ -1,18 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-4689709808827128933
-MonoBehaviour:
-  m_ObjectHideFlags: 11
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  version: 6
 --- !u!21 &2100000
 Material:
   serializedVersion: 8
@@ -20,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: rainbow mat UI
-  m_Shader: {fileID: -6465566751694194690, guid: 62154589a7752db48b2d215fcb1373d4, type: 3}
+  m_Name: Signal Effect 2 Mat
+  m_Shader: {fileID: -6465566751694194690, guid: 5d95a94599c197c459250e20273d5f6e, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -36,10 +23,6 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _GradientTex:
-        m_Texture: {fileID: 2800000, guid: 3f46ad9273f5d6f4bb483f95f81bf1d1, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -58,17 +41,27 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _BUILTIN_QueueControl: -1
-    - _BUILTIN_QueueOffset: 0
-    - _Enable: 1
-    - _Glow: 0.5
+    - _ColorLightness: 1.13
+    - _ColorStrength: 0.3
+    - _Frequency: 9.82
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _Rotation: 0
-    - _Speed: 0.3
-    - _Tiling: 1
+    - _Speed: 3
     m_Colors:
-    - _Color: {r: 0.009803922, g: 0.009803922, b: 0.009803922, a: 1}
-    - _Speed2: {r: 0, g: 0, b: 0, a: 0}
-    - _Tiling: {r: 0.7, g: 0.7, b: 0, a: 0}
+    - _InnerAlpha: {r: -0.02, g: 0.43, b: 0, a: 0}
+    - _OuterAlphaX: {r: 0.5, g: 0.93, b: 0, a: 0}
+    - _OuterAlphaY: {r: 0.1, g: 1.02, b: 0, a: 0}
   m_BuildTextureStacks: []
+--- !u!114 &4189989940760689734
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 6

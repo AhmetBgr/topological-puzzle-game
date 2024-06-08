@@ -1,0 +1,75 @@
+{
+    "levelName": "simple rewind",
+    "nodes": [
+        {
+            "posX": 0.08865243941545487,
+            "posY": 2.0567374229431154,
+            "tag": "BasicNode",
+            "id": -35960,
+            "hasShell": false,
+            "itemTags": [
+                "p,Key",
+                "p,Key",
+                "Key"
+            ]
+        },
+        {
+            "posX": 0.2127658575773239,
+            "posY": 0.23049652576446534,
+            "tag": "BasicNode",
+            "id": -36064,
+            "hasShell": false,
+            "itemTags": [
+                "p,Padlock",
+                "p,Padlock",
+                "p,Padlock"
+            ]
+        },
+        {
+            "posX": 0.230496346950531,
+            "posY": -1.6843972206115723,
+            "tag": "BasicNode",
+            "id": -36750,
+            "hasShell": false,
+            "itemTags": [
+                "Padlock",
+                "Padlock",
+                "Padlock"
+            ]
+        }
+    ],
+    "arrows": [
+        {
+            "tag": "Arrow",
+            "id": -36214,
+            "startingNodeID": -35960,
+            "destinationNodeID": -36064,
+            "pointsX": [
+                0.11713042855262757,
+                0.1734391152858734
+            ],
+            "pointsY": [
+                1.6377040147781373,
+                0.8091617226600647
+            ],
+            "priority": 0
+        },
+        {
+            "tag": "Arrow",
+            "id": -36894,
+            "startingNodeID": -36064,
+            "destinationNodeID": -36750,
+            "pointsX": [
+                0.21665458381175996,
+                0.2251262217760086
+            ],
+            "pointsY": [
+                -0.18948543071746827,
+                -1.1044220924377442
+            ],
+            "priority": 0
+        }
+    ],
+    "nodeCount": 3,
+    "arrowCount": 2
+}

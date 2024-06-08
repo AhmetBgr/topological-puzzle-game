@@ -14,6 +14,8 @@ public abstract class Item : MonoBehaviour
     public ItemType type;
     public SpriteRenderer itemSR;
     public RandomSpriteColor randomSpriteColor;
+    public GameObject signalPrefab;
+    protected Signal signal;
 
     public Node owner;
     protected Tween moveTween;
@@ -23,6 +25,7 @@ public abstract class Item : MonoBehaviour
     protected LevelManager levelManager;
 
     public Color nonPermanentColor;
+    protected Sequence hintSeq;
 
     public static int suitableObjCount = 0;
 
@@ -30,7 +33,8 @@ public abstract class Item : MonoBehaviour
     public bool isObtainable;
     public bool isTransportable;
     public bool isPermanent;
-
+    //private bool isPosInMainContainerFound = false;
+    private Vector3 posInMainContainer = default;
 
     public delegate void OnUsabilityCheckDelegate();
     public static event OnUsabilityCheckDelegate OnUsabilityCheck;
@@ -42,7 +46,7 @@ public abstract class Item : MonoBehaviour
     {
         gameManager = FindObjectOfType<GameManager>();
         col = GetComponent<Collider2D>();
-
+        posInMainContainer = ItemManager.firstPos;
         if (itemSR == null)
         {
             Transform image = transform.Find("Image");
@@ -65,6 +69,12 @@ public abstract class Item : MonoBehaviour
         //GameManager.OnCurCommandChange += CheckForHighlight;
         HighlightManager.OnSearch += Check;
 
+        if (isPermanent && !signal) {
+            signal = Instantiate(signalPrefab, transform.position, Quaternion.identity).GetComponent<Signal>();
+            signal.transform.SetParent(LevelManager.curLevel.transform);
+            signal.owner = transform;
+        }
+
         if (GameState.gameState == GameState_EN.inLevelEditor) return;
 
         DisableCollider();
@@ -78,13 +88,20 @@ public abstract class Item : MonoBehaviour
 
     protected void OnEnable()
     {
+
         //LevelEditor.OnEnter += EnableCollider;
         //.OnExit += DisableCollider;
         //GameManager.OnCurCommandChange += CheckForHighlight;
+        //GameManager.OnRewind += TryEnableSignal;
+        //GameManager.PostRewind += TryDisableSignal;
+
     }
 
     protected void OnDisable()
     {
+        //GameManager.OnRewind -= TryEnableSignal;
+        //GameManager.PostRewind -= TryDisableSignal;
+
         //LevelEditor.OnEnter -= EnableCollider;
         //LevelEditor.OnExit -= DisableCollider;
         //GameManager.OnCurCommandChange -= CheckForHighlight;
@@ -102,9 +119,59 @@ public abstract class Item : MonoBehaviour
         owner.col.enabled = true;
     }
 
+    /*private void TryEnableSignal() {
+        if (!isPermanent) return;
+
+        signal.SetActive(true);
+    }
+
+    private void TryDisableSignal() {
+        if (!isPermanent) return;
+
+        signal.SetActive(false);
+    }*/
+
+    public void HintUsable() {
+        if (sequence != null && sequence.IsPlaying()) {
+            sequence.OnComplete(() => {
+                PlayHintSeq();
+            });
+        }
+        else if (transform.position != posInMainContainer) {
+            transform.position = posInMainContainer;
+            PlayHintSeq();
+        }
+        else {
+            PlayHintSeq();
+        }
+    }
+
+    private void PlayHintSeq() {
+
+        /*if (!isPosInMainContainerFound) {
+            //posInMainContainer = transform.position;
+            //isPosInMainContainerFound = true;
+        }
+        */
+        hintSeq = DOTween.Sequence();
+        hintSeq.SetLoops(-1, LoopType.Yoyo);
+
+        hintSeq.Append(transform.DOMoveY(posInMainContainer.y + 0.3f, 0.3f)); //
+    }
+
+    public void RevertHint() {
+
+        hintSeq.Kill();
+
+    }
+
+
+
     public virtual void CheckAndUse()
     {
         StartCoroutine(CheckAndUseWithDelay(0.1f));
+
+
     }
 
     public virtual IEnumerator CheckAndUseWithDelay(float delay)
@@ -127,6 +194,9 @@ public abstract class Item : MonoBehaviour
         InvokeOnUsabilityCheckEvent(isUsable);
 
         suitableObjCount = 0;
+
+
+
     }
 
     protected virtual void InvokeOnUsabilityCheckEvent(bool isUsable)
@@ -163,15 +233,17 @@ public abstract class Item : MonoBehaviour
 
     public virtual void Use()
     {
-
+        
     }
 
     public virtual void PlayAnimSequence(Sequence seq)
     {
-        if (sequence != null)
+        RevertHint();
+
+        /*if (sequence != null)
         {
-            //sequence.Kill();
-        }
+            sequence.Kill();
+        }*/
 
         sequence = seq;
         sequence.Play();
@@ -179,19 +251,36 @@ public abstract class Item : MonoBehaviour
         {
             //this.sequence.Kill();
             //this.sequence = null;
+            
+            //signal.SetPos(transform.position);
+            //signal.transform.localScale = signal.initScale * transform.localScale.x;
         });
     }
 
     public virtual void PlayUseAnim(Vector3 targetPos, float dur)
     {
+        RevertHint();
+
+        targetPos = new Vector3(targetPos.x, targetPos.y, 0);
+
         randomSpriteColor.enabled = false;
-        transform.DOMoveY(targetPos.y, dur);
-        GetComponent<Item>().itemSR.DOFade(0f, dur * 3 / 5)
+        transform.DOMove(targetPos, dur);
+        transform.DOScale(0f, dur)
+             .OnComplete(() => {
+                //signal.SetPos(transform.position);
+                //signal.transform.localScale = signal.initScale * transform.localScale.x;
+                gameObject.SetActive(false); 
+            });;
+        /*itemSR.DOFade(0f, dur * 3 / 5)
             .SetDelay(dur * 2 / 5)
-            .OnComplete(() => { gameObject.SetActive(false); });
+            .OnComplete(() => {
+                //signal.SetPos(transform.position);
+                //signal.transform.localScale = signal.initScale * transform.localScale.x;
+                gameObject.SetActive(false); 
+            });*/
     }
 
-    public virtual void MoveWithTween(Action moveAction)
+    /*public virtual void MoveWithTween(Action moveAction)
     {
         if(moveTween != null)
         {
@@ -199,7 +288,7 @@ public abstract class Item : MonoBehaviour
             return;
         }
         moveAction();
-    }
+    }*/
 
     public virtual void ChangePermanent(bool isPermanent)
     {

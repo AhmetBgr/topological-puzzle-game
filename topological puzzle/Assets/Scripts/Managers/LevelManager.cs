@@ -125,6 +125,10 @@ public class LevelManager : MonoBehaviour{
     }
 
     private void Update(){
+        if ((Input.GetKey(KeyCode.LeftControl) | Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.S) && GameState.gameState == GameState_EN.playing) {
+            LoadNextLevel(0f);
+        }
+
         int amount;
         if (startDecreasingLevelIndex){
             amount = -1;
@@ -220,7 +224,7 @@ public class LevelManager : MonoBehaviour{
 
     public void LoadNextLevel(float delay){
         if(GameState.gameState == GameState_EN.testingLevel)    return;
-        if(curLevelIndex >= curLevelPool.Count -1)              return;
+        if(curLevelIndex >= curLevelPool.Count - 1)            return;
 
         if(loadLevelCor != null)
             StopCoroutine(loadLevelCor);
@@ -328,18 +332,24 @@ public class LevelManager : MonoBehaviour{
 
         return nodeCount;
     }
-    public static int GetArrowCount(){
+    public int GetActiveArrowCount(){
         Transform levelTransform = curLevel.transform;
-        int childCount = levelTransform.childCount;
 
         int arrowCount = 0;
 
-        for (int i = 0; i < childCount; i++){
+        foreach(var arrow in arrowsPool) {
+            if (arrow.gameObject.activeInHierarchy && !arrow.isRemoved) {
+                arrowCount++;
+            }
+        }
+
+
+        /*for (int i = 0; i < childCount; i++){
             GameObject child = levelTransform.GetChild(i).gameObject;
             if (child.activeInHierarchy && ((1 << child.layer) & LayerMask.GetMask("Arrow")) != 0){
                 arrowCount++;
             }
-        }
+        }*/
 
         return arrowCount;
     }

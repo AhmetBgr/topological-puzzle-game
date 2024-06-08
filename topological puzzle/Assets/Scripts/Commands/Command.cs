@@ -7,6 +7,9 @@ public abstract class Command {
     public float executeDur;
     public float undoDur;
 
+    public bool isRewinCommand = false;
+    public Command command0;
+
     public delegate void OnUndoSkippedDelegate(Command command);
     public static event OnUndoSkippedDelegate OnUndoSkipped;
     

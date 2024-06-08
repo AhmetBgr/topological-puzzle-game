@@ -40,6 +40,8 @@ public class Node : MonoBehaviour {
     public bool isPermanent = false;
     public bool isRemoved = false;
     public bool hasShell = false;
+    protected bool isHinted = false;
+    protected bool isOnPointerEnterRemoveInvoked = false;
     //[HideInInspector] public bool isVisited = false;
 
     public string defTag;
@@ -58,11 +60,11 @@ public class Node : MonoBehaviour {
     public delegate void OnIndegreeChangeDelegate();
     public static event OnIndegreeChangeDelegate OnIndegreeChange;
 
-    public delegate void OnPointerEnterDelegate();
-    public static event OnPointerEnterDelegate OnPointerEnter;
+    public delegate void OnPointerEnterDelegate(Node node);
+    public static event OnPointerEnterDelegate OnPointerEnterRemove;
     
-    public delegate void OnPointerExitDelegate();
-    public static event OnPointerExitDelegate OnPointerExit;
+    public delegate void OnPointerExitDelegate(Node node);
+    public static event OnPointerExitDelegate OnPointerExitRemove;
 
     protected virtual void Awake(){
         appearDur = UnityEngine.Random.Range(0.1f, 0.5f);
@@ -84,7 +86,7 @@ public class Node : MonoBehaviour {
             RemoveShell(0f);*/
     }
 
-    void OnEnable(){
+    protected virtual void OnEnable(){
         GameManager.OnGetNodes += AddNodeToPool;
         LevelManager.OnLevelLoad += GetOnTheLevel;
         Item.OnUsabilityCheck += CheckIfSuitableForKey;
@@ -93,7 +95,7 @@ public class Node : MonoBehaviour {
         BlockedNode.OnBlockCheck += Deny;
     }
 
-    void OnDisable(){
+    protected virtual void OnDisable(){
         GameManager.OnGetNodes -= AddNodeToPool;
         LevelManager.OnLevelLoad -= GetOnTheLevel;
         Item.OnUsabilityCheck -= CheckIfSuitableForKey;
@@ -103,7 +105,7 @@ public class Node : MonoBehaviour {
 
     }
 
-    void OnMouseEnter(){
+    protected void OnMouseEnter(){
         if (isSelected)
         {
             scaleTween = nodeSprite.transform.DOScale(1.05f, 0.1f);
@@ -111,34 +113,25 @@ public class Node : MonoBehaviour {
         }
 
         scaleTween = nodeSprite.transform.DOScale(1.1f, 0.1f);
-        nodeColorController.Highlight(nodeColorController.glowIntensityHigh, 0.01f);
+        Material mat = hasShell ? nodeColorController.secondaryMaterial : nodeColorController.material;
 
-        if (GameState.gameState == GameState_EN.inLevelEditor) return;
+        nodeColorController.Highlight(mat, nodeColorController.glowIntensityHigh, 0.01f);
 
-        if(gameManager.curCommand == Commands.RemoveNode 
-            && (GameState.gameState == GameState_EN.playing | GameState.gameState == GameState_EN.testingLevel)) {
-            
-            if(OnPointerEnter != null) {
-                OnPointerEnter();
-            }
-        }
+        TryInvokeOnPointerEnterRemove();
     }
 
-    void OnMouseExit(){
+    protected void OnMouseExit(){
         if (isSelected)
         {
             return;
         }
 
         scaleTween = nodeSprite.transform.DOScale(1f, 0.1f);
-        nodeColorController.Highlight(nodeColorController.glowIntensityMedium, 0.01f);
+        Material mat = hasShell ? nodeColorController.secondaryMaterial : nodeColorController.material;
 
-        if (GameState.gameState == GameState_EN.playing | GameState.gameState == GameState_EN.testingLevel) {
+        nodeColorController.Highlight(mat, nodeColorController.glowIntensityMedium, 0.01f);
 
-            if (OnPointerExit != null) {
-                OnPointerExit();
-            }
-        }
+        TryInvokeOnPointerExitRemove();
     }
 
     protected virtual void OnMouseDown()
@@ -149,6 +142,27 @@ public class Node : MonoBehaviour {
         {
             Deny();
         }
+    }
+
+    protected virtual void TryInvokeOnPointerEnterRemove() {
+        if (gameManager?.curCommand != Commands.RemoveNode) return;
+        if ((GameState.gameState != GameState_EN.playing && GameState.gameState != GameState_EN.testingLevel)) return;
+        if (itemController.FindItemWithType(ItemType.Padlock)) return;
+
+        isOnPointerEnterRemoveInvoked = true;
+        OnPointerEnterRemove?.Invoke(this);
+    }
+
+
+    protected virtual void TryInvokeOnPointerExitRemove() {
+        if (!isOnPointerEnterRemoveInvoked) return;
+
+        isOnPointerEnterRemoveInvoked = false;
+        OnPointerExitRemove?.Invoke(this);
+        
+    }
+    protected virtual void RevertAllHints() {
+
     }
 
     public virtual void RemoveShell(float dur = 0f) {
@@ -173,11 +187,12 @@ public class Node : MonoBehaviour {
         randomSpriteColor.secondarySprite = _squareSprite;
         nodeSprite = _squareSprite;
 
+
         if (scaleTween != null && scaleTween.active)
             scaleTween.Kill();
 
-        nodeSprite.transform.DOScale(Vector3.one * 1.03f, dur);
-        _baseSprite.transform.DOScale(Vector3.one * 0.8f, dur);
+        nodeSprite.transform.DOScale(Vector3.one, dur);
+        _baseSprite.transform.DOScale(Vector3.one * 0.5f, dur);
         nodeSprite.DOFade(1f, dur);
         hasShell = true;
         gameObject.tag = "BasicNode";
@@ -229,7 +244,7 @@ public class Node : MonoBehaviour {
         }
     }
 
-    private void GetOnTheLevel(){
+    protected void GetOnTheLevel(){
         //Debug.Log("should get on level");
         transform.localScale = Vector3.zero;
         
@@ -238,6 +253,9 @@ public class Node : MonoBehaviour {
     }
 
     protected virtual void UpdateHighlight(MultipleComparison<Component> mp){
+        if (isHinted)
+            RevertAllHints();
+
         if (mp.CompareAll(this)){
             SetSelectable();
         }
@@ -250,7 +268,9 @@ public class Node : MonoBehaviour {
             nodeTween.Kill();
             transform.localScale = Vector3.one;
         }
-        nodeColorController.Highlight(nodeColorController.glowIntensityMedium, 0.3f);
+        Material mat = hasShell ? nodeColorController.secondaryMaterial : nodeColorController.material;
+
+        nodeColorController.Highlight(mat, nodeColorController.glowIntensityMedium, 0.3f);
         col.enabled = true;
 
         if (GameState.gameState != GameState_EN.playing && GameState.gameState != GameState_EN.testingLevel) return;
@@ -264,7 +284,8 @@ public class Node : MonoBehaviour {
     }
     protected virtual void SetNotSelectable()
     {
-        nodeColorController.Highlight(nodeColorController.glowIntensityVeryLow, 0.3f);
+        Material mat = hasShell ? nodeColorController.secondaryMaterial : nodeColorController.material;
+        nodeColorController.Highlight(mat, nodeColorController.glowIntensityVeryLow, 0.3f);
         col.enabled = false;
         if (nodeTween != null)
         {
@@ -349,7 +370,7 @@ public class Node : MonoBehaviour {
     }
 
     // Appear Anim
-    private void AppearAnim(float duration, float delay = 0f, Ease easeType = Ease.InBack, Action OnComplete = null){
+    protected void AppearAnim(float duration, float delay = 0f, Ease easeType = Ease.InBack, Action OnComplete = null){
         disappearTween.Kill();
         transform.localScale = Vector3.zero;
         transform.DOScale(Vector3.one, duration)
@@ -362,7 +383,7 @@ public class Node : MonoBehaviour {
     }
 
     // Disappear Anim
-    private void DisappearAnim(float duration, float delay, Action OnComplete = null){
+    protected void DisappearAnim(float duration, float delay, Action OnComplete = null){
         disappearTween = transform.DOScale(Vector3.zero, duration)
             .SetDelay(delay)
             .SetEase(Ease.InBack)
@@ -402,13 +423,13 @@ public class Node : MonoBehaviour {
         OnIndegreeChangeInvoke();
     }
 
-    private static void OnIndegreeChangeInvoke(){
+    protected static void OnIndegreeChangeInvoke(){
         if(OnIndegreeChange != null){
             OnIndegreeChange();
         }
     }
 
-    private void AddNodeToPool(List<Node> nodesPool)
+    protected void AddNodeToPool(List<Node> nodesPool)
     {
         nodesPool.Add(this);
     }

@@ -9,10 +9,13 @@ public class MainCanvasManager : MonoBehaviour
 {
     public GameManager gameManager;
     public LevelManager levelManager;
+    public Options options;
+    public TutorialManager tutorialManager;
     public Panel mainMenuPanel;
     public Panel gameplayPanel;
     public Panel levelEditorPanel;
-    public GameObject optionsPanel;
+    public Panel optionsPanel;
+    public Panel getPlayedStylePanel;
     public GameObject blurPanel;
 
     public Button myLevelsButton;
@@ -24,7 +27,11 @@ public class MainCanvasManager : MonoBehaviour
     public Panel currentPanel;
     public Panel previousPanel;
 
-    
+    public delegate void OnPlayDelegate();
+    public static OnPlayDelegate OnPlay;
+
+    //public delegate void OnMainMenuDelegate();
+    //public static OnMainMenuDelegate OnMainMenu;
 
     void Start()
     {
@@ -51,13 +58,16 @@ public class MainCanvasManager : MonoBehaviour
 
     public void ToggleGameplayPanel()
     {
-        if (currentPanel == gameplayPanel)
-        {
+        if (currentPanel == gameplayPanel){
             PanelTransition(previousPanel);
         }
-        else
-        {
+        else if(!Options.optionsData.isPlayedOnce){
+            PanelTransition(getPlayedStylePanel);
+            //options.SetIsPlayedOnce(true);
+        }
+        else {
             PanelTransition(gameplayPanel);
+            OnPlay?.Invoke();
         }
     }
 
@@ -65,12 +75,9 @@ public class MainCanvasManager : MonoBehaviour
     {
         if(currentPanel == mainMenuPanel){
             PanelTransition(previousPanel);
-            //blurPanel.SetActive(false);
         }
         else{
-            //playText.text = "Play" + " - " + LevelManager.curLevel.name;
             PanelTransition(mainMenuPanel);
-            //blurPanel.SetActive(true);
         }
     }
 
@@ -87,13 +94,16 @@ public class MainCanvasManager : MonoBehaviour
     }
 
     public void ToggleOptionsPanel() {
-        optionsPanel.SetActive(!optionsPanel.activeSelf);
-
-        if (optionsPanel.activeSelf) {
-            optionsImage.color = optionsButton.colors.normalColor;
+        //optionsPanel.SetActive(!optionsPanel.activeSelf);
+        
+        if (optionsPanel.gameObject.activeSelf) {
+            optionsPanel.Close();
+            optionsImage.color = optionsButton.colors.highlightedColor;
         }
         else {
-            optionsImage.color = optionsButton.colors.highlightedColor;
+            optionsPanel.Open();
+
+            optionsImage.color = optionsButton.colors.normalColor;
         }
     }
 
@@ -118,8 +128,16 @@ public class MainCanvasManager : MonoBehaviour
         Debug.Log("palyer levels count: " + levelManager.playerLevels.Count);
     }
 
-    public void Quit()
-    {
+    public void Quit(){
+
+        if (Application.platform == RuntimePlatform.WebGLPlayer) {
+            if (Screen.fullScreen) {
+                Screen.fullScreen = false;
+                options.UpdateOptionsPanel();
+            }
+            return;
+        }
+
         Application.Quit();
     }
 }

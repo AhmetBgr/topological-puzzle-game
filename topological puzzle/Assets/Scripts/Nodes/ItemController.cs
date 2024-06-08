@@ -13,7 +13,9 @@ public class ItemController : MonoBehaviour
     private GameObject addNewItemObj;
 
     public bool hasPadLock = false;
-    
+
+    private Item hintedItem;
+    private Vector3 hintedItemInitPos;
     
     public delegate void OnNodeWithPadlockHighlihtChangedDelegate(bool isHighlighted);
     public static event OnNodeWithPadlockHighlihtChangedDelegate OnNodeWithPadlockHighlihtChanged;
@@ -64,6 +66,28 @@ public class ItemController : MonoBehaviour
             OnNodeWithPadlockHighlihtChanged(false);
         }
     }
+
+    public void HintLastObtainableItem() {
+        if (FindItemWithType(ItemType.Padlock)) return;
+
+        for (int i = itemContainer.items.Count - 1; i >= 0; i--) {
+            Item item = itemContainer.items[i];
+
+            if (item.isObtainable) {
+                hintedItemInitPos = item.transform.localPosition;
+                item.transform.localPosition += Vector3.down * 0.1f;
+                hintedItem = item;
+                return;
+            }
+        }
+    }
+
+    public void RevertHint() {
+        if (hintedItem == null) return;
+
+        hintedItem.transform.localPosition = hintedItemInitPos;
+    }
+
     public Lock FindLastPadlock()
     {
         if (padlocks.Count == 0) return null;
