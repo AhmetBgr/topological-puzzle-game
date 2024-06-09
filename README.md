@@ -3,11 +3,10 @@
 Zero out is an abstract puzzle game about clearing out topologies. 
 
 Features;
-
-- 24 hand crafted puzzles. 
-- Level editor with import and export level features. 
-- Rewind & permanent object mechanic.
-- Undo system that works along side with rewind. It means; you can undo the rewind action.
+- 30 hand crafted puzzles with increasing complexity,
+- 10 mechanics, including rewind & rewind-immune objects,
+- Undo feature that works along side with rewind, allowing you to undo the rewind action,
+- Level editor.
 
 # Plays or Downloads
 
